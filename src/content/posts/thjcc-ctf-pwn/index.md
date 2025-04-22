@@ -19,7 +19,7 @@ It's the FLAG SHOP!!! Let's go buy some flags!!!
 
 `nc chal.ctf.scint.org 10101`
 
-Files：[source code](https://github.com/yuto0226/notes/blob/main/src/content/posts/thjcc-ctf-pwn/flag_shopping.c)
+Files：[source code](https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/flag_shopping.c)
 
 ### Solution
 
@@ -51,7 +51,7 @@ I'm so poor that I can't afford to eat. I really wish I had a rich little sister
 
 `nc chal.ctf.scint.org 10001`
 
-Files：[source code](https://github.com/yuto0226/notes/blob/main/src/content/posts/thjcc-ctf-pwn/money_overflow.c)
+Files：[source code](https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/money_overflow.c)
 
 ### Solution
 
@@ -89,7 +89,7 @@ ISSH is a more convenient alternative
 
 `nc chal.ctf.scint.org 10004`
 
-Files：[source code](https://github.com/yuto0226/notes/blob/main/src/content/posts/thjcc-ctf-pwn/insecure_shell.c)
+Files：[source code](https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/insecure_shell.c)
 
 ### Solution
 
@@ -115,7 +115,7 @@ Are you sure you want to bet your life on winning this game in one chance?
 
 `nc chal.ctf.scint.org 10002`
 
-Files：[source code](https://github.com/yuto0226/notes/blob/main/src/content/posts/thjcc-ctf-pwn/once.c)
+Files：[source code](https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/once.c)
 
 ### Solution
 
@@ -154,7 +154,7 @@ I'm a little parrot, and I'll repeat whatever you said!
 
 `nc chal.ctf.scint.org 10103`
 
-Files：[source code](https://github.com/yuto0226/notes/blob/main/src/content/posts/thjcc-ctf-pwn/little_parrot.c)
+Files：[source code](https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/little_parrot.c)
 
 ### Solution
 
