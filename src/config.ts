@@ -44,6 +44,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.About,
 		LinkPreset.Archive,
 		LinkPreset.Links,
+		LinkPreset.Friends,
 		// {
 		// 	name: "GitHub",
 		// 	url: "https://github.com/yuto0226", // Internal links should not include the base path, as it is automatically added
