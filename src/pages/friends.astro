@@ -3,20 +3,25 @@
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
 import { getEntry } from "astro:content";
+import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 
 const friendsPost = await getEntry("spec", "friends");
 
-const { Content } = await friendsPost.render();
+if (!friendsPost) {
+	throw new Error("Friends page content not found");
+}
+
+const { Content } = await render(friendsPost);
 const items = [
-    {
+	{
 		title: "TTUSSC",
 		imgurl: "https://ttussc.com/logo.png",
 		desc: "大同大學科學開源服務社",
 		siteurl: "https://ttussc.com",
-        tags: ["Open Source", "TTU"],
+		tags: ["Open Source", "TTU"],
 	},
 	// {
 	// 	title: "",
