@@ -29,15 +29,22 @@
     }
   }
 
+  const light = 'catppuccin_latte';
+  const dark = 'catppuccin_mocha';
+
+  function getGiscusTheme() {
+    return document.documentElement.classList.contains('dark') ? dark : light;
+  }
+
   function updateGiscusTheme() {
-    const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_mocha' : 'catppuccin_latte';
+    const theme = getGiscusTheme();
     const iframe = document.querySelector('iframe.giscus-frame');
     if (!iframe) return;
     iframe.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
   }
 
   // 初始載入
-  const initialTheme = document.documentElement.classList.contains('dark') ? 'catppuccin_mocha' : 'catppuccin_latte';
+  const initialTheme = getGiscusTheme();
   loadGiscus(initialTheme);
 
   // 監聽主題變更
@@ -45,10 +52,12 @@
     updateGiscusTheme();
   });
 
+  // 監聽 class 屬性變更
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
+  // 監聽 Astro 頁面載入事件
   document.addEventListener('astro:page-load', () => {
-    const initialTheme = document.documentElement.classList.contains('dark') ? 'catppuccin_mocha' : 'catppuccin_latte';
+    const initialTheme = getGiscusTheme();
     loadGiscus(initialTheme);
   });
 </script>
