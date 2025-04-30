@@ -1,5 +1,5 @@
 ---
-title: THJCC CTF pwn writeup
+title: THJCC CTF - pwn Writeup
 published: 2025-04-22 02:45:00
 description: ''
 image: ''
