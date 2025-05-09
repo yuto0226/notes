@@ -8,7 +8,7 @@ tags: ['UVA', 'DFS']
 category: 'Competitive Programming'
 draft: false 
 lang: ''
-pin: false
+pinned: false
 ---
 
 在火星人中，每個火星人收到轉發郵件時，都會只轉發給一個指定的人（且不能轉給自己）。現在，族長想親自寄出一封郵件，他想知道應該寄給哪一位火星人，才能讓看到郵件的人數最多。每個人之後按照固定的轉發規則傳遞下去。
@@ -19,8 +19,7 @@ pin: false
 
 題目說要找出給哪個節點，traverse 的節點數量會最多。根據題目給的輸入測資，每一個 case 都可以拿到一個 adjacency list。因此我的初步想法是用 dfs traverse 在 list 裡面的每一個節點，找出最大節點數的那個節點。
 
-
-```cpp 
+```cpp
 int dfs(int u) {
     if (visited[u]) return 0;
     visited[u] = true;

@@ -8,14 +8,14 @@ tags: ['Astro','Fuwari','Giscus']
 category: ''
 draft: false 
 lang: ''
-pin: false
+pinned: false
 ---
 
 在整理新的部落格時，到處蒐集人家怎麼魔改 Fuwari，然後發現大家都有整合 Giscus 作為留言系統，於是便想要自己（Chat GPT）整合看看。過程中也參考了很多[大佬](#reference)的整合方式，但在 try and error 的過程中，發現了一個蠻簡單的實作方式。
 
 ## 前置作業
 
-https://giscus.app/ 會告訴你該怎麼設定，就不再多贅述了。
+<https://giscus.app/> 會告訴你該怎麼設定，就不再多贅述了。
 
 ## 建立元件
 
@@ -114,6 +114,6 @@ Giscus 會給你一個 `<script>` 標籤，讓你放在想要出現留言區的�
 
 ## Reference
 
-- https://www.ikamusume7.org/posts/frontend/comments_with_darkmode/
-- https://www.lapis.cafe/posts/technicaltutorials/新一代静态博客框架astro的部署优化指南与使用体验
-- https://www.y-shin.net/posts/rewrite-astro/
+- <https://www.ikamusume7.org/posts/frontend/comments_with_darkmode/>
+- <https://www.lapis.cafe/posts/technicaltutorials/新一代静态博客框架astro的部署优化指南与使用体验>
+- <https://www.y-shin.net/posts/rewrite-astro/>

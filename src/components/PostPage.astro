@@ -23,7 +23,7 @@ const interval = 50;
                 draft={entry.data.draft}
                 class:list="onload-animation"
                 style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
-                pin={entry.data.pin}
+                pinned={entry.data.pinned}
         ></PostCard>
     ))}
 </div>

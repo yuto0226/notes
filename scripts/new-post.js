@@ -55,7 +55,7 @@ tags: []
 category: ''
 draft: false 
 lang: ''
-pin: false
+pinned: false
 ---
 `;
 
