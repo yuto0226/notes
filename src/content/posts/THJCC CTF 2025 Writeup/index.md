@@ -1,10 +1,11 @@
 ---
-title: THJCC CTF 2025 - pwn Writeup
+title: THJCC CTF 2025 Writeup
 published: 2025-04-22 02:45:00
 updated: 2025-05-28T02:48:23.404Z
 description: ""
 image: ""
 tags:
+  - THJCC CTF
   - pwn
 category: CTF
 draft: false
