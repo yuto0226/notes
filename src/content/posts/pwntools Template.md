@@ -1,12 +1,12 @@
 ---
 title: pwntools 模板
 published: 2025-04-22
-description: ''
-image: ''
-tags: ['pwn']
-category: 'CTF'
-draft: false 
-lang: ''
+description: ""
+image: ""
+tags:
+    - pwn
+category: CTF
+lang: ""
 ---
 
 ## Install

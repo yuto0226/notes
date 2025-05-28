@@ -1,12 +1,14 @@
 ---
-title: THJCC CTF - pwn Writeup
+title: THJCC CTF 2025 - pwn Writeup
 published: 2025-04-22 02:45:00
-description: ''
-image: ''
-tags: ['pwn']
-category: 'CTF'
-draft: false 
-lang: ''
+updated: 2025-05-28T02:48:23.404Z
+description: ""
+image: ""
+tags:
+  - pwn
+category: CTF
+draft: false
+lang: ""
 ---
 
 > 比賽時 pwn 的題目並沒有寫完全部（5/7），若後續有解出來會再補上。

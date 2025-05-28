@@ -1,12 +1,13 @@
 ---
 title: pwnable.tw - start Writeup
 published: 2025-04-23 16:20:30
-description: ''
-image: ''
-tags: ['pwnable.tw', 'pwn']
-category: 'CTF'
-draft: false 
-lang: ''
+description: ""
+image: ""
+tags:
+    - pwnable.tw
+    - pwn
+category: CTF
+lang: ""
 ---
 
 ## Beacon

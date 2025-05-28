@@ -2,13 +2,14 @@
 title: Integrating Giscus with Astro Fuwari Theme
 published: 2025-04-30 16:29:32
 updated: 2025-04-30 16:29:32
-description: ''
-image: ''
-tags: ['Astro','Fuwari','Giscus']
-category: ''
-draft: false 
-lang: ''
-pinned: false
+description: ""
+image: ""
+tags:
+  - Astro
+  - Fuwari
+  - Giscus
+category: ""
+lang: ""
 ---
 
 在整理新的部落格時，到處蒐集人家怎麼魔改 Fuwari，然後發現大家都有整合 Giscus 作為留言系統，於是便想要自己（Chat GPT）整合看看。過程中也參考了很多[大佬](#reference)的整合方式，但在 try and error 的過程中，發現了一個蠻簡單的實作方式。

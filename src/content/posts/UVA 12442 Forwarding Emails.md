@@ -2,13 +2,14 @@
 title: UVA 12442 - Forwarding Emails
 published: 2025-04-27 17:12:12
 updated: 2025-04-27 17:12:12
-description: ''
-image: ''
-tags: ['UVA', 'DFS']
-category: 'Competitive Programming'
-draft: false 
-lang: ''
-pinned: false
+description: ""
+image: ""
+tags:
+    - UVA
+    - DFS
+category: Competitive Programming
+draft: false
+lang: ""
 ---
 
 在火星人中，每個火星人收到轉發郵件時，都會只轉發給一個指定的人（且不能轉給自己）。現在，族長想親自寄出一封郵件，他想知道應該寄給哪一位火星人，才能讓看到郵件的人數最多。每個人之後按照固定的轉發規則傳遞下去。
