@@ -70,5 +70,7 @@
       ]
     }
   ],
-  "frontMatter.dashboard.openOnStart": false
+  "frontMatter.dashboard.openOnStart": false,
+  "frontMatter.website.host": "https://blog.yuto0226.com",
+  "frontMatter.framework.startCommand": "pnpm run dev"
 }
