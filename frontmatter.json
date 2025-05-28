@@ -20,8 +20,17 @@
         {
           "title": "title",
           "name": "title",
-          "type": "string",
-          "single": true
+          "type": "string"
+        },
+        {
+          "title": "published",
+          "name": "published",
+          "type": "datetime"
+        },
+        {
+          "title": "updated",
+          "name": "updated",
+          "type": "datetime"
         },
         {
           "title": "description",
@@ -29,39 +38,37 @@
           "type": "string"
         },
         {
-          "title": "published",
-          "name": "published",
-          "type": "datetime",
-          "default": "{{now}}",
-          "isPublishDate": true
-        },
-        {
-          "title": "preview",
+          "title": "image",
           "name": "image",
-          "type": "image",
-          "isPreviewImage": true
+          "type": "image"
         },
         {
           "title": "tags",
           "name": "tags",
-          "type": "list"
+          "type": "tags"
         },
         {
           "title": "category",
           "name": "category",
-          "type": "string"
+          "type": "categories"
         },
         {
           "title": "draft",
           "name": "draft",
-          "type": "boolean"
+          "type": "draft"
         },
         {
-          "title": "language",
-          "name": "language",
+          "title": "lang",
+          "name": "lang",
           "type": "string"
+        },
+        {
+          "title": "pinned",
+          "name": "pinned",
+          "type": "boolean"
         }
       ]
     }
-  ]
+  ],
+  "frontMatter.dashboard.openOnStart": false
 }
