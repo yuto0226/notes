@@ -3,7 +3,7 @@ title: "Hack The Box: Starting Point - Responder"
 published: 2025-05-28 14:34:45
 updated: 2025-05-28 14:34:45
 description: ""
-image: "cover.png"
+image: "../../../assets/images/htb.png"
 tags:
     - RFI
     - NTLM
