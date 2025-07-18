@@ -1,10 +1,11 @@
 ---
 title: pwntools 模板
 published: 2025-04-22
+updated: 2025-07-18
 description: ""
 image: ""
 tags:
-    - pwn
+  - pwn
 category: CTF
 lang: ""
 ---
@@ -18,50 +19,52 @@ pip install pwntools
 ## Usage
 
 ```zsh
-python3 ./exploit.py
+python3 ./exploit.py DEBUG # REMOTE
 ```
 
 ## Script
 
-```py
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from pwn import *
-import sys
 
 BINARY = "./vuln"
 REMOTE = "yuto0226.com:1337"
-DEBUG = len(sys.argv) > 1 and sys.argv[1] == "debug"
 
-context.arch = "amd64"
-context.os = "linux"
+# Set up pwntools for the correct architecture
+elf = context.binary = ELF(BINARY, checksec=False)
+
+context.log_level = "info"  # info, debug
 context.terminal = ["tmux", "splitw", "-h"]
-context.log_level = "debug"
-
-# setup gdb scripts
-GDBSCRIPT = """
-b main
-c
-"""
+context.delete_corefiles = True
 
 
-def connect():
-    if DEBUG:
-        return gdb.debug(BINARY, gdbscript=GDBSCRIPT)
-    else:
+def start(argv=[], *a, **kw):
+    """Start the exploit against the target."""
+    if args.DEBUG:
+        return gdb.debug([BINARY] + argv, gdbscript=gdbscript, *a, **kw)
+    elif args.REMOTE:
         host, port = REMOTE.split(":")
         return remote(host, int(port))
+    else:
+        return process([BINARY] + argv, *a, **kw)
 
 
-def exploit(io):
-    # script here
+gdbscript = """
+init-pwndbg
+b main
+c
+""".format(**locals())
 
-    io.interactive()
-    io.close()
+# ===========================================================
+#                    EXPLOIT GOES HERE
+# ===========================================================
 
+io = start()
 
-if __name__ == "__main__":
-    io = connect()
-    try:
-        exploit(io)
-    finally:
-        io.close()
+flag = io.recvline()
+success(f"flag: {flag.decode()}")
+
+io.close()
 ```
