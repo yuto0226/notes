@@ -1,13 +1,13 @@
 ---
-
 import MainGridLayout from "../layouts/MainGridLayout.astro";
-
 import { getEntry } from "astro:content";
 import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
 import Comments from "@components/widget/Comments.astro";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
+import { Image } from "astro:assets";
+import osgaImage from "../assets/images/osga.png";
 
 const friendsPost = await getEntry("spec", "friends");
 
@@ -25,6 +25,12 @@ const items = [
 		siteurl: "https://stanley1106.github.io/",
 		tags: [],
 	},
+	{
+		title: "OsGa.dev",
+		imgurl: osgaImage,
+		desc: "帥哥",
+		siteurl: "https://osga.dev",
+	},
 	// {
 	// 	title: "",
 	// 	imgurl: "",
@@ -40,7 +46,7 @@ const items = [
                 {items.map((item) => (   
                     <div class="flex flex-nowrap items-stretch h-28 gap-4 rounded-[var(--radius-large)]">
                         <div class="w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-200 dark:bg-zinc-900">
-                            <img src={item.imgurl} alt="網站圖片" class="w-full h-full object-cover">
+                            <Image src={item.imgurl} alt="網站圖片" class="w-full h-full object-cover" width={112} height={112} />
                         </div>
                         <div class="grow w-full">
                             <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 mb-1">{item.title}</div>
