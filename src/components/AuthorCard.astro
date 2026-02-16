@@ -19,6 +19,7 @@ const socialLinks: SocialLink[] = [
   author.data.website && { href: author.data.website, label: 'Website' },
   author.data.github && { href: author.data.github, label: 'GitHub' },
   author.data.twitter && { href: author.data.twitter, label: 'Twitter' },
+  author.data.instagram && { href: author.data.instagram, label: 'Instagram' },
   author.data.linkedin && { href: author.data.linkedin, label: 'LinkedIn' },
   author.data.mail && { href: `mailto:${author.data.mail}`, label: 'Email' },
 ].filter(Boolean) as SocialLink[]
@@ -27,7 +28,7 @@ const socialLinks: SocialLink[] = [
 <div
   class="has-[a:hover]:bg-muted/50 overflow-hidden rounded-xl border p-4 transition-colors duration-300 ease-in-out"
 >
-  <div class="flex flex-wrap gap-4">
+  <div class="flex gap-4">
     <Link
       href={`/authors/${author.id}`}
       class={cn('block', isAuthorPage && 'pointer-events-none')}
