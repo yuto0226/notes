@@ -74,4 +74,26 @@
   ::file-selector-button {
     @apply border-border outline-ring/50 tracking-tight;
   }
+
+  /* sm 640 */
+  .expressive-code .copy > button {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  /* lg 1024 / sm 640 */
+  @media (min-width: 1024px) {
+    .expressive-code .copy > button {
+      width: 1.8rem !important;
+      height: 1.8rem !important;
+    }
+  }
+
+  /*  xl 1280 / 2xl 1536 */
+  @media (min-width: 1280px) {
+    .expressive-code .copy > button {
+      width: 2rem !important;
+      height: 2rem !important;
+    }
+  }
 }
