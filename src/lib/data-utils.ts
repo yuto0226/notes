@@ -12,6 +12,16 @@ export async function getAllPosts(): Promise<CollectionEntry<'blog'>[]> {
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
+export async function getPinnedPosts(): Promise<CollectionEntry<'blog'>[]> {
+  const posts = await getAllPosts()
+  return posts.filter((post) => post.data.pinned === true)
+}
+
+export async function getRegularPosts(): Promise<CollectionEntry<'blog'>[]> {
+  const posts = await getAllPosts()
+  return posts.filter((post) => !post.data.pinned)
+}
+
 export async function getAllPostsAndSubposts(): Promise<
   CollectionEntry<'blog'>[]
 > {

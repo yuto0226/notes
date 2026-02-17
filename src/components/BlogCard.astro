@@ -47,7 +47,14 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
     }
 
     <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
+      <div class="mb-1 flex items-start justify-between gap-2">
+        <h3 class="text-lg font-medium">{entry.data.title}</h3>
+        {
+          entry.data.pinned && (
+            <Icon name="lucide:pin" class="text-muted-foreground size-4 shrink-0" />
+          )
+        }
+      </div>
       <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
 
       <div
