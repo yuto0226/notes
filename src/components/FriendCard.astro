@@ -1,0 +1,71 @@
+---
+import AvatarComponent from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Icon } from 'astro-icon/components'
+import type { SocialLink } from '@/types'
+import type { CollectionEntry } from 'astro:content'
+import SocialIcons from './SocialIcons.astro'
+
+interface Props {
+  friend: CollectionEntry<'friends'>
+}
+
+const { friend } = Astro.props
+const { name, avatar, bio, pronouns, tags } = friend.data
+
+const socialLinks: SocialLink[] = [
+  friend.data.website && { href: friend.data.website, label: 'Website' },
+  friend.data.github && { href: friend.data.github, label: 'GitHub' },
+  friend.data.twitter && { href: friend.data.twitter, label: 'Twitter' },
+  friend.data.instagram && { href: friend.data.instagram, label: 'Instagram' },
+  friend.data.linkedin && { href: friend.data.linkedin, label: 'LinkedIn' },
+  friend.data.mail && { href: `mailto:${friend.data.mail}`, label: 'Email' },
+].filter(Boolean) as SocialLink[]
+---
+
+<div
+  class="has-[a:hover]:bg-muted/50 overflow-hidden rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+>
+  <div class="flex gap-4">
+    <a
+      href={friend.data.website}
+      class="block"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <AvatarComponent
+        client:load
+        src={avatar}
+        alt={`Avatar of ${name}`}
+        fallback={name[0]}
+        className="hover:ring-primary size-32 rounded-md transition-shadow duration-300 hover:cursor-pointer hover:ring-2 [&>[data-slot='avatar-fallback']]:rounded-md"
+      />
+    </a>
+    <div class="flex grow flex-col justify-between gap-y-4">
+      <div>
+        <div class="flex flex-wrap items-center gap-x-2">
+          <h3 class="text-lg font-medium">{name}</h3>
+          {
+            pronouns && (
+              <span class="text-muted-foreground text-sm">({pronouns})</span>
+            )
+          }
+        </div>
+        <p class="text-muted-foreground text-sm">{bio}</p>
+        {
+          friend.data.tags && friend.data.tags.length > 0 && (
+            <div class="mt-2 flex flex-wrap gap-2">
+              {friend.data.tags.map((tag: string) => (
+                <Badge variant="muted">
+                  <Icon name="lucide:hash" class="size-3" />
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )
+        }
+      </div>
+      <SocialIcons links={socialLinks} />
+    </div>
+  </div>
+</div>
