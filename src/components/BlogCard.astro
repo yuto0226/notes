@@ -23,6 +23,7 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+const entryImage = (entry.data.image ? entry.data.image : '/static/flower-field-2.png') as any
 ---
 
 <div
@@ -32,19 +33,15 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
     href={`/${entry.collection}/${entry.id}`}
     class="flex flex-col gap-4 sm:flex-row"
   >
-    {
-      entry.data.image && (
-        <div class="w-full sm:max-w-3xs sm:shrink-0">
-          <Image
-            src={entry.data.image}
-            alt={entry.data.title}
-            width={1200}
-            height={630}
-            class="object-cover"
-          />
-        </div>
-      )
-    }
+    <div class="w-full sm:max-w-3xs sm:shrink-0">
+      <Image
+        src={entryImage}
+        alt={entry.data.title}
+        width={1200}
+        height={630}
+        class="object-cover"
+      />
+    </div>
 
     <div class="grow">
       <div class="mb-1 flex items-start justify-between gap-2">
