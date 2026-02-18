@@ -11,6 +11,9 @@ interface Props {
 }
 
 const { project } = Astro.props
+const entryImage = (
+  project.data.image ? project.data.image : '/static/flower-field-2.png'
+) as any
 ---
 
 <div
@@ -21,19 +24,15 @@ const { project } = Astro.props
     class="flex flex-col gap-4 sm:flex-row"
     external
   >
-    {
-      project.data.image && (
-        <div class="w-full sm:max-w-3xs sm:shrink-0">
-          <Image
-            src={project.data.image}
-            alt={project.data.name}
-            width={1200}
-            height={630}
-            class="object-cover"
-          />
-        </div>
-      )
-    }
+    <div class="w-full sm:max-w-3xs sm:shrink-0">
+      <Image
+        src={entryImage}
+        alt={project.data.name}
+        width={1200}
+        height={630}
+        class="object-cover"
+      />
+    </div>
     <div class="grow">
       <h3 class="mb-1 text-lg font-medium">
         {project.data.name}
