@@ -1,0 +1,78 @@
+---
+import BlogCard from '@/components/BlogCard.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import { buttonVariants } from '@/components/ui/button'
+import { SITE } from '@/consts'
+import Layout from '@/layouts/Layout.astro'
+import { getPinnedPosts, getRecentPosts } from '@/lib/data-utils'
+
+const recentPosts = await getRecentPosts(SITE.featuredPostCount)
+const pinnedPosts = await getPinnedPosts()
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title="Home" />
+  <section class="rounded-lg border">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-3xl leading-none font-medium">Him·mel</h3>
+      <p class="text-muted-foreground text-sm">
+        /ˈhɪməl/ &bull; <span class="font-medium">German</span> &bull; sky, heaven
+      </p>
+    </div>
+    <div class="p-6 pt-0">
+      <p class="text-muted-foreground text-sm">
+        A hero whose journey ended long ago, yet whose legacy continues to
+        ripple through time. In the brief span of a human life, he touched
+        countless souls—not through grand gestures, but through small acts of
+        kindness that changed everything.
+      </p>
+    </div>
+    <div class="p-6 pt-0">
+      <p class="text-md mb-4 text-center">
+        -- ヒンメルはなんで人助けをするの？ --
+      </p>
+      <blockquote class="text-muted-foreground my-6 border-l-2 pl-6 italic">
+        ほんの少しでいい。誰かの人生を変えてあげればいい。きっとそれだけで十分なだ。<br
+        />— 勇者 ヒンメル
+      </blockquote>
+    </div>
+  </section>
+  {
+    pinnedPosts.length > 0 && (
+      <section class="flex flex-col gap-y-4">
+        <h2 class="text-2xl font-medium">Pinned posts</h2>
+        <ul class="flex flex-col gap-y-4">
+          {pinnedPosts.map((post) => (
+            <li>
+              <BlogCard entry={post} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">Latest posts</h2>
+    <ul class="flex flex-col gap-y-4">
+      {
+        recentPosts.map((post) => (
+          <li>
+            <BlogCard entry={post} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="flex justify-center">
+      <Link
+        href="/blog"
+        class={buttonVariants({ variant: 'ghost' }) + ' group'}
+      >
+        See all posts <span
+          class="ml-1.5 transition-transform group-hover:translate-x-1"
+          >&rarr;</span
+        >
+      </Link>
+    </div>
+  </section>
+</Layout>

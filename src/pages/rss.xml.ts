@@ -1,33 +1,25 @@
-import { siteConfig } from "@/config";
-import rss from "@astrojs/rss";
-import { getSortedPosts } from "@utils/content-utils";
-import type { APIContext } from "astro";
-import MarkdownIt from "markdown-it";
-import sanitizeHtml from "sanitize-html";
-
-const parser = new MarkdownIt();
+import { SITE } from '@/consts'
+import rss from '@astrojs/rss'
+import type { APIContext } from 'astro'
+import { getAllPosts } from '@/lib/data-utils'
 
 export async function GET(context: APIContext) {
-	const blog = await getSortedPosts();
+  try {
+    const posts = await getAllPosts()
 
-	return rss({
-		title: siteConfig.title,
-		description: siteConfig.subtitle || "No description",
-		site: context.site ?? "https://fuwari.vercel.app",
-		items: blog.map((post) => {
-			const content =
-				typeof post.body === "string" ? post.body : String(post.body || "");
-
-			return {
-				title: post.data.title,
-				pubDate: post.data.published,
-				description: post.data.description || "",
-				link: `/posts/${post.slug}/`,
-				content: sanitizeHtml(parser.render(content), {
-					allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
-				}),
-			};
-		}),
-		customData: `<language>${siteConfig.lang}</language>`,
-	});
+    return rss({
+      title: SITE.title,
+      description: SITE.description,
+      site: context.site ?? SITE.href,
+      items: posts.map((post) => ({
+        title: post.data.title,
+        description: post.data.description,
+        pubDate: post.data.date,
+        link: `/blog/${post.id}/`,
+      })),
+    })
+  } catch (error) {
+    console.error('Error generating RSS feed:', error)
+    return new Response('Error generating RSS feed', { status: 500 })
+  }
 }

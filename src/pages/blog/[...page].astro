@@ -1,0 +1,61 @@
+---
+import BlogCard from '@/components/BlogCard.astro'
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import PaginationComponent from '@/components/ui/pagination'
+import { SITE } from '@/consts'
+import Layout from '@/layouts/Layout.astro'
+import { getPinnedPosts, getRegularPosts, groupPostsByYear } from '@/lib/data-utils'
+import type { PaginateFunction } from 'astro'
+
+export async function getStaticPaths({
+  paginate,
+}: {
+  paginate: PaginateFunction
+}) {
+  const regularPosts = await getRegularPosts()
+  return paginate(regularPosts, { pageSize: SITE.postsPerPage })
+}
+
+const { page } = Astro.props
+
+const pinnedPosts = page.currentPage === 1 ? await getPinnedPosts() : []
+const postsByYear = groupPostsByYear(
+  page.currentPage === 1 ? [...pinnedPosts, ...page.data] : page.data
+)
+const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Blog" />
+  <Breadcrumbs
+    items={[
+      { label: 'Blog', href: '/blog', icon: 'lucide:library-big' },
+      { label: `Page ${page.currentPage}`, icon: 'lucide:book-copy' },
+    ]}
+  />
+
+  <div class="flex min-h-[calc(100vh-18rem)] flex-col gap-y-8">
+    {
+      years.map((year) => (
+        <section class="flex flex-col gap-y-4">
+          <div class="font-medium">{year}</div>
+          <ul class="flex flex-col gap-4">
+            {postsByYear[year].map((post) => (
+              <li>
+                <BlogCard entry={post} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <PaginationComponent
+    currentPage={page.currentPage}
+    totalPages={page.lastPage}
+    baseUrl="/blog/"
+    client:load
+  />
+</Layout>

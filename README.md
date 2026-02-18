@@ -1,32 +1,50 @@
-# 🍥Yuto's Notes
+![Showcase Card](/public/static/twitter-card.png)
 
-使用 [Astro](https://astro.build/) 的 [Fuwari](https://github.com/saicaca/fuwari) 主題
+<div align="center">
 
-## ⚙️ 文章 Frontmatter
+## blog.yuto0226.dev
 
-```yaml
+[![CodeFactor]](https://www.codefactor.io/repository/github/yuto0226/notes)
+![Stargazers]
+[![License]](LICENSE)
+
+[**blog.yuto0226.dev**](blog.yuto0226.dev) is my personal blog and portfolio, built with [**Astro**](https://astro.build/) and [**Tailwind**](https://tailwindcss.com/). Based on [**jktrn/astro-erudite**](https://github.com/jktrn/astro-erudite) blogging template.
+
+</div>
+
+
+
 ---
-title: My First Blog Post
-published: 2023-09-09
-description: This is the first post of my new Astro blog.
-image: ./cover.jpg
-tags: [Foo, Bar]
-category: Front-end
-draft: false
-lang: jp      # 僅設定當前文章語言，與 `config.ts` 網站語言不同時才設定
----
-```
 
-## 🧞 Commands
+### Licensing
 
-以下指令均須在專案的根目錄執行：
+- Based on [**jktrn/astro-erudite**](https://github.com/jktrn/astro-erudite) , this template retains the original MIT license for all base components.
+- Website blog content (including text, images, and other materials) uses the [**CC BY-NC-ND 4.0**](https://creativecommons.org/licenses/by-nc-nd/4.0/) license, which allows sharing, requires attribution, and prohibits commercial use and derivative works.
 
-| Command                             | Action                                           |
-|:------------------------------------|:-------------------------------------------------|
-| `pnpm install` 然後 `pnpm add sharp` | 安裝相依套件                                       |
-| `pnpm dev`                          | 在 `localhost:4321` 啟動本地開發伺服器               |
-| `pnpm build`                        | 建置生產網站到目錄 `./dist/`                        |
-| `pnpm preview`                      | 在部署前於本地端預覽已經建置的網站                     |
-| `pnpm new-post <filename>`          | 建立新貼文                                         |
-| `pnpm astro ...`                    | 執行 `astro add`、`astro check` 等 CLI 指令        |
-| `pnpm astro --help`                 | 顯示 Astro CLI 幫助資訊                            |
+### Stack
+
+This is a list of the various technologies used to build this website:
+
+| Category   | Technology Name                                                                                |
+| ---------- | ---------------------------------------------------------------------------------------------- |
+| Framework  | [**Astro**](https://astro.build/)                                                              |
+| Styling    | [**Tailwind**](https://tailwindcss.com)                                                        |
+| Components | [**shadcn/ui**](https://ui.shadcn.com/)                                                        |
+| Content    | [**MDX**](https://mdxjs.com/)                                                                  |
+| Codeblocks | [**Expressive Code**](https://expressive-code.com/), [Shiki](https://github.com/shikijs/shiki) |
+| Graphics   | [**Figma**](https://www.figma.com/)                                                            |
+| Deployment | [**Vercel**](https://vercel.com)                                                               |
+
+### Star History
+
+<a href="https://www.star-history.com/#yuto0226/notes&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=yuto0226/notes&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=yuto0226/notes&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=yuto0226/notes&type=date&legend=top-left" />
+ </picture>
+</a>
+
+[CodeFactor]: https://img.shields.io/codefactor/grade/github/yuto0226/notes?color=fafafa&logo=codefactor&logoColor=fff&style=for-the-badge
+[Stargazers]: https://img.shields.io/github/stars/yuto0226/notes?color=fafafa&logo=github&logoColor=fff&style=for-the-badge
+[License]: https://img.shields.io/github/license/yuto0226/notes?color=0a0a0a&logo=github&logoColor=fff&style=for-the-badge
