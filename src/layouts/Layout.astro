@@ -7,6 +7,8 @@ import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
+import Analytics from '@vercel/analytics/astro'
+import SpeedInsights from '@vercel/speed-insights/astro'
 
 interface Props {
   class?: string
@@ -37,5 +39,7 @@ const { class: className } = Astro.props
       <slot />
     </main>
     <Footer />
+    <SpeedInsights />
+    <Analytics />
   </body>
 </html>
