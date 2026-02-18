@@ -11,7 +11,7 @@ interface Props {
 }
 
 const { friend } = Astro.props
-const { name, avatar, bio, pronouns, tags } = friend.data
+const { name, avatar, bio, pronouns } = friend.data
 
 const socialLinks: SocialLink[] = [
   friend.data.website && { href: friend.data.website, label: 'Website' },
