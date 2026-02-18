@@ -3,6 +3,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import type { TOCSection } from '@/lib/data-utils'
 import { getParentId, isSubpost } from '@/lib/data-utils'
 import { cn, getHeadingMargin } from '@/lib/utils'
+import type { HeadingNode, TOCStyleConfig } from '@/types.ts'
+import { Icon } from 'astro-icon/components'
+import TOCItem from './TOCItem.astro'
 
 type Props = {
   sections: TOCSection[]
@@ -12,6 +15,42 @@ type Props = {
 const { sections, currentPostId } = Astro.props
 const isCurrentSubpost = isSubpost(currentPostId)
 const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
+
+function buildHeadingTree(headings: any[]): HeadingNode[] {
+  const roots: HeadingNode[] = []
+  const stack: HeadingNode[] = []
+
+  headings.forEach((heading) => {
+    const node: HeadingNode = {
+      slug: heading.slug,
+      text: heading.text,
+      depth: heading.depth,
+      children: [],
+    }
+
+    while (stack.length > 0 && stack[stack.length - 1].depth >= node.depth) {
+      stack.pop()
+    }
+
+    if (stack.length === 0) {
+      roots.push(node)
+    } else {
+      stack[stack.length - 1].children.push(node)
+    }
+
+    stack.push(node)
+  })
+
+  return roots
+}
+
+const TOC_STYLE: TOCStyleConfig = {
+  text: 'text-sm',
+  link: 'text-foreground/60',
+  linkDisabled: 'text-foreground/40',
+  border: 'border-border/40',
+  dot: 'bg-foreground/40',
+}
 ---
 
 {
@@ -27,7 +66,10 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
         data-toc-scroll-area
       >
         <div class="flex flex-col gap-2 px-4">
-          <span class="text-lg font-medium">Table of Contents</span>
+          <span class="flex items-center gap-2 text-lg font-medium">
+            <Icon name="lucide:list" class="size-4" />
+            Table of Contents
+          </span>
           {sections.map((section, index) => {
             const isFirstSubpost =
               section.type === 'subpost' &&
@@ -46,31 +88,16 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
                 )}
 
                 {section.type === 'parent' ? (
-                  <ul class="flex list-none flex-col gap-y-2">
-                    {section.headings.map((heading) => (
-                      <li
-                        class={cn(
-                          'text-sm',
-                          getHeadingMargin(heading.depth),
-                          isCurrentSubpost
-                            ? 'text-foreground/40'
-                            : 'text-foreground/60',
-                        )}
-                      >
-                        <a
-                          href={
-                            isCurrentSubpost
-                              ? `/blog/${parentId}#${heading.slug}`
-                              : `#${heading.slug}`
-                          }
-                          class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
-                          data-heading-link={heading.slug}
-                        >
-                          {heading.text}
-                        </a>
-                      </li>
+                  <nav class="toc-nav">
+                    {buildHeadingTree(section.headings).map((node) => (
+                      <TOCItem
+                        node={node}
+                        style={TOC_STYLE}
+                        isCurrentSubpost={isCurrentSubpost}
+                        parentId={parentId}
+                      />
                     ))}
-                  </ul>
+                  </nav>
                 ) : (
                   <div
                     class={cn(
@@ -154,6 +181,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     regions: { id: string; start: number; end: number }[] = []
     scrollArea: HTMLElement | null = null
     tocScrollArea: HTMLElement | null = null
+    expandedSections = new Set<string>()
+    hoverExpandedSections = new Set<string>()
+    hoverTimeouts = new Map<string, number>()
 
     reset() {
       this.links = document.querySelectorAll(
@@ -162,6 +192,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       this.activeIds = []
       this.headings = []
       this.regions = []
+      this.expandedSections.clear()
+      this.hoverExpandedSections.clear()
+      this.hoverTimeouts.clear()
       const tocContainer = document.getElementById('toc-sidebar-container')
       this.scrollArea =
         tocContainer?.querySelector('[data-radix-scroll-area-viewport]') || null
@@ -199,37 +232,180 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       if (state.headings.length === 0) return []
 
       const viewportTop = window.scrollY + HEADER_OFFSET
-      const viewportBottom = window.scrollY + window.innerHeight
-      const visibleIds = new Set<string>()
 
-      const isInViewport = (top: number, bottom: number) =>
-        (top >= viewportTop && top <= viewportBottom) ||
-        (bottom >= viewportTop && bottom <= viewportBottom) ||
-        (top <= viewportTop && bottom >= viewportBottom)
+      let activeHeading: HTMLElement | null = null
+      let closestDistance = Infinity
 
       state.headings.forEach((heading) => {
-        const headingBottom = heading.offsetTop + heading.offsetHeight
-        if (isInViewport(heading.offsetTop, headingBottom)) {
-          visibleIds.add(heading.id)
-        }
-      })
+        const headingTop = heading.offsetTop
 
-      state.regions.forEach((region) => {
-        if (region.start <= viewportBottom && region.end >= viewportTop) {
-          const heading = document.getElementById(region.id)
-          if (heading) {
-            const headingBottom = heading.offsetTop + heading.offsetHeight
-            if (
-              region.end > headingBottom &&
-              (headingBottom < viewportBottom || viewportTop < region.end)
-            ) {
-              visibleIds.add(region.id)
-            }
+        // 如果 heading 在視窗頂部以上或剛好在頂部
+        if (headingTop <= viewportTop) {
+          const distance = viewportTop - headingTop
+          if (distance < closestDistance) {
+            closestDistance = distance
+            activeHeading = heading
           }
         }
       })
 
-      return Array.from(visibleIds)
+      if (!activeHeading && state.headings.length > 0) {
+        activeHeading = state.headings[0]
+      }
+
+      return activeHeading ? [activeHeading.id] : []
+    }
+  }
+
+  class TOCExpander {
+    static expand(slug: string, isHover: boolean = false) {
+      const children = document.querySelector(
+        `[data-children="${slug}"]`,
+      ) as HTMLElement
+      if (!children) return
+
+      children.style.gridTemplateRows = '1fr'
+      children.style.opacity = '1'
+      state.expandedSections.add(slug)
+
+      if (isHover) {
+        state.hoverExpandedSections.add(slug)
+      }
+    }
+
+    static collapse(slug: string) {
+      const children = document.querySelector(
+        `[data-children="${slug}"]`,
+      ) as HTMLElement
+      if (!children) return
+
+      children.style.gridTemplateRows = '0fr'
+      children.style.opacity = '0'
+      state.expandedSections.delete(slug)
+      state.hoverExpandedSections.delete(slug)
+    }
+
+    static updateBasedOnScroll() {
+      // 先收起所有不是 hover 展開且不應該保持展開的項目
+      const allExpanded = Array.from(state.expandedSections)
+      allExpanded.forEach((slug) => {
+        // 如果不是 hover 展開的，且不應該保持展開，就收起
+        if (
+          !state.hoverExpandedSections.has(slug) &&
+          !this.shouldStayExpanded(slug)
+        ) {
+          this.collapse(slug)
+        }
+      })
+
+      // 再展開所有 active 項目及其父級
+      state.activeIds.forEach((id) => {
+        const item = document.querySelector(`[data-slug="${id}"]`)
+        if (!item) return
+
+        // 展開所有父級
+        let current: Element | null = item
+        while (current) {
+          const parent = current.getAttribute('data-parent')
+          if (parent && !state.expandedSections.has(parent)) {
+            this.expand(parent, false)
+          }
+          current = parent
+            ? document.querySelector(`[data-slug="${parent}"]`)
+            : null
+        }
+
+        // 只展開有子元素的當前項
+        const hasChildren = document.querySelector(`[data-children="${id}"]`)
+        if (hasChildren && !state.expandedSections.has(id)) {
+          this.expand(id, false)
+        }
+      })
+
+      // 收起那些通過 hover 展開但不應該保持展開的項目
+      const hoverExpanded = Array.from(state.hoverExpandedSections)
+      hoverExpanded.forEach((slug) => {
+        if (!this.shouldStayExpanded(slug)) {
+          this.collapse(slug)
+        }
+      })
+    }
+
+    static collapseInvalidHoverItems() {
+      // 只收起那些通過 hover 展開但不應該保持展開的項目
+      const hoverExpanded = Array.from(state.hoverExpandedSections)
+      hoverExpanded.forEach((slug) => {
+        if (!this.shouldStayExpanded(slug)) {
+          this.collapse(slug)
+        }
+      })
+    }
+
+    static shouldStayExpanded(slug: string): boolean {
+      // 檢查是否有子項或後代是 active
+      const children = document.querySelectorAll(`[data-parent="${slug}"]`)
+      for (const child of children) {
+        const childSlug = child.getAttribute('data-slug')
+        if (childSlug && state.activeIds.includes(childSlug)) {
+          return true
+        }
+        if (childSlug && this.shouldStayExpanded(childSlug)) {
+          return true
+        }
+      }
+
+      // 檢查自己是否是 active
+      if (state.activeIds.includes(slug)) {
+        return true
+      }
+
+      return false
+    }
+
+    static initHoverBehavior() {
+      const items = document.querySelectorAll('.toc-item')
+
+      items.forEach((item) => {
+        const slug = item.getAttribute('data-slug')
+        if (!slug) return
+
+        const hasChildren = document.querySelector(`[data-children="${slug}"]`)
+        if (!hasChildren) return
+
+        item.addEventListener('mouseenter', () => {
+          if (state.hoverTimeouts.has(slug)) {
+            clearTimeout(state.hoverTimeouts.get(slug))
+            state.hoverTimeouts.delete(slug)
+          }
+
+          const timeout = window.setTimeout(() => {
+            if (!state.expandedSections.has(slug)) {
+              this.expand(slug, true)
+            }
+          }, 200)
+
+          state.hoverTimeouts.set(slug, timeout)
+        })
+
+        item.addEventListener('mouseleave', () => {
+          if (state.hoverTimeouts.has(slug)) {
+            clearTimeout(state.hoverTimeouts.get(slug))
+            state.hoverTimeouts.delete(slug)
+          }
+
+          const timeout = window.setTimeout(() => {
+            // 只收起通過 hover 展開的項目
+            if (
+              state.hoverExpandedSections.has(slug) &&
+              !this.shouldStayExpanded(slug)
+            ) {
+              this.collapse(slug)
+            }
+          }, 300)
+
+          state.hoverTimeouts.set(slug, timeout)
+        })
+      })
     }
   }
 
@@ -250,7 +426,13 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   class TOCLinks {
     static update(headingIds: string[]) {
       state.links.forEach((link) => {
-        link.classList.remove('text-foreground')
+        link.classList.remove('text-primary', 'font-semibold')
+
+        const dot = link.parentElement?.querySelector('[data-dot]')
+        if (dot) {
+          dot.classList.remove('h-1.5', 'w-1.5', '!bg-primary', 'drop-shadow')
+          dot.classList.add('h-1', 'w-1')
+        }
       })
 
       headingIds.forEach((id) => {
@@ -259,10 +441,19 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
             `#toc-sidebar-container [data-heading-link="${id}"]`,
           )
           if (activeLink) {
-            activeLink.classList.add('text-foreground')
+            activeLink.classList.add('text-primary', 'font-semibold')
+
+            const dot = activeLink.parentElement?.querySelector('[data-dot]')
+            if (dot) {
+              dot.classList.remove('h-1', 'w-1')
+              dot.classList.add('h-1.5', 'w-1.5', '!bg-primary', 'drop-shadow')
+            }
           }
         }
       })
+
+      // 更新展開狀態
+      TOCExpander.updateBasedOnScroll()
 
       this.scrollToActive(headingIds)
     }
@@ -298,10 +489,17 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   class TOCController {
     static handleScroll() {
       const newActiveIds = HeadingRegions.getVisibleIds()
+      const idsChanged =
+        JSON.stringify(newActiveIds) !== JSON.stringify(state.activeIds)
 
-      if (JSON.stringify(newActiveIds) !== JSON.stringify(state.activeIds)) {
+      if (idsChanged) {
         state.activeIds = newActiveIds
         TOCLinks.update(state.activeIds)
+      }
+
+      // 總是檢查是否有 hover 項目需要收起
+      if (!idsChanged && state.hoverExpandedSections.size > 0) {
+        TOCExpander.collapseInvalidHoverItems()
       }
     }
 
@@ -331,6 +529,8 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       this.handleScroll()
       setTimeout(TOCScrollMask.update, 100)
 
+      TOCExpander.initHoverBehavior()
+
       const options = { passive: true }
       window.addEventListener('scroll', this.handleScroll, options)
       window.addEventListener('resize', this.handleResize, options)
@@ -346,12 +546,17 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       window.removeEventListener('resize', this.handleResize)
       state.scrollArea?.removeEventListener('scroll', this.handleTOCScroll)
 
+      state.hoverTimeouts.forEach((timeout) => clearTimeout(timeout))
+
       Object.assign(state, {
         activeIds: [],
         headings: [],
         regions: [],
         scrollArea: null,
         tocScrollArea: null,
+        expandedSections: new Set(),
+        hoverExpandedSections: new Set(),
+        hoverTimeouts: new Map(),
       })
     }
   }

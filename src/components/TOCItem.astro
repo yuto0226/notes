@@ -1,0 +1,77 @@
+---
+import { cn } from '@/lib/utils'
+import type { HeadingNode, TOCStyleConfig } from '@/types.ts'
+
+type Props = {
+  node: HeadingNode
+  style: TOCStyleConfig
+  isCurrentSubpost: boolean
+  parentId: string
+  parentSlug?: string
+}
+
+const { node, style, isCurrentSubpost, parentId, parentSlug } = Astro.props
+const Self = Astro.self
+---
+
+<div
+  class="toc-item group/item relative"
+  data-slug={node.slug}
+  data-depth={node.depth}
+  data-parent={parentSlug}
+>
+  <div class="flex items-start gap-2">
+    <span
+      class="flex h-6 w-3 flex-shrink-0 items-center justify-center overflow-hidden"
+    >
+      <span
+        class={cn(
+          'h-1 w-1 rounded-sm transition-all duration-200 origin-center',
+          style.dot,
+        )}
+        data-dot={node.slug}></span>
+    </span>
+    <a
+      href={isCurrentSubpost
+        ? `/blog/${parentId}#${node.slug}`
+        : `#${node.slug}`}
+      class={cn(
+        'toc-link flex-1 py-1 transition-colors duration-200',
+        'underline decoration-transparent underline-offset-[3px] hover:text-foreground hover:decoration-inherit',
+        style.text,
+        isCurrentSubpost ? style.linkDisabled : style.link,
+      )}
+      data-heading-link={node.slug}
+    >
+      {node.text}
+    </a>
+  </div>
+  {
+    node.children.length > 0 && (
+      <div
+        class="toc-children grid transition-all duration-300 ease-out"
+        data-children={node.slug}
+        style="grid-template-rows: 0fr; opacity: 0;"
+      >
+        <div class="overflow-hidden">
+          <div
+            class={cn(
+              'relative ml-[0.375rem] border-l pt-1 pl-5',
+              style.border,
+            )}
+          >
+            {node.children.map((child) => (
+              <Self
+                node={child}
+                style={style}
+                isCurrentSubpost={isCurrentSubpost}
+                parentId={parentId}
+                parentSlug={node.slug}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+</div>
