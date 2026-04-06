@@ -21,7 +21,7 @@ const author =
 <title>{`${title} | ${SITE.title}`}</title>
 <meta name="title" content={`${title} | ${SITE.title}`} />
 <meta name="description" content={description} />
-<link rel="canonical" href={SITE.href} />
+<link rel="canonical" href={Astro.url.href} />
 
 {isSubpost(post.id) && <meta name="robots" content="noindex" />}
 
