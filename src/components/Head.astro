@@ -46,4 +46,23 @@ import Favicons from './Favicons.astro'
   <ClientRouter />
 
   <slot />
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NFRB6TH8XG"
+  ></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || []
+    function gtag() {
+      dataLayer.push(arguments)
+    }
+    gtag('js', new Date())
+    gtag('config', 'G-NFRB6TH8XG')
+
+    document.addEventListener('astro:page-load', () => {
+      gtag('event', 'page_view', {
+        page_location: window.location.href,
+        page_title: document.title,
+      })
+    })
+  </script>
 </head>
