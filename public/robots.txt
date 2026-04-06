@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blog.yuto0226.dev/sitemap-index.xml
