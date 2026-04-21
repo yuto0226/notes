@@ -118,8 +118,8 @@ const TOC_STYLE: TOCStyleConfig = {
                         <a
                           href={
                             section.subpostId === currentPostId
-                              ? '#'
-                              : `/blog/${section.subpostId}`
+                              ? '#post-title'
+                              : `/blog/${section.subpostId}#post-title`
                           }
                           class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
                           data-heading-link={
@@ -182,6 +182,28 @@ const TOC_STYLE: TOCStyleConfig = {
     opacity: 0;
     transform: translateX(-1rem);
   }
+
+  @keyframes toc-title-pulse {
+    0% {
+      transform: translateY(0.5rem);
+      opacity: 0.6;
+    }
+
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  #post-title[data-toc-title-animated='true'] {
+    animation: toc-title-pulse 260ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #post-title[data-toc-title-animated='true'] {
+      animation: none;
+    }
+  }
 </style>
 
 <script>
@@ -225,6 +247,89 @@ const TOC_STYLE: TOCStyleConfig = {
   }
 
   const state = new TOCState()
+
+  class TOCHashNavigation {
+    static animationTimer: number | null = null
+
+    static animateTitle() {
+      const title = document.getElementById('post-title')
+      if (!title) return
+
+      title.dataset.tocTitleAnimated = 'false'
+      window.requestAnimationFrame(() => {
+        title.dataset.tocTitleAnimated = 'true'
+      })
+
+      if (this.animationTimer !== null) {
+        window.clearTimeout(this.animationTimer)
+      }
+
+      this.animationTimer = window.setTimeout(() => {
+        title.dataset.tocTitleAnimated = 'false'
+        this.animationTimer = null
+      }, 280)
+    }
+
+    static scrollToElement(target: HTMLElement) {
+      const targetTop = target.getBoundingClientRect().top + window.scrollY
+      const targetTopWithOffset = Math.max(0, targetTop - HEADER_OFFSET)
+
+      window.scrollTo({ top: targetTopWithOffset, behavior: 'smooth' })
+    }
+
+    static navigateToHash(hash: string, options?: { updateUrl?: boolean }) {
+      const id = hash.replace(/^#/, '')
+      if (!id) return
+
+      const target = document.getElementById(id)
+      if (!target) return
+
+      this.scrollToElement(target)
+
+      if (options?.updateUrl !== false) {
+        window.history.replaceState(null, '', `#${id}`)
+      }
+
+      if (id === 'post-title') {
+        this.animateTitle()
+      }
+    }
+
+    static handleHashLinkClick = (event: Event) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+
+      const link = target.closest(
+        '#toc-sidebar-container a[href*="#"]',
+      ) as HTMLAnchorElement | null
+      if (!link) return
+
+      const url = new URL(link.href, window.location.href)
+      if (url.origin !== window.location.origin || !url.hash) return
+
+      if (url.pathname !== window.location.pathname) return
+
+      const hashTarget = document.getElementById(url.hash.slice(1))
+      if (!hashTarget) return
+
+      event.preventDefault()
+      this.navigateToHash(url.hash)
+    }
+
+    static bind() {
+      state.container?.removeEventListener('click', this.handleHashLinkClick)
+      state.container?.addEventListener('click', this.handleHashLinkClick)
+    }
+
+    static cleanup() {
+      state.container?.removeEventListener('click', this.handleHashLinkClick)
+
+      if (this.animationTimer !== null) {
+        window.clearTimeout(this.animationTimer)
+        this.animationTimer = null
+      }
+    }
+  }
 
   class TOCPosition {
     static readonly STICKY_TOP = 80
@@ -593,6 +698,7 @@ const TOC_STYLE: TOCStyleConfig = {
       state.reset()
       HeadingRegions.build()
       TOCPosition.init()
+      TOCHashNavigation.bind()
 
       if (state.headings.length === 0) {
         TOCLinks.update([])
@@ -615,6 +721,7 @@ const TOC_STYLE: TOCStyleConfig = {
     }
 
     static cleanup() {
+      TOCHashNavigation.cleanup()
       TOCPosition.cleanup()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('resize', this.handleResize)
