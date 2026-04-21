@@ -59,7 +59,7 @@ const tocSections = await getTOCSections(currentPostId)
 const postImage = (post.data.image ? post.data.image : '/static/flower-field-2.png') as any
 ---
 
-<Layout>
+<Layout class="max-w-4xl">
   <PostHead slot="head" post={post} />
   {
     (hasChildPosts || isCurrentSubpost) && (
@@ -78,10 +78,8 @@ const postImage = (post.data.image ? post.data.image : '/static/flower-field-2.p
       ) && <TOCHeader slot="table-of-contents" headings={headings} />
   }
 
-  <section
-    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-6"
-  >
-    <div class="col-start-2">
+  <section class="grid grid-cols-[minmax(0,1fr)] gap-y-6">
+    <div class="min-w-0">
       <Breadcrumbs
         items={[
           { href: '/blog', label: 'Blog', icon: 'lucide:library-big' },
@@ -117,7 +115,7 @@ const postImage = (post.data.image ? post.data.image : '/static/flower-field-2.p
       class="col-span-full mx-auto w-full max-w-5xl object-cover"
     />
 
-    <section class="col-start-2 flex flex-col gap-y-6 text-center">
+    <section class="min-w-0 flex flex-col gap-y-6 text-center">
       <div class="flex flex-col">
         <h1
           class="mb-2 scroll-mt-31 text-3xl leading-tight font-medium sm:text-4xl"
@@ -220,7 +218,7 @@ const postImage = (post.data.image ? post.data.image : '/static/flower-field-2.p
       )
     }
 
-    <article class="prose col-start-2 max-w-none">
+    <article class="prose min-w-0 max-w-none">
       <Content />
     </article>
 
@@ -235,11 +233,13 @@ const postImage = (post.data.image ? post.data.image : '/static/flower-field-2.p
       )
     }
 
-    <PostNavigation
-      newerPost={navigation.newer}
-      olderPost={navigation.older}
-      parentPost={isCurrentSubpost ? navigation.parent : undefined}
-    />
+    <div class="min-w-0 mx-auto w-full max-w-4xl">
+      <PostNavigation
+        newerPost={navigation.newer}
+        olderPost={navigation.older}
+        parentPost={isCurrentSubpost ? navigation.parent : undefined}
+      />
+    </div>
   </section>
 
   <Button

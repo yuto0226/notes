@@ -57,7 +57,7 @@ const TOC_STYLE: TOCStyleConfig = {
   sections.length > 0 && (
     <div
       id="toc-sidebar-container"
-      class="sticky top-20 col-start-1 row-span-1 mr-8 ml-auto hidden h-[calc(100vh-5rem)] max-w-md xl:block"
+      class="fixed top-20 right-[calc(50%+29rem)] hidden h-[calc(100vh-5rem)] w-[clamp(10rem,calc(50vw-29rem),16rem)] min-[1332px]:block"
     >
       <ScrollArea
         client:load
