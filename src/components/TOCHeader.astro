@@ -11,93 +11,181 @@ type Props = {
 const { headings } = Astro.props
 ---
 
+<script is:inline>
+  if (!document.documentElement.dataset.tocMode) {
+    document.documentElement.dataset.tocMode =
+      window.innerWidth >= 1332 ? 'sidebar' : 'header'
+  }
+</script>
+
 {
   headings && headings.length > 0 && (
-    <div id="mobile-toc-container" class="w-full min-[1332px]:hidden">
-      <details class="group">
-        <summary class="flex w-full cursor-pointer items-center justify-between">
-          <div class="mx-auto flex w-full max-w-3xl items-center px-4 py-3">
-            <div class="relative mr-2 size-4">
-              <svg class="h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  class="text-primary/20"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+    <div
+      id="mobile-toc-container"
+      class="relative w-full"
+    >
+      <div
+        id="mobile-toc-spacer"
+        class="h-[var(--mobile-toc-height,0px)] transition-[height] duration-200 ease-out motion-reduce:transition-none"
+      />
+      <div
+        id="mobile-toc-panel"
+        class="absolute inset-x-0 top-0 overflow-hidden opacity-100 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none"
+      >
+        <details class="group">
+          <summary class="flex w-full cursor-pointer items-center justify-between">
+            <div class="mx-auto flex w-full max-w-3xl items-center px-4 py-3">
+              <div class="relative mr-2 size-4">
+                <svg class="h-4 w-4" viewBox="0 0 24 24">
+                  <circle
+                    class="text-primary/20"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    id="mobile-toc-progress-circle"
+                    class="text-primary"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-dasharray="62.83"
+                    stroke-dashoffset="62.83"
+                    transform="rotate(-90 12 12)"
+                  />
+                </svg>
+              </div>
+              <span
+                id="mobile-toc-current-section"
+                class="text-muted-foreground flex-grow truncate text-sm"
+              >
+                Overview
+              </span>
+              <span class="text-muted-foreground ml-2">
+                <Icon
+                  name="lucide:chevron-down"
+                  class="h-4 w-4 transition-transform duration-200 group-open:rotate-180"
                 />
-                <circle
-                  id="mobile-toc-progress-circle"
-                  class="text-primary"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-dasharray="62.83"
-                  stroke-dashoffset="62.83"
-                  transform="rotate(-90 12 12)"
-                />
-              </svg>
+              </span>
             </div>
-            <span
-              id="mobile-toc-current-section"
-              class="text-muted-foreground flex-grow truncate text-sm"
-            >
-              Overview
-            </span>
-            <span class="text-muted-foreground ml-2">
-              <Icon
-                name="lucide:chevron-down"
-                class="h-4 w-4 transition-transform duration-200 group-open:rotate-180"
-              />
-            </span>
-          </div>
-        </summary>
+          </summary>
 
-        <ScrollArea
-          client:load
-          className="mx-auto max-w-3xl"
-          data-toc-header-scroll
-        >
-          <div class="max-h-[30vh]">
-            <ul
-              class="flex list-none flex-col gap-y-2 px-4 pb-4"
-              id="mobile-table-of-contents"
-            >
-              {headings.map((heading) => (
-                <li
-                  class={cn(
-                    'px-4 text-sm',
-                    getHeadingMargin(heading.depth),
-                    'text-foreground/60',
-                  )}
-                >
-                  <a
-                    href={`#${heading.slug}`}
-                    class="mobile-toc-item underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
-                    data-heading-id={heading.slug}
+          <ScrollArea
+            client:load
+            className="mx-auto max-w-3xl"
+            data-toc-header-scroll
+          >
+            <div class="max-h-[30vh]">
+              <ul
+                class="flex list-none flex-col gap-y-2 px-4 pb-4"
+                id="mobile-table-of-contents"
+              >
+                {headings.map((heading) => (
+                  <li
+                    class={cn(
+                      'px-4 text-sm',
+                      getHeadingMargin(heading.depth),
+                      'text-foreground/60',
+                    )}
                   >
-                    {heading.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </ScrollArea>
-      </details>
+                    <a
+                      href={`#${heading.slug}`}
+                      class="mobile-toc-item underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
+                      data-heading-id={heading.slug}
+                    >
+                      {heading.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollArea>
+        </details>
+      </div>
     </div>
   )
 }
+
+<style is:global>
+  :root[data-toc-mode='header'] #mobile-toc-container {
+    --mobile-toc-height: var(--mobile-toc-content-height, 0px);
+  }
+
+  :root[data-toc-mode='header'] #mobile-toc-panel {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  :root[data-toc-mode='sidebar'] #mobile-toc-container {
+    --mobile-toc-height: 0px;
+  }
+
+  :root[data-toc-mode='sidebar'] #mobile-toc-panel {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+</style>
 
 <script>
   const INITIAL_OVERVIEW_TEXT = 'Overview'
   const HEADER_OFFSET = 102 + 36
   const PROGRESS_CIRCLE_RADIUS = 10
   const PROGRESS_CIRCLE_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_CIRCLE_RADIUS
+  const TOC_HEADER_MAX_WIDTH = 1300
+  const TOC_SIDEBAR_MIN_WIDTH = 1360
+  const TOC_DEFAULT_BREAKPOINT = 1332
+
+  class TOCModeController {
+    static resizeFrame: number | null = null
+
+    static update(width: number = window.innerWidth) {
+      const currentMode = document.documentElement.dataset.tocMode
+      let nextMode = currentMode
+
+      if (width >= TOC_SIDEBAR_MIN_WIDTH) {
+        nextMode = 'sidebar'
+      } else if (width <= TOC_HEADER_MAX_WIDTH) {
+        nextMode = 'header'
+      } else if (currentMode !== 'header' && currentMode !== 'sidebar') {
+        nextMode = width >= TOC_DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
+      }
+
+      if (nextMode) {
+        document.documentElement.dataset.tocMode = nextMode
+      }
+    }
+
+    static handleResize = () => {
+      if (this.resizeFrame !== null) return
+
+      this.resizeFrame = window.requestAnimationFrame(() => {
+        this.resizeFrame = null
+        this.update()
+      })
+    }
+
+    static init() {
+      this.update()
+      window.addEventListener('resize', this.handleResize, { passive: true })
+    }
+
+    static cleanup() {
+      if (this.resizeFrame !== null) {
+        window.cancelAnimationFrame(this.resizeFrame)
+        this.resizeFrame = null
+      }
+
+      window.removeEventListener('resize', this.handleResize)
+    }
+  }
 
   class MobileTOCState {
     progressCircle: HTMLElement | null = null
@@ -105,9 +193,13 @@ const { headings } = Astro.props
     detailsElement: HTMLDetailsElement | null = null
     listElement: HTMLElement | null = null
     scrollArea: HTMLElement | null = null
+    container: HTMLElement | null = null
+    panel: HTMLElement | null = null
     headings: HTMLElement[] = []
     regions: { id: string; start: number; end: number }[] = []
     activeIds: string[] = []
+    layoutFrame: number | null = null
+    resizeObserver: ResizeObserver | null = null
 
     reset() {
       this.progressCircle = document.getElementById(
@@ -119,6 +211,8 @@ const { headings } = Astro.props
       this.detailsElement = document.querySelector(
         '#mobile-toc-container details',
       )
+      this.container = document.getElementById('mobile-toc-container')
+      this.panel = document.getElementById('mobile-toc-panel')
       this.listElement = document.getElementById('mobile-table-of-contents')
       const tocContainer = document.getElementById('mobile-toc-container')
       this.scrollArea =
@@ -137,6 +231,51 @@ const { headings } = Astro.props
   }
 
   const state = new MobileTOCState()
+
+  class TOCHeaderLayout {
+    static update() {
+      if (!state.container || !state.panel) return
+
+      const height =
+        document.documentElement.dataset.tocMode === 'header'
+          ? state.panel.getBoundingClientRect().height
+          : 0
+
+      state.container.style.setProperty(
+        '--mobile-toc-content-height',
+        `${height}px`,
+      )
+    }
+
+    static scheduleUpdate = () => {
+      if (state.layoutFrame !== null) return
+
+      state.layoutFrame = window.requestAnimationFrame(() => {
+        state.layoutFrame = null
+        this.update()
+      })
+    }
+
+    static init() {
+      this.update()
+
+      if (!state.panel) return
+
+      state.resizeObserver = new ResizeObserver(() => this.scheduleUpdate())
+      state.resizeObserver.observe(state.panel)
+      document.fonts?.ready.then(() => this.scheduleUpdate())
+    }
+
+    static cleanup() {
+      if (state.layoutFrame !== null) {
+        window.cancelAnimationFrame(state.layoutFrame)
+        state.layoutFrame = null
+      }
+
+      state.resizeObserver?.disconnect()
+      state.resizeObserver = null
+    }
+  }
 
   class HeadingRegions {
     static build() {
@@ -303,6 +442,8 @@ const { headings } = Astro.props
 
       if (state.detailsElement) {
         state.detailsElement.addEventListener('toggle', () => {
+          TOCHeaderLayout.scheduleUpdate()
+
           if (state.detailsElement?.open) {
             setTimeout(TOCHeaderScrollMask.update, 100)
           }
@@ -342,6 +483,7 @@ const { headings } = Astro.props
     }
 
     static handleResize() {
+      TOCHeaderLayout.scheduleUpdate()
       HeadingRegions.build()
 
       const newActiveIds = HeadingRegions.getVisibleIds()
@@ -355,6 +497,7 @@ const { headings } = Astro.props
 
     static init() {
       state.reset()
+      TOCHeaderLayout.init()
       HeadingRegions.build()
 
       if (!state.currentSectionText) return
@@ -378,21 +521,30 @@ const { headings } = Astro.props
     }
 
     static cleanup() {
+      TOCHeaderLayout.cleanup()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('scroll', ProgressCircle.update)
       window.removeEventListener('resize', this.handleResize)
       state.activeIds = []
       state.headings = []
       state.regions = []
+      state.container = null
+      state.panel = null
     }
   }
 
-  document.addEventListener('astro:page-load', () => MobileTOCController.init())
-  document.addEventListener('astro:after-swap', () => {
-    MobileTOCController.cleanup()
+  document.addEventListener('astro:page-load', () => {
+    TOCModeController.init()
     MobileTOCController.init()
   })
-  document.addEventListener('astro:before-swap', () =>
-    MobileTOCController.cleanup(),
-  )
+  document.addEventListener('astro:after-swap', () => {
+    TOCModeController.cleanup()
+    MobileTOCController.cleanup()
+    TOCModeController.init()
+    MobileTOCController.init()
+  })
+  document.addEventListener('astro:before-swap', () => {
+    TOCModeController.cleanup()
+    MobileTOCController.cleanup()
+  })
 </script>
