@@ -12,10 +12,92 @@ const { headings } = Astro.props
 ---
 
 <script is:inline>
-  if (!document.documentElement.dataset.tocMode) {
-    document.documentElement.dataset.tocMode =
-      window.innerWidth >= 1332 ? 'sidebar' : 'header'
-  }
+  ;(() => {
+    const root = document.documentElement
+    const win = window
+    const HEADER_MAX_WIDTH = 1300
+    const SIDEBAR_MIN_WIDTH = 1360
+    const DEFAULT_BREAKPOINT = 1332
+
+    if (!win.__tocModeController) {
+      let resizeFrame = null
+      let refCount = 0
+
+      const applyAccessibilityState = (mode) => {
+        const mobilePanel = document.getElementById('mobile-toc-panel')
+        const sidebarPanel = document.getElementById('toc-sidebar-container')
+
+        if (mobilePanel) {
+          const isVisible = mode === 'header'
+          mobilePanel.toggleAttribute('inert', !isVisible)
+          mobilePanel.setAttribute('aria-hidden', String(!isVisible))
+        }
+
+        if (sidebarPanel) {
+          const isVisible = mode === 'sidebar'
+          sidebarPanel.toggleAttribute('inert', !isVisible)
+          sidebarPanel.setAttribute('aria-hidden', String(!isVisible))
+        }
+      }
+
+      const update = (width = window.innerWidth) => {
+        const currentMode = root.dataset.tocMode
+        let nextMode = currentMode
+
+        if (width >= SIDEBAR_MIN_WIDTH) {
+          nextMode = 'sidebar'
+        } else if (width <= HEADER_MAX_WIDTH) {
+          nextMode = 'header'
+        } else if (currentMode !== 'header' && currentMode !== 'sidebar') {
+          nextMode = width >= DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
+        }
+
+        if (!nextMode) {
+          nextMode = width >= DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
+        }
+
+        root.dataset.tocMode = nextMode
+        applyAccessibilityState(nextMode)
+      }
+
+      const handleResize = () => {
+        if (resizeFrame !== null) return
+
+        resizeFrame = window.requestAnimationFrame(() => {
+          resizeFrame = null
+          update()
+        })
+      }
+
+      win.__tocModeController = {
+        ensure() {
+          refCount += 1
+          update()
+
+          if (refCount === 1) {
+            window.addEventListener('resize', handleResize, { passive: true })
+          }
+        },
+        cleanup() {
+          if (refCount > 0) {
+            refCount -= 1
+          }
+
+          if (refCount === 0) {
+            if (resizeFrame !== null) {
+              window.cancelAnimationFrame(resizeFrame)
+              resizeFrame = null
+            }
+
+            window.removeEventListener('resize', handleResize)
+          }
+        },
+        update,
+      }
+    }
+
+    win.__tocModeController.update()
+  })()
 </script>
 
 {
@@ -139,51 +221,20 @@ const { headings } = Astro.props
   const HEADER_OFFSET = 102 + 36
   const PROGRESS_CIRCLE_RADIUS = 10
   const PROGRESS_CIRCLE_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_CIRCLE_RADIUS
-  const TOC_HEADER_MAX_WIDTH = 1300
-  const TOC_SIDEBAR_MIN_WIDTH = 1360
-  const TOC_DEFAULT_BREAKPOINT = 1332
+  const tocModeWindow = window as typeof window & {
+    __tocModeController?: {
+      ensure: () => void
+      cleanup: () => void
+    }
+  }
 
   class TOCModeController {
-    static resizeFrame: number | null = null
-
-    static update(width: number = window.innerWidth) {
-      const currentMode = document.documentElement.dataset.tocMode
-      let nextMode = currentMode
-
-      if (width >= TOC_SIDEBAR_MIN_WIDTH) {
-        nextMode = 'sidebar'
-      } else if (width <= TOC_HEADER_MAX_WIDTH) {
-        nextMode = 'header'
-      } else if (currentMode !== 'header' && currentMode !== 'sidebar') {
-        nextMode = width >= TOC_DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
-      }
-
-      if (nextMode) {
-        document.documentElement.dataset.tocMode = nextMode
-      }
-    }
-
-    static handleResize = () => {
-      if (this.resizeFrame !== null) return
-
-      this.resizeFrame = window.requestAnimationFrame(() => {
-        this.resizeFrame = null
-        this.update()
-      })
-    }
-
     static init() {
-      this.update()
-      window.addEventListener('resize', this.handleResize, { passive: true })
+      tocModeWindow.__tocModeController?.ensure()
     }
 
     static cleanup() {
-      if (this.resizeFrame !== null) {
-        window.cancelAnimationFrame(this.resizeFrame)
-        this.resizeFrame = null
-      }
-
-      window.removeEventListener('resize', this.handleResize)
+      tocModeWindow.__tocModeController?.cleanup()
     }
   }
 

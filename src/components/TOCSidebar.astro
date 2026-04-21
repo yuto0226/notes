@@ -53,12 +53,102 @@ const TOC_STYLE: TOCStyleConfig = {
 }
 ---
 
+<script is:inline>
+  ;(() => {
+    const root = document.documentElement
+    const win = window
+    const HEADER_MAX_WIDTH = 1300
+    const SIDEBAR_MIN_WIDTH = 1360
+    const DEFAULT_BREAKPOINT = 1332
+
+    if (!win.__tocModeController) {
+      let resizeFrame = null
+      let refCount = 0
+
+      const applyAccessibilityState = (mode) => {
+        const mobilePanel = document.getElementById('mobile-toc-panel')
+        const sidebarPanel = document.getElementById('toc-sidebar-container')
+
+        if (mobilePanel) {
+          const isVisible = mode === 'header'
+          mobilePanel.toggleAttribute('inert', !isVisible)
+          mobilePanel.setAttribute('aria-hidden', String(!isVisible))
+        }
+
+        if (sidebarPanel) {
+          const isVisible = mode === 'sidebar'
+          sidebarPanel.toggleAttribute('inert', !isVisible)
+          sidebarPanel.setAttribute('aria-hidden', String(!isVisible))
+        }
+      }
+
+      const update = (width = window.innerWidth) => {
+        const currentMode = root.dataset.tocMode
+        let nextMode = currentMode
+
+        if (width >= SIDEBAR_MIN_WIDTH) {
+          nextMode = 'sidebar'
+        } else if (width <= HEADER_MAX_WIDTH) {
+          nextMode = 'header'
+        } else if (currentMode !== 'header' && currentMode !== 'sidebar') {
+          nextMode = width >= DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
+        }
+
+        if (!nextMode) {
+          nextMode = width >= DEFAULT_BREAKPOINT ? 'sidebar' : 'header'
+        }
+
+        root.dataset.tocMode = nextMode
+        applyAccessibilityState(nextMode)
+      }
+
+      const handleResize = () => {
+        if (resizeFrame !== null) return
+
+        resizeFrame = window.requestAnimationFrame(() => {
+          resizeFrame = null
+          update()
+        })
+      }
+
+      win.__tocModeController = {
+        ensure() {
+          refCount += 1
+          update()
+
+          if (refCount === 1) {
+            window.addEventListener('resize', handleResize, { passive: true })
+          }
+        },
+        cleanup() {
+          if (refCount > 0) {
+            refCount -= 1
+          }
+
+          if (refCount === 0) {
+            if (resizeFrame !== null) {
+              window.cancelAnimationFrame(resizeFrame)
+              resizeFrame = null
+            }
+
+            window.removeEventListener('resize', handleResize)
+          }
+        },
+        update,
+      }
+    }
+
+    win.__tocModeController.update()
+  })()
+</script>
+
 {
   sections.length > 0 && (
     <div
       id="toc-sidebar-container"
-      class="pointer-events-none fixed left-[max(1rem,calc(50%-43rem))] w-[clamp(14rem,calc(50vw-29rem),16rem)] -translate-x-4 opacity-0 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none"
+      class="pointer-events-none fixed left-[max(1rem,calc(50%_-_43rem))] w-[clamp(14rem,calc(50vw_-_29rem),16rem)] -translate-x-4 opacity-0 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none"
       style="top: var(--toc-top, 5rem); height: var(--toc-height, calc(100vh - 6rem));"
+      aria-hidden="true"
     >
       <ScrollArea
         client:load
@@ -208,6 +298,22 @@ const TOC_STYLE: TOCStyleConfig = {
 
 <script>
   const HEADER_OFFSET = 150
+  const tocModeWindow = window as typeof window & {
+    __tocModeController?: {
+      ensure: () => void
+      cleanup: () => void
+    }
+  }
+
+  class TOCModeController {
+    static init() {
+      tocModeWindow.__tocModeController?.ensure()
+    }
+
+    static cleanup() {
+      tocModeWindow.__tocModeController?.cleanup()
+    }
+  }
 
   class TOCState {
     links: NodeListOf<Element> = document.querySelectorAll(
@@ -696,6 +802,7 @@ const TOC_STYLE: TOCStyleConfig = {
 
     static init() {
       state.reset()
+      TOCModeController.init()
       HeadingRegions.build()
       TOCPosition.init()
       TOCHashNavigation.bind()
@@ -721,6 +828,7 @@ const TOC_STYLE: TOCStyleConfig = {
     }
 
     static cleanup() {
+      TOCModeController.cleanup()
       TOCHashNavigation.cleanup()
       TOCPosition.cleanup()
       window.removeEventListener('scroll', this.handleScroll)
