@@ -57,7 +57,8 @@ const TOC_STYLE: TOCStyleConfig = {
   sections.length > 0 && (
     <div
       id="toc-sidebar-container"
-      class="fixed top-20 right-[calc(50%+29rem)] hidden h-[calc(100vh-5rem)] w-[clamp(10rem,calc(50vw-29rem),16rem)] min-[1332px]:block"
+      class="pointer-events-none fixed left-[max(1rem,calc(50%-43rem))] w-[clamp(14rem,calc(50vw-29rem),16rem)] -translate-x-4 opacity-0 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none"
+      style="top: var(--toc-top, 5rem); height: var(--toc-height, calc(100vh - 6rem));"
     >
       <ScrollArea
         client:load
@@ -169,6 +170,20 @@ const TOC_STYLE: TOCStyleConfig = {
   )
 }
 
+<style is:global>
+  :root[data-toc-mode='sidebar'] #toc-sidebar-container {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  :root[data-toc-mode='header'] #toc-sidebar-container {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+</style>
+
 <script>
   const HEADER_OFFSET = 150
 
@@ -184,6 +199,10 @@ const TOC_STYLE: TOCStyleConfig = {
     expandedSections = new Set<string>()
     hoverExpandedSections = new Set<string>()
     hoverTimeouts = new Map<string, number>()
+    container: HTMLElement | null = null
+    anchor: HTMLElement | null = null
+    positionFrame: number | null = null
+    resizeObserver: ResizeObserver | null = null
 
     reset() {
       this.links = document.querySelectorAll(
@@ -196,6 +215,8 @@ const TOC_STYLE: TOCStyleConfig = {
       this.hoverExpandedSections.clear()
       this.hoverTimeouts.clear()
       const tocContainer = document.getElementById('toc-sidebar-container')
+      this.container = tocContainer
+      this.anchor = document.querySelector('[data-toc-anchor]')
       this.scrollArea =
         tocContainer?.querySelector('[data-radix-scroll-area-viewport]') || null
       this.tocScrollArea =
@@ -204,6 +225,54 @@ const TOC_STYLE: TOCStyleConfig = {
   }
 
   const state = new TOCState()
+
+  class TOCPosition {
+    static readonly STICKY_TOP = 80
+    static readonly VIEWPORT_BOTTOM_GAP = 16
+
+    static update() {
+      if (!state.container || !state.anchor) return
+
+      const anchorTop = state.anchor.getBoundingClientRect().top
+      const top = Math.max(this.STICKY_TOP, anchorTop)
+      const height = Math.max(
+        0,
+        window.innerHeight - top - this.VIEWPORT_BOTTOM_GAP,
+      )
+
+      state.container.style.setProperty('--toc-top', `${top}px`)
+      state.container.style.setProperty('--toc-height', `${height}px`)
+    }
+
+    static scheduleUpdate = () => {
+      if (state.positionFrame !== null) return
+
+      state.positionFrame = window.requestAnimationFrame(() => {
+        state.positionFrame = null
+        this.update()
+      })
+    }
+
+    static init() {
+      this.update()
+
+      if (!state.anchor) return
+
+      state.resizeObserver = new ResizeObserver(() => this.scheduleUpdate())
+      state.resizeObserver.observe(state.anchor)
+      document.fonts?.ready.then(() => this.scheduleUpdate())
+    }
+
+    static cleanup() {
+      if (state.positionFrame !== null) {
+        window.cancelAnimationFrame(state.positionFrame)
+        state.positionFrame = null
+      }
+
+      state.resizeObserver?.disconnect()
+      state.resizeObserver = null
+    }
+  }
 
   class HeadingRegions {
     static build() {
@@ -488,6 +557,8 @@ const TOC_STYLE: TOCStyleConfig = {
 
   class TOCController {
     static handleScroll() {
+      TOCPosition.scheduleUpdate()
+
       const newActiveIds = HeadingRegions.getVisibleIds()
       const idsChanged =
         JSON.stringify(newActiveIds) !== JSON.stringify(state.activeIds)
@@ -506,6 +577,7 @@ const TOC_STYLE: TOCStyleConfig = {
     static handleTOCScroll = () => TOCScrollMask.update()
 
     static handleResize() {
+      TOCPosition.scheduleUpdate()
       HeadingRegions.build()
       const newActiveIds = HeadingRegions.getVisibleIds()
 
@@ -520,6 +592,7 @@ const TOC_STYLE: TOCStyleConfig = {
     static init() {
       state.reset()
       HeadingRegions.build()
+      TOCPosition.init()
 
       if (state.headings.length === 0) {
         TOCLinks.update([])
@@ -542,6 +615,7 @@ const TOC_STYLE: TOCStyleConfig = {
     }
 
     static cleanup() {
+      TOCPosition.cleanup()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('resize', this.handleResize)
       state.scrollArea?.removeEventListener('scroll', this.handleTOCScroll)
@@ -554,6 +628,10 @@ const TOC_STYLE: TOCStyleConfig = {
         regions: [],
         scrollArea: null,
         tocScrollArea: null,
+        container: null,
+        anchor: null,
+        positionFrame: null,
+        resizeObserver: null,
         expandedSections: new Set(),
         hoverExpandedSections: new Set(),
         hoverTimeouts: new Map(),
