@@ -1,6 +1,6 @@
 # SEO Indexing Fix Design
 
-**Date:** 2026-04-06  
+**Date:** 2026-04-06
 **Goal:** Fix the technical issues preventing blog posts from appearing in Google Search results.
 
 ## Background
