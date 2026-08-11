@@ -1,4 +1,5 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content'
+import { parseMilestoneDate } from '@/lib/milestones'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
 
 export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
@@ -42,6 +43,19 @@ export async function getAllProjects(): Promise<CollectionEntry<'projects'>[]> {
     const dateB = b.data.startDate?.getTime() || 0
     return dateB - dateA
   })
+}
+
+export async function getAllMilestones(): Promise<
+  CollectionEntry<'milestones'>[]
+> {
+  const milestones = await getCollection('milestones')
+  return milestones
+    .filter((milestone) => !milestone.data.draft)
+    .sort(
+      (a, b) =>
+        parseMilestoneDate(b.data.startDate).value.valueOf() -
+        parseMilestoneDate(a.data.startDate).value.valueOf(),
+    )
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {

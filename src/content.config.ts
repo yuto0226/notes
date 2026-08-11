@@ -69,4 +69,17 @@ const projects = defineCollection({
     }),
 })
 
-export const collections = { blog, authors, friends, projects }
+const milestones = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/milestones' }),
+  schema: z.object({
+    title: z.string(),
+    startDate: z.string(),
+    endDate: z.string().optional(),
+    isOngoing: z.boolean().optional().default(false),
+    organization: z.string().optional(),
+    role: z.string().optional(),
+    draft: z.boolean().optional().default(false),
+  }),
+})
+
+export const collections = { blog, authors, friends, projects, milestones }
