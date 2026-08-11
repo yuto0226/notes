@@ -23,7 +23,9 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
-const entryImage = (entry.data.image ? entry.data.image : '/static/flower-field-2.png') as any
+const entryImage = (
+  entry.data.image ? entry.data.image : '/static/flower-field-2.png'
+) as any
 ---
 
 <div
@@ -48,7 +50,10 @@ const entryImage = (entry.data.image ? entry.data.image : '/static/flower-field-
         <h3 class="text-lg font-medium">{entry.data.title}</h3>
         {
           entry.data.pinned && (
-            <Icon name="lucide:pin" class="text-muted-foreground size-4 shrink-0" />
+            <Icon
+              name="lucide:pin"
+              class="text-muted-foreground size-4 shrink-0"
+            />
           )
         }
       </div>

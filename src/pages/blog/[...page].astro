@@ -5,7 +5,11 @@ import PageHead from '@/components/PageHead.astro'
 import PaginationComponent from '@/components/ui/pagination'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
-import { getPinnedPosts, getRegularPosts, groupPostsByYear } from '@/lib/data-utils'
+import {
+  getPinnedPosts,
+  getRegularPosts,
+  groupPostsByYear,
+} from '@/lib/data-utils'
 import type { PaginateFunction } from 'astro'
 
 export async function getStaticPaths({
@@ -21,7 +25,7 @@ const { page } = Astro.props
 
 const pinnedPosts = page.currentPage === 1 ? await getPinnedPosts() : []
 const postsByYear = groupPostsByYear(
-  page.currentPage === 1 ? [...pinnedPosts, ...page.data] : page.data
+  page.currentPage === 1 ? [...pinnedPosts, ...page.data] : page.data,
 )
 const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
 ---

@@ -1,9 +1,8 @@
 import type { IconMap, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
-  title: 'Yuto\'s Notes',
-  description:
-    'Yuto 筆記、writeups 和部落格文章們',
+  title: "Yuto's Notes",
+  description: 'Yuto 筆記、writeups 和部落格文章們',
   href: 'https://blog.yuto0226.dev',
   author: 'Yuto',
   locale: 'zh-TW',
