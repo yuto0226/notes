@@ -1,9 +1,14 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import FriendCard from '@/components/FriendCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import ProjectCard from '@/components/ProjectCard.astro'
 import Layout from '@/layouts/Layout.astro'
-import { getAllMilestones, getAllProjects } from '@/lib/data-utils'
+import {
+  getAllFriends,
+  getAllMilestones,
+  getAllProjects,
+} from '@/lib/data-utils'
 import {
   formatMilestoneDateRange,
   formatMilestoneDatetime,
@@ -13,6 +18,7 @@ import { render } from 'astro:content'
 
 const projects = await getAllProjects()
 const milestones = await getAllMilestones()
+const friends = await getAllFriends()
 const renderedMilestones = await Promise.all(
   milestones.map(async (milestone) => {
     const { Content } = await render(milestone)
@@ -79,6 +85,23 @@ const renderedMilestones = await Promise.all(
       <div class="flex flex-col gap-4">
         {projects.map((project) => <ProjectCard project={project} />)}
       </div>
+
+      <h2 class="mt-8 mb-4 text-2xl font-medium">Friends</h2>
+      {
+        friends.length > 0 ? (
+          <ul class="mb-12 list-none columns-1 gap-4 space-y-4 pl-0 md:columns-2">
+            {friends.map((friend) => (
+              <li class="break-inside-avoid">
+                <FriendCard friend={friend} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-muted-foreground mb-12 text-center">
+            No friends found. ｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡
+          </p>
+        )
+      }
     </div>
   </section>
 </Layout>
