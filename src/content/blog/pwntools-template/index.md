@@ -6,6 +6,7 @@ description: ''
 image: ''
 tags:
   - pwn
+categories: [note]
 ---
 
 ## Install

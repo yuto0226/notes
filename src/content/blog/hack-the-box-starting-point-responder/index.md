@@ -9,7 +9,7 @@ tags:
   - NTLM
   - WinRM
 authors: ['yuto']
-category: 'Hack The Box'
+categories: [note]
 draft: false
 pinned: false
 ---

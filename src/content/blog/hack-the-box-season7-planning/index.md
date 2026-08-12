@@ -9,7 +9,7 @@ tags:
   - CVE-2024-9264
   - CronJobs
 authors: ['yuto']
-category: 'Hack The Box'
+categories: [note]
 draft: false
 pinned: false
 ---
