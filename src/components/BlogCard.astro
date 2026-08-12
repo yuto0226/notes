@@ -1,4 +1,5 @@
 ---
+import LqipImage from '@/components/LqipImage.astro'
 import AvatarComponent from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -10,8 +11,8 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
-import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
+import fallbackImage from '../../public/static/flower-field-2.png'
 import Link from './Link.astro'
 
 interface Props {
@@ -23,9 +24,7 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
-const entryImage = (
-  entry.data.image ? entry.data.image : '/static/flower-field-2.png'
-) as any
+const entryImage = entry.data.image ? entry.data.image : fallbackImage
 ---
 
 <div
@@ -36,12 +35,12 @@ const entryImage = (
     class="flex flex-col gap-4 sm:flex-row"
   >
     <div class="w-full sm:max-w-3xs sm:shrink-0">
-      <Image
+      <LqipImage
         src={entryImage}
         alt={entry.data.title}
         width={1200}
         height={630}
-        class="object-cover"
+        imgClass="object-cover"
       />
     </div>
 

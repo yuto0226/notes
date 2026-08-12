@@ -105,3 +105,35 @@
     }
   }
 }
+
+@layer components {
+  .lqip-image {
+    @apply bg-muted relative block overflow-hidden;
+  }
+
+  .lqip-placeholder {
+    @apply absolute inset-0 h-full w-full scale-105 object-cover opacity-80 blur-lg;
+  }
+
+  .lqip-full {
+    @apply absolute inset-0 h-full w-full scale-100 text-transparent opacity-100 blur-none;
+  }
+
+  .js .lqip-full {
+    @apply scale-[1.01] opacity-0 blur-md transition-[opacity,filter,transform] duration-500 ease-out;
+  }
+
+  .js .lqip-full.is-loaded {
+    @apply scale-100 opacity-100 blur-none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lqip-placeholder {
+      @apply hidden;
+    }
+
+    .js .lqip-full {
+      @apply scale-100 opacity-100 blur-none transition-none;
+    }
+  }
+}

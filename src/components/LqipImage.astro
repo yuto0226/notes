@@ -1,0 +1,69 @@
+---
+import { cn } from '@/lib/utils'
+import { getImage } from 'astro:assets'
+
+interface Props {
+  src: ImageMetadata
+  alt: string
+  width: number
+  height: number
+  class?: string
+  imgClass?: string
+  loading?: 'eager' | 'lazy'
+  decoding?: 'async' | 'auto' | 'sync'
+  fetchpriority?: 'high' | 'low' | 'auto'
+  quality?: number
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  class: className,
+  imgClass,
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority = 'auto',
+  quality = 80,
+} = Astro.props
+
+const full = await getImage({
+  src,
+  width,
+  height,
+  format: 'webp',
+  quality,
+})
+
+const placeholder = await getImage({
+  src,
+  width: 32,
+  format: 'webp',
+  quality: 20,
+})
+
+const aspectRatio = `${width} / ${height}`
+---
+
+<div class={cn('lqip-image', className)} style={{ aspectRatio }}>
+  <img
+    src={placeholder.src}
+    alt=""
+    aria-hidden="true"
+    loading="eager"
+    decoding="async"
+    class="lqip-placeholder"
+  />
+  <img
+    src={full.src}
+    alt={alt}
+    width={full.attributes.width}
+    height={full.attributes.height}
+    loading={loading}
+    decoding={decoding}
+    fetchpriority={fetchpriority}
+    class={cn('lqip-full', imgClass)}
+    data-lqip-image
+  />
+</div>

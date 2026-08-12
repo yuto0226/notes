@@ -1,6 +1,7 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
+import LqipImage from '@/components/LqipImage.astro'
 import PostHead from '@/components/PostHead.astro'
 import PostNavigation from '@/components/PostNavigation.astro'
 import SubpostsHeader from '@/components/SubpostsHeader.astro'
@@ -27,6 +28,7 @@ import { formatDateTime } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
+import fallbackImage from '../../../public/static/flower-field-2.png'
 
 export async function getStaticPaths() {
   const posts = await getAllPostsAndSubposts()
@@ -56,9 +58,7 @@ const combinedReadingTime =
     : null
 
 const tocSections = await getTOCSections(currentPostId)
-const postImage = (
-  post.data.image ? post.data.image : '/static/flower-field-2.png'
-) as any
+const postImage = post.data.image ? post.data.image : fallbackImage
 ---
 
 <Layout class="max-w-4xl">
@@ -109,12 +109,16 @@ const postImage = (
       />
     </div>
 
-    <Image
+    <LqipImage
       src={postImage}
       alt={post.data.title}
       width={1200}
       height={630}
-      class="col-span-full mx-auto w-full max-w-5xl object-cover"
+      class="col-span-full mx-auto w-full max-w-5xl"
+      imgClass="object-cover"
+      loading="eager"
+      decoding="sync"
+      fetchpriority="high"
     />
 
     <section class="flex min-w-0 flex-col gap-y-6 text-center">

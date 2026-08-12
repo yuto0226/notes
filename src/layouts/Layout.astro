@@ -26,6 +26,10 @@ const { class: className } = Astro.props
     <slot name="head" />
   </Head>
   <body class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
+    <!-- enable LQIP only when JavaScript can mark loaded images -->
+    <script is:inline>
+      document.documentElement.classList.add('js')
+    </script>
     <header
       class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
     >
@@ -41,5 +45,28 @@ const { class: className } = Astro.props
     <Footer />
     <SpeedInsights />
     <Analytics />
+    <script>
+      const setupLqipImages = () => {
+        document
+          .querySelectorAll<HTMLImageElement>('img[data-lqip-image]')
+          .forEach((image) => {
+            if (image.complete) {
+              image.classList.add('is-loaded')
+              return
+            }
+
+            image.addEventListener(
+              'load',
+              () => {
+                image.classList.add('is-loaded')
+              },
+              { once: true },
+            )
+          })
+      }
+
+      document.addEventListener('astro:page-load', setupLqipImages)
+      document.addEventListener('astro:after-swap', setupLqipImages)
+    </script>
   </body>
 </html>

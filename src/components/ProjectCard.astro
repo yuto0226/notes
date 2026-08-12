@@ -1,19 +1,18 @@
 ---
 import Link from '@/components/Link.astro'
+import LqipImage from '@/components/LqipImage.astro'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
-import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
+import fallbackImage from '../../public/static/flower-field-2.png'
 
 interface Props {
   project: CollectionEntry<'projects'>
 }
 
 const { project } = Astro.props
-const entryImage = (
-  project.data.image ? project.data.image : '/static/flower-field-2.png'
-) as any
+const entryImage = project.data.image ? project.data.image : fallbackImage
 ---
 
 <div
@@ -25,12 +24,12 @@ const entryImage = (
     external
   >
     <div class="w-full sm:max-w-3xs sm:shrink-0">
-      <Image
+      <LqipImage
         src={entryImage}
         alt={project.data.name}
         width={1200}
         height={630}
-        class="object-cover"
+        imgClass="object-cover"
       />
     </div>
     <div class="grow">
