@@ -1,0 +1,292 @@
+---
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import LqipImage from '@/components/LqipImage.astro'
+import PostHead from '@/components/PostHead.astro'
+import PostNavigation from '@/components/PostNavigation.astro'
+import SubpostsHeader from '@/components/SubpostsHeader.astro'
+import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
+import TOCHeader from '@/components/TOCHeader.astro'
+import TOCSidebar from '@/components/TOCSidebar.astro'
+import { badgeVariants } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import Layout from '@/layouts/Layout.astro'
+import type { TOCSection } from '@/lib/data-utils'
+import { formatDateTime } from '@/lib/utils'
+import type { ImageMetadata, MarkdownHeading } from 'astro'
+import { Icon } from 'astro-icon/components'
+import { Image } from 'astro:assets'
+import type { CollectionEntry, RenderResult } from 'astro:content'
+
+type ParsedAuthor = {
+  id: string
+  name: string
+  avatar: string
+  isRegistered: boolean
+}
+
+type AdjacentNavigation = {
+  newer: CollectionEntry<'blog'> | null
+  older: CollectionEntry<'blog'> | null
+}
+
+interface Props {
+  entry: CollectionEntry<'blog'> | CollectionEntry<'essays'>
+  currentEntryId: string
+  Content: RenderResult['Content']
+  headings: MarkdownHeading[]
+  breadcrumbItems: BreadcrumbItem[]
+  authors: ParsedAuthor[]
+  readingTimeText: string
+  heroImage: ImageMetadata
+  tocSections: TOCSection[]
+  adjacentNavigation?: AdjacentNavigation
+  parentEntry?: CollectionEntry<'blog'>
+  isCurrentSubpost?: boolean
+  subpostCount?: number
+  combinedReadingTime?: string | null
+  hierarchyParentId?: string
+  tocIsCurrentSubpost?: boolean
+}
+
+const {
+  entry,
+  currentEntryId,
+  Content,
+  headings,
+  breadcrumbItems,
+  authors,
+  readingTimeText,
+  heroImage,
+  tocSections,
+  adjacentNavigation,
+  parentEntry,
+  isCurrentSubpost = false,
+  subpostCount = 0,
+  combinedReadingTime,
+  hierarchyParentId,
+  tocIsCurrentSubpost,
+} = Astro.props
+---
+
+<Layout class="max-w-4xl">
+  <PostHead slot="head" post={entry} />
+  {
+    hierarchyParentId && (
+      <SubpostsHeader slot="subposts-navigation" parentId={hierarchyParentId} />
+    )
+  }
+  {
+    headings.length > 0 &&
+      !(
+        isCurrentSubpost &&
+        headings.length === 1 &&
+        headings[0].text === entry.data.title
+      ) && <TOCHeader slot="table-of-contents" headings={headings} />
+  }
+
+  <section class="grid grid-cols-[minmax(0,1fr)] gap-y-6">
+    <div class="min-w-0">
+      <Breadcrumbs items={breadcrumbItems} />
+    </div>
+
+    <LqipImage
+      src={heroImage}
+      alt={entry.data.title}
+      width={1200}
+      height={630}
+      class="col-span-full mx-auto w-full max-w-5xl"
+      imgClass="object-cover"
+      loading="eager"
+      decoding="sync"
+      fetchpriority="high"
+    />
+
+    <section class="flex min-w-0 flex-col gap-y-6 text-center">
+      <div class="flex flex-col">
+        <h1
+          class="mb-2 scroll-mt-31 text-3xl leading-tight font-medium sm:text-4xl"
+          id="post-title"
+        >
+          {entry.data.title}
+        </h1>
+
+        <div
+          class="text-muted-foreground divide-border mb-4 flex flex-col items-center justify-center divide-y text-xs sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 sm:text-sm"
+        >
+          {
+            authors.length > 0 && (
+              <div class="flex w-full items-center justify-center gap-x-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
+                {authors.map((author) => (
+                  <div class="flex items-center gap-x-1.5">
+                    <Image
+                      src={author.avatar}
+                      alt={author.name}
+                      width={20}
+                      height={20}
+                      class="rounded-full"
+                    />
+                    {author.isRegistered ? (
+                      <Link
+                        href={`/authors/${author.id}`}
+                        underline
+                        class="text-foreground"
+                      >
+                        <span>{author.name}</span>
+                      </Link>
+                    ) : (
+                      <span>{author.name}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          }
+
+          <div
+            class="flex w-full items-center justify-center gap-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
+          >
+            <span>{formatDateTime(entry.data.date)}</span>
+          </div>
+
+          <div
+            class="flex w-full items-center justify-center gap-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
+          >
+            <span>
+              {readingTimeText}
+              {
+                combinedReadingTime &&
+                  combinedReadingTime !== readingTimeText && (
+                    <span class="text-muted-foreground">
+                      {' '}
+                      ({combinedReadingTime} total)
+                    </span>
+                  )
+              }
+            </span>
+          </div>
+
+          {
+            subpostCount > 0 && (
+              <div class="flex w-full items-center justify-center gap-1 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
+                <Icon name="lucide:file-text" class="size-3" />
+                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
+              </div>
+            )
+          }
+        </div>
+        <div class="flex flex-wrap justify-center gap-2">
+          {
+            entry.data.tags &&
+              entry.data.tags.length > 0 &&
+              entry.data.tags.map((tag) => (
+                <a
+                  href={`/tags/${tag}`}
+                  class={badgeVariants({ variant: 'muted' })}
+                >
+                  <Icon name="lucide:hash" class="size-3" />
+                  {tag}
+                </a>
+              ))
+          }
+        </div>
+      </div>
+
+      {
+        adjacentNavigation && (
+          <PostNavigation
+            newerPost={adjacentNavigation.newer}
+            olderPost={adjacentNavigation.older}
+            parentPost={isCurrentSubpost ? parentEntry : undefined}
+          />
+        )
+      }
+    </section>
+
+    {
+      tocSections.length > 0 && (
+        <TOCSidebar
+          sections={tocSections}
+          currentPostId={currentEntryId}
+          isCurrentSubpost={tocIsCurrentSubpost}
+        />
+      )
+    }
+
+    <article class="prose max-w-none min-w-0" data-toc-anchor>
+      <Content />
+    </article>
+
+    {
+      hierarchyParentId && (
+        <SubpostsSidebar parentId={hierarchyParentId} className="w-64" />
+      )
+    }
+
+    {
+      adjacentNavigation && (
+        <div class="mx-auto w-full max-w-4xl min-w-0">
+          <PostNavigation
+            newerPost={adjacentNavigation.newer}
+            olderPost={adjacentNavigation.older}
+            parentPost={isCurrentSubpost ? parentEntry : undefined}
+          />
+        </div>
+      )
+    }
+  </section>
+
+  <Button
+    variant="outline"
+    size="icon"
+    className="group fixed right-8 bottom-8 z-50 hidden"
+    id="scroll-to-top"
+    title="Scroll to top"
+    aria-label="Scroll to top"
+  >
+    <Icon
+      name="lucide:arrow-up"
+      class="mx-auto size-4 transition-all group-hover:-translate-y-0.5"
+    />
+  </Button>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const scrollToTopButton = document.getElementById('scroll-to-top')
+      const footer = document.querySelector('footer')
+
+      if (scrollToTopButton && footer) {
+        scrollToTopButton.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        })
+
+        window.addEventListener('scroll', () => {
+          const footerRect = footer.getBoundingClientRect()
+          const isFooterVisible = footerRect.top <= window.innerHeight
+
+          scrollToTopButton.classList.toggle(
+            'hidden',
+            window.scrollY <= 300 || isFooterVisible,
+          )
+        })
+      }
+    })
+  </script>
+</Layout>
+
+<script>
+  const ensureKatexStyles = () => {
+    if (!document.querySelector('.katex')) return
+    if (document.querySelector('link[href*="katex.min.css"]')) return
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
+    document.head.appendChild(link)
+  }
+
+  document.addEventListener('astro:page-load', ensureKatexStyles)
+  document.addEventListener('astro:after-swap', ensureKatexStyles)
+</script>

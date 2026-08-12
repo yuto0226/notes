@@ -4,10 +4,11 @@ import { isSubpost } from '@/lib/data-utils'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
-  post: CollectionEntry<'blog'>
+  post: CollectionEntry<'blog'> | CollectionEntry<'essays'>
 }
 
 const { post } = Astro.props
+const shouldNoindex = post.collection === 'blog' && isSubpost(post.id)
 
 const title = post.data.title || SITE.title
 const description = post.data.description || SITE.description
@@ -23,7 +24,7 @@ const author =
 <meta name="description" content={description} />
 <link rel="canonical" href={Astro.url.href} />
 
-{isSubpost(post.id) && <meta name="robots" content="noindex" />}
+{shouldNoindex && <meta name="robots" content="noindex" />}
 
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

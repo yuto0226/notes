@@ -1,0 +1,57 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import { parseAuthors, type TOCSection } from '@/lib/data-utils'
+import { getPublicEssays } from '@/lib/essays'
+import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
+import { render } from 'astro:content'
+import fallbackImage from '../../../public/static/flower-field-2.png'
+
+export async function getStaticPaths() {
+  const essays = await getPublicEssays()
+  return essays.map((essay) => ({
+    params: { id: essay.id },
+    props: essay,
+  }))
+}
+
+const essay = Astro.props
+const currentEssayId = essay.id
+const { Content, headings } = await render(essay)
+const authors = await parseAuthors(essay.data.authors ?? [])
+const readingTimeText = readingTime(calculateWordCountFromHtml(essay.body))
+const tocSections: TOCSection[] = headings.length
+  ? [
+      {
+        type: 'parent',
+        title: 'Overview',
+        headings: headings.map((heading) => ({
+          slug: heading.slug,
+          text: heading.text,
+          depth: heading.depth,
+        })),
+      },
+    ]
+  : []
+const heroImage = essay.data.image ?? fallbackImage
+const breadcrumbItems = [
+  { href: '/essays', label: 'Essays', icon: 'lucide:feather' },
+  {
+    href: `/essays/${currentEssayId}`,
+    label: essay.data.title,
+    icon: 'lucide:file-text',
+  },
+]
+---
+
+<PostDetail
+  entry={essay}
+  currentEntryId={currentEssayId}
+  Content={Content}
+  headings={headings}
+  breadcrumbItems={breadcrumbItems}
+  authors={authors}
+  readingTimeText={readingTimeText}
+  heroImage={heroImage}
+  tocSections={tocSections}
+  tocIsCurrentSubpost={false}
+/>

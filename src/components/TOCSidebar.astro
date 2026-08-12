@@ -10,10 +10,15 @@ import TOCItem from './TOCItem.astro'
 type Props = {
   sections: TOCSection[]
   currentPostId: string
+  isCurrentSubpost?: boolean
 }
 
-const { sections, currentPostId } = Astro.props
-const isCurrentSubpost = isSubpost(currentPostId)
+const {
+  sections,
+  currentPostId,
+  isCurrentSubpost: explicitIsCurrentSubpost,
+} = Astro.props
+const isCurrentSubpost = explicitIsCurrentSubpost ?? isSubpost(currentPostId)
 const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
 
 function buildHeadingTree(headings: any[]): HeadingNode[] {
