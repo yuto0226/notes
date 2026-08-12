@@ -113,6 +113,7 @@
     --page-transition-reveal-duration: 400ms;
     --page-transition-ready-at: 580ms;
     --page-transition-blink-duration: 400ms;
+    --page-transition-caret-distance: 0px;
 
     @apply bg-background pointer-events-none invisible fixed inset-0 z-100 grid place-items-center opacity-0 transition-[opacity,visibility] ease-in;
     transition-duration: var(--page-transition-fade-duration);
@@ -139,16 +140,16 @@
     clip-path: inset(0 0 0 0);
   }
 
-  .js .page-transition-overlay.is-active .page-transition-title {
+  .js .page-transition-overlay.is-revealing .page-transition-title {
     animation: page-transition-title var(--page-transition-reveal-duration)
       ease-in-out var(--page-transition-reveal-delay) both;
   }
 
   .page-transition-caret {
-    @apply absolute top-1/2 w-1;
+    @apply absolute top-1/2 left-0 w-1;
     height: 1em;
-    left: calc(100% + 0.5rem);
-    transform: translateY(-50%);
+    transform: translate3d(var(--page-transition-caret-distance), -50%, 0);
+    will-change: transform;
   }
 
   .page-transition-caret::after {
@@ -156,14 +157,19 @@
     content: '';
   }
 
-  .js .page-transition-overlay.is-active .page-transition-caret {
+  .js .page-transition-overlay.is-revealing .page-transition-caret {
     animation: page-transition-caret var(--page-transition-reveal-duration)
       ease-in-out var(--page-transition-reveal-delay) both;
   }
 
-  .js .page-transition-overlay.is-active .page-transition-caret::after {
+  .js .page-transition-overlay.is-revealing .page-transition-caret::after {
     animation: page-transition-caret-blink var(--page-transition-blink-duration)
       steps(2, end) var(--page-transition-ready-at) infinite;
+  }
+
+  .js .page-transition-overlay.is-ready .page-transition-caret::after {
+    animation: page-transition-caret-blink var(--page-transition-blink-duration)
+      steps(2, end) infinite;
   }
 
   .lqip-image {
@@ -226,11 +232,11 @@
 
 @keyframes page-transition-caret {
   from {
-    left: 0;
+    transform: translate3d(0, -50%, 0);
   }
 
   to {
-    left: calc(100% + 0.5rem);
+    transform: translate3d(var(--page-transition-caret-distance), -50%, 0);
   }
 }
 

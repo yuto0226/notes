@@ -3,7 +3,7 @@ import { SITE } from '@/consts'
 import { ClientRouter } from 'astro:transitions'
 import Favicons from './Favicons.astro'
 
-const asyncFontStylesheets = [
+const fontStylesheets = [
   'https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap',
   'https://font.emtech.cc/css/GenWanMinTW',
   'https://fontsapi.zeoseven.com/442/main/result.css',
@@ -42,7 +42,7 @@ const asyncFontStylesheets = [
   <link rel="sitemap" href="/sitemap-index.xml" />
   <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- font demand loading -->
+  <!-- external fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://font.emtech.cc" />
@@ -53,29 +53,7 @@ const asyncFontStylesheets = [
     title={SITE.title}
     href={new URL('rss.xml', Astro.site)}
   />
-  {
-    asyncFontStylesheets.map((href) => (
-      <>
-        <link rel="preload" as="style" href={href} data-async-font-stylesheet />
-        <noscript>
-          <link rel="stylesheet" href={href} />
-        </noscript>
-      </>
-    ))
-  }
-  <script is:inline>
-    document
-      .querySelectorAll('link[data-async-font-stylesheet]')
-      .forEach((link) => {
-        link.addEventListener(
-          'load',
-          () => {
-            link.rel = 'stylesheet'
-          },
-          { once: true },
-        )
-      })
-  </script>
+  {fontStylesheets.map((href) => <link rel="stylesheet" href={href} />)}
 
   <Favicons />
   <ClientRouter />
