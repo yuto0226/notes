@@ -7,7 +7,7 @@ image: ''
 tags:
   - PEB Walk
   - TONESHELL
-category: 'Malware Analysis'
+categories: [note]
 draft: false
 pinned: false
 ---

@@ -7,7 +7,7 @@ image: ''
 tags:
   - THJCC CTF
   - pwn
-category: CTF
+categories: [note]
 draft: false
 ---
 
