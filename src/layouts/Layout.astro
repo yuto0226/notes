@@ -27,9 +27,19 @@ const { class: className } = Astro.props
   </Head>
   <body class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
     <!-- enable LQIP only when JavaScript can mark loaded images -->
-    <script is:inline>
+    <script is:inline data-astro-rerun>
       document.documentElement.classList.add('js')
     </script>
+    <div
+      class="page-transition-overlay is-active"
+      transition:persist
+      aria-hidden="true"
+    >
+      <div class="page-transition-mark">
+        <span class="page-transition-title">{SITE.title}</span>
+        <span class="page-transition-caret"></span>
+      </div>
+    </div>
     <header
       class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
     >
@@ -46,6 +56,57 @@ const { class: className } = Astro.props
     <SpeedInsights />
     <Analytics />
     <script>
+      const transitionOverlayDuration = 580
+      let transitionOverlayShownAt = performance.now()
+      let transitionOverlayHideTimer: number | undefined
+
+      const wait = (duration: number) =>
+        new Promise((resolve) => window.setTimeout(resolve, duration))
+
+      const nextFrame = () =>
+        new Promise((resolve) => requestAnimationFrame(resolve))
+
+      const getTransitionOverlay = () =>
+        document.querySelector<HTMLElement>('.page-transition-overlay')
+
+      const showTransitionOverlay = () => {
+        window.clearTimeout(transitionOverlayHideTimer)
+        transitionOverlayShownAt = performance.now()
+        getTransitionOverlay()?.classList.add('is-active')
+      }
+
+      const hideTransitionOverlay = () => {
+        const elapsed = performance.now() - transitionOverlayShownAt
+        const remaining = Math.max(transitionOverlayDuration - elapsed, 0)
+
+        transitionOverlayHideTimer = window.setTimeout(() => {
+          getTransitionOverlay()?.classList.remove('is-active')
+        }, remaining)
+      }
+
+      document.addEventListener('astro:before-preparation', (event) => {
+        document.documentElement.classList.add('js')
+        const nextUrl = new URL(event.to.href)
+
+        if (
+          nextUrl.pathname === location.pathname &&
+          nextUrl.search === location.search &&
+          nextUrl.hash !== location.hash
+        ) {
+          return
+        }
+
+        const loadPage = event.loader
+
+        event.loader = async () => {
+          showTransitionOverlay()
+          await nextFrame()
+          await Promise.all([loadPage(), wait(transitionOverlayDuration)])
+        }
+      })
+
+      document.addEventListener('astro:page-load', hideTransitionOverlay)
+
       const revealImage = (image: HTMLImageElement) => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {

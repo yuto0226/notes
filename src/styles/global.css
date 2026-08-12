@@ -107,6 +107,65 @@
 }
 
 @layer components {
+  .page-transition-overlay {
+    --page-transition-fade-duration: 180ms;
+    --page-transition-reveal-delay: 180ms;
+    --page-transition-reveal-duration: 400ms;
+    --page-transition-ready-at: 580ms;
+    --page-transition-blink-duration: 400ms;
+
+    @apply bg-background pointer-events-none invisible fixed inset-0 z-100 grid place-items-center opacity-0 transition-[opacity,visibility] ease-in;
+    transition-duration: var(--page-transition-fade-duration);
+  }
+
+  .js .page-transition-overlay.is-active {
+    @apply pointer-events-auto visible opacity-100;
+  }
+
+  .page-transition-mark {
+    @apply text-foreground relative inline-block text-3xl font-semibold opacity-0 transition-opacity duration-200 ease-out;
+    font-family: system-ui, sans-serif;
+    font-synthesis: none;
+    line-height: 1;
+    min-width: max-content;
+  }
+
+  .js .page-transition-overlay.is-active .page-transition-mark {
+    @apply opacity-100;
+  }
+
+  .page-transition-title {
+    @apply block;
+    clip-path: inset(0 0 0 0);
+  }
+
+  .js .page-transition-overlay.is-active .page-transition-title {
+    animation: page-transition-title var(--page-transition-reveal-duration)
+      ease-in-out var(--page-transition-reveal-delay) both;
+  }
+
+  .page-transition-caret {
+    @apply absolute top-1/2 w-1;
+    height: 1em;
+    left: calc(100% + 0.5rem);
+    transform: translateY(-50%);
+  }
+
+  .page-transition-caret::after {
+    @apply bg-foreground/60 block h-full w-full;
+    content: '';
+  }
+
+  .js .page-transition-overlay.is-active .page-transition-caret {
+    animation: page-transition-caret var(--page-transition-reveal-duration)
+      ease-in-out var(--page-transition-reveal-delay) both;
+  }
+
+  .js .page-transition-overlay.is-active .page-transition-caret::after {
+    animation: page-transition-caret-blink var(--page-transition-blink-duration)
+      steps(2, end) var(--page-transition-ready-at) infinite;
+  }
+
   .lqip-image {
     @apply bg-muted relative block overflow-hidden;
   }
@@ -138,6 +197,22 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .page-transition-overlay,
+    .page-transition-mark,
+    .page-transition-title,
+    .page-transition-caret,
+    .page-transition-caret::after {
+      @apply transition-none;
+    }
+
+    .page-transition-title {
+      clip-path: none;
+    }
+
+    .page-transition-caret {
+      @apply hidden animate-none;
+    }
+
     .lqip-placeholder {
       @apply hidden;
     }
@@ -146,5 +221,37 @@
     .js .remote-image-full {
       @apply scale-100 opacity-100 blur-none transition-none;
     }
+  }
+}
+
+@keyframes page-transition-caret {
+  from {
+    left: 0;
+  }
+
+  to {
+    left: calc(100% + 0.5rem);
+  }
+}
+
+@keyframes page-transition-title {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes page-transition-caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  46%,
+  100% {
+    opacity: 0.25;
   }
 }
