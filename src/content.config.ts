@@ -19,6 +19,21 @@ const blog = defineCollection({
     }),
 })
 
+const essays = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/essays' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      image: image().optional(),
+      tags: z.array(z.string()).optional(),
+      authors: z.array(z.string()).optional(),
+      draft: z.boolean().optional(),
+    }),
+})
+
 const authors = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/authors' }),
   schema: z.object({
@@ -81,4 +96,11 @@ const milestones = defineCollection({
   }),
 })
 
-export const collections = { blog, authors, friends, projects, milestones }
+export const collections = {
+  blog,
+  essays,
+  authors,
+  friends,
+  projects,
+  milestones,
+}
