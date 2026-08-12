@@ -53,10 +53,17 @@ const AvatarComponent: React.FC<AvatarComponentProps> = ({
   alt,
   fallback,
   className,
+  imageClassName,
+  revealImage = false,
 }) => {
   return (
     <Avatar className={className}>
-      <AvatarImage src={src} alt={alt} />
+      <AvatarImage
+        src={src}
+        alt={alt}
+        className={imageClassName}
+        data-remote-image={revealImage ? '' : undefined}
+      />
       <AvatarFallback>{fallback}</AvatarFallback>
     </Avatar>
   )
@@ -69,6 +76,8 @@ interface AvatarComponentProps {
   alt?: string
   fallback: string
   className?: string
+  imageClassName?: string
+  revealImage?: boolean
 }
 
 export { Avatar, AvatarImage, AvatarFallback }

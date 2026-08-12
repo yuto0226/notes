@@ -111,6 +111,10 @@
     @apply bg-muted relative block overflow-hidden;
   }
 
+  .remote-image {
+    @apply bg-muted relative overflow-hidden;
+  }
+
   .lqip-placeholder {
     @apply absolute inset-0 h-full w-full scale-105 object-cover opacity-80 blur-lg;
   }
@@ -119,11 +123,17 @@
     @apply absolute inset-0 h-full w-full scale-100 text-transparent opacity-100 blur-none;
   }
 
-  .js .lqip-full {
+  .remote-image-full {
+    @apply scale-100 opacity-100 blur-none;
+  }
+
+  .js .lqip-full,
+  .js .remote-image-full {
     @apply scale-[1.01] opacity-0 blur-md transition-[opacity,filter,transform] duration-500 ease-out;
   }
 
-  .js .lqip-full.is-loaded {
+  .js .lqip-full.is-loaded,
+  .js .remote-image-full.is-loaded {
     @apply scale-100 opacity-100 blur-none;
   }
 
@@ -132,7 +142,8 @@
       @apply hidden;
     }
 
-    .js .lqip-full {
+    .js .lqip-full,
+    .js .remote-image-full {
       @apply scale-100 opacity-100 blur-none transition-none;
     }
   }

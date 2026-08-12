@@ -38,7 +38,9 @@ const socialLinks: SocialLink[] = [
         src={avatar}
         alt={`Avatar of ${name}`}
         fallback={name[0]}
-        className="hover:ring-primary size-24 rounded-md transition-shadow duration-300 hover:cursor-pointer hover:ring-2 [&>[data-slot='avatar-fallback']]:rounded-md"
+        className="remote-image hover:ring-primary size-24 rounded-md transition-shadow duration-300 hover:cursor-pointer hover:ring-2 *:data-[slot='avatar-fallback']:rounded-md *:data-[slot='avatar-fallback']:text-3xl *:data-[slot='avatar-fallback']:font-medium"
+        imageClassName="remote-image-full"
+        revealImage
       />
     </a>
     <div class="flex grow flex-col justify-between gap-y-4">

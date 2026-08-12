@@ -46,27 +46,48 @@ const { class: className } = Astro.props
     <SpeedInsights />
     <Analytics />
     <script>
-      const setupLqipImages = () => {
-        document
-          .querySelectorAll<HTMLImageElement>('img[data-lqip-image]')
-          .forEach((image) => {
-            if (image.complete) {
-              image.classList.add('is-loaded')
-              return
-            }
-
-            image.addEventListener(
-              'load',
-              () => {
-                image.classList.add('is-loaded')
-              },
-              { once: true },
-            )
+      const revealImage = (image: HTMLImageElement) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            image.classList.add('is-loaded')
           })
+        })
       }
 
-      document.addEventListener('astro:page-load', setupLqipImages)
-      document.addEventListener('astro:after-swap', setupLqipImages)
+      const setupRevealImage = (image: HTMLImageElement) => {
+        if (image.dataset.revealBound) return
+
+        image.dataset.revealBound = 'true'
+
+        if (image.complete && image.naturalWidth > 0) {
+          revealImage(image)
+          return
+        }
+
+        image.addEventListener('load', () => revealImage(image), {
+          once: true,
+        })
+      }
+
+      const setupRevealImages = () => {
+        document
+          .querySelectorAll<HTMLImageElement>(
+            'img[data-lqip-image], img[data-remote-image]',
+          )
+          .forEach(setupRevealImage)
+      }
+
+      const revealObserver = new MutationObserver(setupRevealImages)
+
+      document.addEventListener('astro:page-load', () => {
+        setupRevealImages()
+        revealObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+        })
+      })
+
+      document.addEventListener('astro:after-swap', setupRevealImages)
     </script>
   </body>
 </html>
