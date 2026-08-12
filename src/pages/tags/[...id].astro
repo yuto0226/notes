@@ -1,9 +1,10 @@
 ---
 import BlogCard from '@/components/BlogCard.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import EssayEntry from '@/components/EssayEntry.astro'
 import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
-import { getAllTags, getPostsByTag } from '@/lib/data-utils'
+import { getAllTags, getEntriesByTag, type TagEntry } from '@/lib/data-utils'
 
 export async function getStaticPaths() {
   const tagMap = await getAllTags()
@@ -11,19 +12,21 @@ export async function getStaticPaths() {
 
   return Promise.all(
     uniqueTags.map(async (tag) => {
-      const posts = await getPostsByTag(tag)
+      const entries = await getEntriesByTag(tag)
       return {
         params: { id: tag },
         props: {
           tag,
-          posts,
+          entries,
         },
       }
     }),
   )
 }
 
-const { tag, posts } = Astro.props
+const { tag, entries } = Astro.props as { tag: string; entries: TagEntry[] }
+const essays = entries.filter((entry) => entry.collection === 'essays')
+const blogs = entries.filter((entry) => entry.collection === 'blog')
 ---
 
 <Layout class="max-w-4xl">
@@ -40,13 +43,32 @@ const { tag, posts } = Astro.props
     ]}
   />
 
-  <ul class="flex flex-col gap-y-4">
-    {
-      posts.map((post) => (
-        <li>
-          <BlogCard entry={post} />
-        </li>
-      ))
-    }
-  </ul>
+  {
+    essays.length > 0 && (
+      <section>
+        <h2 class="mb-4 text-2xl font-medium">Essays</h2>
+        <ul class="flex flex-col gap-y-4">
+          {essays.map((entry) => (
+            <li>
+              <EssayEntry entry={entry} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  {
+    blogs.length > 0 && (
+      <section>
+        <h2 class="mb-4 text-2xl font-medium">Blogs</h2>
+        <ul class="flex flex-col gap-y-4">
+          {blogs.map((entry) => (
+            <li>
+              <BlogCard entry={entry} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 </Layout>

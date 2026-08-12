@@ -1,6 +1,9 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content'
+import { getPublicEssays } from '@/lib/essays'
 import { parseMilestoneDate } from '@/lib/milestones'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
+
+export type TagEntry = CollectionEntry<'blog'> | CollectionEntry<'essays'>
 
 export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
   return await getCollection('authors')
@@ -59,13 +62,26 @@ export async function getAllMilestones(): Promise<
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {
-  const posts = await getAllPosts()
-  return posts.reduce((acc, post) => {
-    post.data.tags?.forEach((tag) => {
+  const entries = await getAllTagEntries()
+  return entries.reduce((acc, entry) => {
+    entry.data.tags?.forEach((tag) => {
       acc.set(tag, (acc.get(tag) || 0) + 1)
     })
     return acc
   }, new Map<string, number>())
+}
+
+export async function getEntriesByTag(tag: string): Promise<TagEntry[]> {
+  const entries = await getAllTagEntries()
+  return entries.filter((entry) => entry.data.tags?.includes(tag))
+}
+
+async function getAllTagEntries(): Promise<TagEntry[]> {
+  const [posts, essays] = await Promise.all([getAllPosts(), getPublicEssays()])
+
+  return [...posts, ...essays].toSorted(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+  )
 }
 
 export async function getAdjacentPosts(currentId: string): Promise<{
