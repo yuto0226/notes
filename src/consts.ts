@@ -23,10 +23,10 @@ export const NAV_LINKS: SocialLink[] = [
     href: '/about',
     label: 'about',
   },
-  {
-    href: '/friends',
-    label: 'friends',
-  },
+  // {
+  //   href: '/friends',
+  //   label: 'friends',
+  // },
 ]
 
 export const SOCIAL_LINKS: SocialLink[] = [
