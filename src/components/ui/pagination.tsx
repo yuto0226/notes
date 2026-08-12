@@ -130,10 +130,11 @@ const PaginationComponent: React.FC<PaginationProps> = ({
   baseUrl,
 }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const normalizedBaseUrl = baseUrl === '/' ? '' : baseUrl.replace(/\/+$/, '')
 
   const getPageUrl = (page: number) => {
-    if (page === 1) return baseUrl
-    return `${baseUrl}${page}`
+    if (page === 1) return normalizedBaseUrl || '/'
+    return `${normalizedBaseUrl}/${page}`
   }
 
   return (
