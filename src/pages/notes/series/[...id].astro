@@ -1,0 +1,116 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import SeriesDetail from '@/components/SeriesDetail.astro'
+import {
+  getNoteReadingTime,
+  parseAuthors,
+  type TOCSection,
+} from '@/lib/data-utils'
+import { getAllSeries, getSeriesEntry, type NoteSeries } from '@/lib/series'
+import { render, type CollectionEntry } from 'astro:content'
+import fallbackImage from '../../../../public/static/flower-field-2.png'
+
+type ParentPageProps = {
+  kind: 'parent'
+  series: NoteSeries
+}
+
+type EntryPageProps = {
+  kind: 'entry'
+  entry: CollectionEntry<'notes'>
+}
+
+export async function getStaticPaths() {
+  const allSeries = await getAllSeries()
+
+  return allSeries.flatMap((series) => [
+    {
+      params: { id: series.id.slice('series/'.length) },
+      props: { kind: 'parent' as const, series },
+    },
+    ...series.entries.map((entry) => ({
+      params: { id: entry.id.slice('series/'.length) },
+      props: { kind: 'entry' as const, entry },
+    })),
+  ])
+}
+
+const page = Astro.props as ParentPageProps | EntryPageProps
+
+let parentContent: Awaited<ReturnType<typeof render>>['Content'] | undefined
+let entryPage:
+  | {
+      result: NonNullable<Awaited<ReturnType<typeof getSeriesEntry>>>
+      Content: Awaited<ReturnType<typeof render>>['Content']
+      headings: Awaited<ReturnType<typeof render>>['headings']
+      authors: Awaited<ReturnType<typeof parseAuthors>>
+      readingTime: string
+      tocSections: TOCSection[]
+    }
+  | undefined
+
+if (page.kind === 'parent') {
+  parentContent = (await render(page.series.parent)).Content
+} else {
+  const result = await getSeriesEntry(page.entry.id)
+  if (!result) {
+    throw new Error(`Public Series entry not found: ${page.entry.id}`)
+  }
+
+  const { Content, headings } = await render(result.entry)
+  entryPage = {
+    result,
+    Content,
+    headings,
+    authors: await parseAuthors(result.entry.data.authors ?? []),
+    readingTime: await getNoteReadingTime(result.entry.id),
+    tocSections: headings.length
+      ? [
+          {
+            type: 'parent',
+            title: 'Overview',
+            headings: headings.map((heading) => ({
+              slug: heading.slug,
+              text: heading.text,
+              depth: heading.depth,
+            })),
+          },
+        ]
+      : [],
+  }
+}
+---
+
+{
+  page.kind === 'parent' && parentContent ? (
+    <SeriesDetail series={page.series} Content={parentContent} />
+  ) : (
+    entryPage && (
+      <PostDetail
+        entry={entryPage.result.entry}
+        currentEntryId={entryPage.result.entry.id}
+        Content={entryPage.Content}
+        headings={entryPage.headings}
+        breadcrumbItems={[
+          { href: '/notes', label: 'Notes', icon: 'lucide:library-big' },
+          {
+            href: `/notes/${entryPage.result.series.id}`,
+            label: entryPage.result.series.parent.data.title,
+            icon: 'lucide:library',
+          },
+          {
+            href: `/notes/${entryPage.result.entry.id}`,
+            label: entryPage.result.entry.data.title,
+            icon: 'lucide:file-text',
+          },
+        ]}
+        authors={entryPage.authors}
+        readingTimeText={entryPage.readingTime}
+        heroImage={entryPage.result.entry.data.image ?? fallbackImage}
+        tocSections={entryPage.tocSections}
+        adjacentNavigation={entryPage.result.navigation}
+        tocIsCurrentSubpost={false}
+      />
+    )
+  )
+}

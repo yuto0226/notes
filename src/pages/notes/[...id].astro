@@ -13,15 +13,18 @@ import {
   parseAuthors,
   type TOCSection,
 } from '@/lib/data-utils'
+import { isSeriesEntry } from '@/lib/series'
 import { render } from 'astro:content'
 import fallbackImage from '../../../public/static/flower-field-2.png'
 
 export async function getStaticPaths() {
   const notes = await getAllNotesAndSubposts()
-  return notes.map((note) => ({
-    params: { id: note.id },
-    props: note,
-  }))
+  return notes
+    .filter((note) => !isSeriesEntry(note.id))
+    .map((note) => ({
+      params: { id: note.id },
+      props: note,
+    }))
 }
 
 const note = Astro.props

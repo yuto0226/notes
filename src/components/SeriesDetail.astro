@@ -1,0 +1,101 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import LqipImage from '@/components/LqipImage.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import type { NoteSeries } from '@/lib/series'
+import { formatDate } from '@/lib/utils'
+import { Icon } from 'astro-icon/components'
+import type { RenderResult } from 'astro:content'
+
+interface Props {
+  series: NoteSeries
+  Content: RenderResult['Content']
+}
+
+const { series, Content } = Astro.props
+---
+
+<Layout class="max-w-4xl">
+  <PageHead
+    slot="head"
+    title={series.parent.data.title}
+    description={series.parent.data.description}
+  />
+  <Breadcrumbs
+    items={[
+      { label: 'Notes', href: '/notes', icon: 'lucide:library-big' },
+      { label: series.parent.data.title, icon: 'lucide:library' },
+    ]}
+  />
+
+  <div class="flex flex-col gap-y-8">
+    {
+      series.parent.data.image && (
+        <LqipImage
+          src={series.parent.data.image}
+          alt={series.parent.data.title}
+          width={1200}
+          height={630}
+          class="w-full"
+          imgClass="object-cover"
+          loading="eager"
+          decoding="sync"
+          fetchpriority="high"
+        />
+      )
+    }
+
+    <header class="flex flex-col gap-y-4">
+      <h1 class="text-3xl leading-tight font-medium text-pretty sm:text-4xl">
+        {series.parent.data.title}
+      </h1>
+      <article class="prose max-w-none">
+        <Content />
+      </article>
+    </header>
+
+    <section aria-labelledby="series-entries-title">
+      <h2 id="series-entries-title" class="mb-3 text-xl font-medium">Notes</h2>
+      {
+        series.entries.length > 0 ? (
+          <ol class="flex flex-col">
+            {series.entries.map((entry) => (
+              <li class="border-border border-t py-5 first:border-t-0">
+                <Link
+                  href={`/notes/${entry.id}`}
+                  class="group flex items-start justify-between gap-4"
+                >
+                  <div class="min-w-0 grow">
+                    <time
+                      datetime={entry.data.date.toISOString()}
+                      class="text-muted-foreground text-xs tracking-wide"
+                    >
+                      {formatDate(entry.data.date)}
+                    </time>
+                    <h3 class="mt-2 text-lg font-medium text-pretty group-hover:underline">
+                      {entry.data.title}
+                    </h3>
+                    <p class="text-muted-foreground mt-2 text-sm leading-relaxed">
+                      {entry.data.description}
+                    </p>
+                  </div>
+                  <Icon
+                    name="lucide:arrow-right"
+                    class="text-muted-foreground mt-1 size-4 shrink-0 transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="text-muted-foreground py-6 text-sm italic">
+            No notes have been published in this series yet.
+          </p>
+        )
+      }
+    </section>
+  </div>
+</Layout>
