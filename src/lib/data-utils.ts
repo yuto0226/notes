@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 import { getPublicEssays } from '@/lib/essays'
 import { parseMilestoneDate } from '@/lib/milestones'
+import { isSeriesEntry } from '@/lib/series'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
 
 export type TagEntry = CollectionEntry<'notes'> | CollectionEntry<'essays'>
@@ -16,7 +17,10 @@ export async function getAllFriends(): Promise<CollectionEntry<'friends'>[]> {
 export async function getAllNotes(): Promise<CollectionEntry<'notes'>[]> {
   const notes = await getCollection('notes')
   return notes
-    .filter((note) => !note.data.draft && !isSubpost(note.id))
+    .filter(
+      (note) =>
+        !note.data.draft && !isSeriesEntry(note.id) && !isSubpost(note.id),
+    )
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
@@ -220,7 +224,7 @@ export async function hasSubposts(postId: string): Promise<boolean> {
 }
 
 export function isSubpost(postId: string): boolean {
-  return postId.includes('/')
+  return !isSeriesEntry(postId) && postId.includes('/')
 }
 
 export async function getParentNote(

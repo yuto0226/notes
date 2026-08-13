@@ -2,6 +2,7 @@
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
+import SeriesCard from '@/components/SeriesCard.astro'
 import PaginationComponent from '@/components/ui/pagination'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
@@ -10,6 +11,7 @@ import {
   getRegularNotes,
   groupNotesByYear,
 } from '@/lib/data-utils'
+import { getAllSeries } from '@/lib/series'
 import type { PaginateFunction } from 'astro'
 
 export async function getStaticPaths({
@@ -24,6 +26,7 @@ export async function getStaticPaths({
 const { page } = Astro.props
 
 const pinnedNotes = page.currentPage === 1 ? await getPinnedNotes() : []
+const series = page.currentPage === 1 ? await getAllSeries() : []
 const notesByYear = groupNotesByYear(
   page.currentPage === 1 ? [...pinnedNotes, ...page.data] : page.data,
 )
@@ -40,6 +43,23 @@ const years = Object.keys(notesByYear).sort((a, b) => parseInt(b) - parseInt(a))
   />
 
   <div class="flex min-h-[calc(100vh-18rem)] flex-col gap-y-8">
+    {
+      series.length > 0 && (
+        <section class="flex flex-col gap-y-4" aria-labelledby="series-title">
+          <h2 id="series-title" class="font-medium">
+            Series
+          </h2>
+          <ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {series.map((item) => (
+              <li>
+                <SeriesCard series={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
     {
       years.map((year) => (
         <section class="flex flex-col gap-y-4">
