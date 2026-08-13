@@ -44,7 +44,7 @@ const authorNotes = await getNotesByAuthor(author.id)
             .filter((note) => !note.data.draft)
             .map((note) => (
               <li>
-                <NoteCard entry={note} />
+                <NoteCard entry={note} showSubposts={false} />
               </li>
             ))}
         </ul>

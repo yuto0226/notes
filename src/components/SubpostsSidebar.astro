@@ -12,8 +12,12 @@ import {
 } from '@/lib/data-utils'
 import { Icon } from 'astro-icon/components'
 
-const { parentId } = Astro.props
-const currentPostId = Astro.params.id as string
+type Props = {
+  parentId: string
+  currentEntryId: string
+}
+
+const { parentId, currentEntryId: currentPostId } = Astro.props
 const isCurrentSubpost = isSubpost(currentPostId)
 const rootParentId = isCurrentSubpost ? getParentId(currentPostId) : parentId
 

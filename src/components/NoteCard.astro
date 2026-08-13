@@ -19,14 +19,15 @@ import Link from './Link.astro'
 
 interface Props {
   entry: CollectionEntry<'notes'>
+  showSubposts?: boolean
 }
 
-const { entry } = Astro.props
+const { entry, showSubposts = true } = Astro.props
 const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
-const subposts = await getSubpostsForParent(entry.id)
+const subposts = showSubposts ? await getSubpostsForParent(entry.id) : []
 const subpostsWithReadingTime = await Promise.all(
   subposts.map(async (subpost) => ({
     ...subpost,
