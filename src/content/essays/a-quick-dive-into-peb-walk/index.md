@@ -1,15 +1,12 @@
 ---
 title: 'A Quick Dive into PEB Walk: What I Learned from TONESHELL'
 date: 2025-06-21 19:31:00
-updated: 2025-06-21 19:31:00
-description: ''
-image: ''
+updated: 2026-08-13
+description: '從 TONESHELL 的實作出發，理解 PEB Walk 如何遍歷載入模組並手動解析 Windows API。'
 tags:
   - PEB Walk
   - TONESHELL
-categories: [note]
 draft: false
-pinned: false
 ---
 
 在分析 **TONESHELL** 家族的樣本時，發現它大量利用了 **PEB Walk** 這個技術來躲避 IAT 的靜態分析，同時也使用了許多混淆技術。然後我在分析這些樣本時，常常會忘記一些結構的 offset 或是其他細節，每次都要重新找資料有點累 (´;ω;`)。所以我就趁這個機會，把我從 TONESHELL 身上學到 PEB walk 的程式結構，還有分析的方式，綜合寫成這篇筆記。
