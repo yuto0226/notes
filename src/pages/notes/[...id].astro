@@ -1,0 +1,108 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import {
+  getAdjacentNotes,
+  getAllNotesAndSubposts,
+  getCombinedReadingTime,
+  getNoteReadingTime,
+  getParentId,
+  getParentNote,
+  getSubpostCount,
+  hasSubposts,
+  isSubpost,
+  parseAuthors,
+  type TOCSection,
+} from '@/lib/data-utils'
+import { render } from 'astro:content'
+import fallbackImage from '../../../public/static/flower-field-2.png'
+
+export async function getStaticPaths() {
+  const notes = await getAllNotesAndSubposts()
+  return notes.map((note) => ({
+    params: { id: note.id },
+    props: note,
+  }))
+}
+
+const note = Astro.props
+const currentNoteId = Astro.params.id
+const { Content, headings } = await render(note)
+const authors = await parseAuthors(note.data.authors ?? [])
+
+const isCurrentSubpost = isSubpost(currentNoteId)
+const navigation = await getAdjacentNotes(currentNoteId)
+const parentNote = isCurrentSubpost ? await getParentNote(currentNoteId) : null
+
+const hasChildNotes = await hasSubposts(currentNoteId)
+const subpostCount = !isCurrentSubpost
+  ? await getSubpostCount(currentNoteId)
+  : 0
+const noteReadingTime = await getNoteReadingTime(currentNoteId)
+const combinedReadingTime =
+  hasChildNotes && !isCurrentSubpost
+    ? await getCombinedReadingTime(currentNoteId)
+    : null
+
+const tocSections: TOCSection[] = headings.length
+  ? [
+      {
+        type: 'parent',
+        title: 'Overview',
+        headings: headings.map((heading) => ({
+          slug: heading.slug,
+          text: heading.text,
+          depth: heading.depth,
+        })),
+      },
+    ]
+  : []
+const noteImage = note.data.image ? note.data.image : fallbackImage
+const hierarchyParentId =
+  hasChildNotes || isCurrentSubpost
+    ? isCurrentSubpost
+      ? getParentId(currentNoteId)
+      : currentNoteId
+    : undefined
+const breadcrumbItems = [
+  { href: '/notes', label: 'Notes', icon: 'lucide:library-big' },
+  ...(isCurrentSubpost && parentNote
+    ? [
+        {
+          href: `/notes/${parentNote.id}`,
+          label: parentNote.data.title,
+          icon: 'lucide:book-open',
+        },
+        {
+          href: `/notes/${currentNoteId}`,
+          label: note.data.title,
+          icon: 'lucide:file-text',
+        },
+      ]
+    : [
+        {
+          href: `/notes/${currentNoteId}`,
+          label: note.data.title,
+          icon: 'lucide:book-open-text',
+        },
+      ]),
+]
+---
+
+<PostDetail
+  entry={note}
+  currentEntryId={currentNoteId}
+  Content={Content}
+  headings={headings}
+  breadcrumbItems={breadcrumbItems}
+  authors={authors}
+  readingTimeText={noteReadingTime}
+  heroImage={noteImage}
+  tocSections={tocSections}
+  adjacentNavigation={navigation}
+  parentEntry={parentNote ?? undefined}
+  isCurrentSubpost={isCurrentSubpost}
+  subpostCount={subpostCount}
+  combinedReadingTime={combinedReadingTime}
+  hierarchyParentId={hierarchyParentId}
+  tocIsCurrentSubpost={false}
+/>

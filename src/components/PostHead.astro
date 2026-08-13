@@ -4,11 +4,11 @@ import { isSubpost } from '@/lib/data-utils'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
-  post: CollectionEntry<'blog'> | CollectionEntry<'essays'>
+  post: CollectionEntry<'notes'> | CollectionEntry<'essays'>
 }
 
 const { post } = Astro.props
-const shouldNoindex = post.collection === 'blog' && isSubpost(post.id)
+const shouldNoindex = post.collection === 'notes' && isSubpost(post.id)
 
 const title = post.data.title || SITE.title
 const description = post.data.description || SITE.description

@@ -214,7 +214,7 @@ const TOC_STYLE: TOCStyleConfig = {
                           href={
                             section.subpostId === currentPostId
                               ? '#post-title'
-                              : `/blog/${section.subpostId}#post-title`
+                              : `/notes/${section.subpostId}#post-title`
                           }
                           class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
                           data-heading-link={
@@ -240,7 +240,7 @@ const TOC_STYLE: TOCStyleConfig = {
                             href={
                               section.subpostId === currentPostId
                                 ? `#${heading.slug}`
-                                : `/blog/${section.subpostId}#${heading.slug}`
+                                : `/notes/${section.subpostId}#${heading.slug}`
                             }
                             class="marker:text-foreground/30 hover:text-foreground/60 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
                             data-heading-link={

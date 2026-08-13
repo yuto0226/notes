@@ -33,7 +33,7 @@ const Self = Astro.self
     </span>
     <a
       href={isCurrentSubpost
-        ? `/blog/${parentId}#${node.slug}`
+        ? `/notes/${parentId}#${node.slug}`
         : `#${node.slug}`}
       class={cn(
         'toc-link flex-1 py-1 transition-colors duration-200',

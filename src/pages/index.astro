@@ -1,15 +1,15 @@
 ---
-import BlogCard from '@/components/BlogCard.astro'
 import Link from '@/components/Link.astro'
+import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import SocialIcons from '@/components/SocialIcons.astro'
 import { SITE, SOCIAL_LINKS } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
-import { getPinnedPosts, getRecentPosts } from '@/lib/data-utils'
+import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 
-const recentPosts = await getRecentPosts(SITE.homeNoteCount)
-const pinnedPosts = await getPinnedPosts()
+const recentNotes = await getRecentNotes(SITE.homeNoteCount)
+const pinnedNotes = await getPinnedNotes()
 const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
 const profileLinks = [
   ...SOCIAL_LINKS.filter(({ label }) =>
@@ -100,13 +100,13 @@ const formatEntryDate = (date: Date) =>
     )
   }
   {
-    pinnedPosts.length > 0 && (
+    pinnedNotes.length > 0 && (
       <section class="flex flex-col gap-y-4">
         <h2 class="text-xl font-medium">Pinned posts</h2>
         <ul class="flex flex-col gap-y-4">
-          {pinnedPosts.map((post) => (
+          {pinnedNotes.map((note) => (
             <li>
-              <BlogCard entry={post} />
+              <NoteCard entry={note} />
             </li>
           ))}
         </ul>
@@ -117,7 +117,7 @@ const formatEntryDate = (date: Date) =>
     <div class="flex items-baseline justify-between gap-4">
       <h2 class="text-xl font-medium">Latest Notes</h2>
       <Link
-        href="/blog"
+        href="/notes"
         class="text-muted-foreground hover:text-foreground text-sm"
       >
         See all →
@@ -125,20 +125,20 @@ const formatEntryDate = (date: Date) =>
     </div>
     <ol class="border-border border-t" data-home-note-list>
       {
-        recentPosts.map((post) => (
+        recentNotes.map((note) => (
           <li class="border-border border-b">
             <Link
-              href={`/blog/${post.id}`}
+              href={`/notes/${note.id}`}
               class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
             >
               <time
-                datetime={post.data.date.toISOString()}
+                datetime={note.data.date.toISOString()}
                 class="text-muted-foreground font-mono text-xs leading-6"
               >
-                {formatEntryDate(post.data.date)}
+                {formatEntryDate(note.data.date)}
               </time>
               <span class="text-sm leading-6 group-hover:underline">
-                {post.data.title}
+                {note.data.title}
               </span>
             </Link>
           </li>

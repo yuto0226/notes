@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   getCombinedReadingTime,
-  getPostReadingTime,
+  getNoteReadingTime,
   getSubpostCount,
   getSubpostsForParent,
   isSubpost,
@@ -18,7 +18,7 @@ import fallbackImage from '../../public/static/flower-field-2.png'
 import Link from './Link.astro'
 
 interface Props {
-  entry: CollectionEntry<'blog'>
+  entry: CollectionEntry<'notes'>
 }
 
 const { entry } = Astro.props
@@ -30,7 +30,7 @@ const subposts = await getSubpostsForParent(entry.id)
 const subpostsWithReadingTime = await Promise.all(
   subposts.map(async (subpost) => ({
     ...subpost,
-    readingTime: await getPostReadingTime(subpost.id),
+    readingTime: await getNoteReadingTime(subpost.id),
   })),
 )
 const entryImage = entry.data.image ? entry.data.image : fallbackImage
@@ -126,7 +126,7 @@ const entryImage = entry.data.image ? entry.data.image : fallbackImage
         {subpostsWithReadingTime.map((subpost) => (
           <li>
             <Link
-              href={`/blog/${subpost.id}`}
+              href={`/notes/${subpost.id}`}
               class="text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted/50 flex h-full flex-col justify-between rounded-lg border p-2 transition-colors"
               data-subpost-card
             >

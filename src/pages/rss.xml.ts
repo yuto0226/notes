@@ -1,20 +1,20 @@
 import { SITE } from '@/consts'
 import rss from '@astrojs/rss'
 import type { APIContext } from 'astro'
-import { getAllPosts } from '@/lib/data-utils'
+import { getAllNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 
 export async function GET(context: APIContext) {
   try {
-    const posts = await getAllPosts()
+    const notes = await getAllNotes()
     const essays = await getPublicEssays()
 
     const items = [
-      ...posts.map((post) => ({
-        title: post.data.title,
-        description: post.data.description,
-        pubDate: post.data.date,
-        link: `/blog/${post.id}/`,
+      ...notes.map((note) => ({
+        title: note.data.title,
+        description: note.data.description,
+        pubDate: note.data.date,
+        link: `/notes/${note.id}/`,
       })),
       ...essays.map((essay) => ({
         title: essay.data.title,

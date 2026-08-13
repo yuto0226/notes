@@ -2,7 +2,7 @@ import type { IconMap, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
   title: "Yuto's Notes",
-  description: 'Yuto 筆記、writeups 和部落格文章們',
+  description: 'Yuto 的筆記、writeups 和文章們',
   href: 'https://blog.yuto0226.dev',
   author: 'Yuto',
   locale: 'zh-TW',
@@ -17,8 +17,8 @@ export const NAV_LINKS: SocialLink[] = [
     label: 'essays',
   },
   {
-    href: '/blog',
-    label: 'blog',
+    href: '/notes',
+    label: 'notes',
   },
   // {
   //   href: '/authors',

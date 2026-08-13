@@ -3,7 +3,7 @@ import { getPublicEssays } from '@/lib/essays'
 import { parseMilestoneDate } from '@/lib/milestones'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
 
-export type TagEntry = CollectionEntry<'blog'> | CollectionEntry<'essays'>
+export type TagEntry = CollectionEntry<'notes'> | CollectionEntry<'essays'>
 
 export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
   return await getCollection('authors')
@@ -13,29 +13,29 @@ export async function getAllFriends(): Promise<CollectionEntry<'friends'>[]> {
   return await getCollection('friends')
 }
 
-export async function getAllPosts(): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getCollection('blog')
-  return posts
-    .filter((post) => !post.data.draft && !isSubpost(post.id))
+export async function getAllNotes(): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getCollection('notes')
+  return notes
+    .filter((note) => !note.data.draft && !isSubpost(note.id))
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
-export async function getPinnedPosts(): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getAllPosts()
-  return posts.filter((post) => post.data.pinned === true)
+export async function getPinnedNotes(): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getAllNotes()
+  return notes.filter((note) => note.data.pinned === true)
 }
 
-export async function getRegularPosts(): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getAllPosts()
-  return posts.filter((post) => !post.data.pinned)
+export async function getRegularNotes(): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getAllNotes()
+  return notes.filter((note) => !note.data.pinned)
 }
 
-export async function getAllPostsAndSubposts(): Promise<
-  CollectionEntry<'blog'>[]
+export async function getAllNotesAndSubposts(): Promise<
+  CollectionEntry<'notes'>[]
 > {
-  const posts = await getCollection('blog')
-  return posts
-    .filter((post) => !post.data.draft)
+  const notes = await getCollection('notes')
+  return notes
+    .filter((note) => !note.data.draft)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
@@ -77,32 +77,32 @@ export async function getEntriesByTag(tag: string): Promise<TagEntry[]> {
 }
 
 async function getAllTagEntries(): Promise<TagEntry[]> {
-  const [posts, essays] = await Promise.all([getAllPosts(), getPublicEssays()])
+  const [notes, essays] = await Promise.all([getAllNotes(), getPublicEssays()])
 
-  return [...posts, ...essays].toSorted(
+  return [...notes, ...essays].toSorted(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   )
 }
 
-export async function getAdjacentPosts(currentId: string): Promise<{
-  newer: CollectionEntry<'blog'> | null
-  older: CollectionEntry<'blog'> | null
-  parent: CollectionEntry<'blog'> | null
+export async function getAdjacentNotes(currentId: string): Promise<{
+  newer: CollectionEntry<'notes'> | null
+  older: CollectionEntry<'notes'> | null
+  parent: CollectionEntry<'notes'> | null
 }> {
-  const allPosts = await getAllPosts()
+  const allNotes = await getAllNotes()
 
   if (isSubpost(currentId)) {
     const parentId = getParentId(currentId)
-    const allPosts = await getAllPosts()
-    const parent = allPosts.find((post) => post.id === parentId) || null
+    const allNotes = await getAllNotes()
+    const parent = allNotes.find((note) => note.id === parentId) || null
 
-    const posts = await getCollection('blog')
-    const subposts = posts
+    const notes = await getCollection('notes')
+    const subposts = notes
       .filter(
-        (post) =>
-          isSubpost(post.id) &&
-          getParentId(post.id) === parentId &&
-          !post.data.draft,
+        (note) =>
+          isSubpost(note.id) &&
+          getParentId(note.id) === parentId &&
+          !note.data.draft,
       )
       .sort((a, b) => {
         const dateDiff = a.data.date.valueOf() - b.data.date.valueOf()
@@ -126,42 +126,42 @@ export async function getAdjacentPosts(currentId: string): Promise<{
     }
   }
 
-  const parentPosts = allPosts.filter((post) => !isSubpost(post.id))
-  const currentIndex = parentPosts.findIndex((post) => post.id === currentId)
+  const parentNotes = allNotes.filter((note) => !isSubpost(note.id))
+  const currentIndex = parentNotes.findIndex((note) => note.id === currentId)
 
   if (currentIndex === -1) {
     return { newer: null, older: null, parent: null }
   }
 
   return {
-    newer: currentIndex > 0 ? parentPosts[currentIndex - 1] : null,
+    newer: currentIndex > 0 ? parentNotes[currentIndex - 1] : null,
     older:
-      currentIndex < parentPosts.length - 1
-        ? parentPosts[currentIndex + 1]
+      currentIndex < parentNotes.length - 1
+        ? parentNotes[currentIndex + 1]
         : null,
     parent: null,
   }
 }
 
-export async function getPostsByAuthor(
+export async function getNotesByAuthor(
   authorId: string,
-): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getAllPosts()
-  return posts.filter((post) => post.data.authors?.includes(authorId))
+): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getAllNotes()
+  return notes.filter((note) => note.data.authors?.includes(authorId))
 }
 
-export async function getPostsByTag(
+export async function getNotesByTag(
   tag: string,
-): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getAllPosts()
-  return posts.filter((post) => post.data.tags?.includes(tag))
+): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getAllNotes()
+  return notes.filter((note) => note.data.tags?.includes(tag))
 }
 
-export async function getRecentPosts(
+export async function getRecentNotes(
   count: number,
-): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getAllPosts()
-  return posts.slice(0, count)
+): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getAllNotes()
+  return notes.slice(0, count)
 }
 
 export async function getSortedTags(): Promise<
@@ -182,14 +182,14 @@ export function getParentId(subpostId: string): string {
 
 export async function getSubpostsForParent(
   parentId: string,
-): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getCollection('blog')
-  return posts
+): Promise<CollectionEntry<'notes'>[]> {
+  const notes = await getCollection('notes')
+  return notes
     .filter(
-      (post) =>
-        !post.data.draft &&
-        isSubpost(post.id) &&
-        getParentId(post.id) === parentId,
+      (note) =>
+        !note.data.draft &&
+        isSubpost(note.id) &&
+        getParentId(note.id) === parentId,
     )
     .sort((a, b) => {
       const dateDiff = a.data.date.valueOf() - b.data.date.valueOf()
@@ -201,13 +201,13 @@ export async function getSubpostsForParent(
     })
 }
 
-export function groupPostsByYear(
-  posts: CollectionEntry<'blog'>[],
-): Record<string, CollectionEntry<'blog'>[]> {
-  return posts.reduce(
-    (acc: Record<string, CollectionEntry<'blog'>[]>, post) => {
-      const year = post.data.date.getFullYear().toString()
-      ;(acc[year] ??= []).push(post)
+export function groupNotesByYear(
+  notes: CollectionEntry<'notes'>[],
+): Record<string, CollectionEntry<'notes'>[]> {
+  return notes.reduce(
+    (acc: Record<string, CollectionEntry<'notes'>[]>, note) => {
+      const year = note.data.date.getFullYear().toString()
+      ;(acc[year] ??= []).push(note)
       return acc
     },
     {},
@@ -223,16 +223,16 @@ export function isSubpost(postId: string): boolean {
   return postId.includes('/')
 }
 
-export async function getParentPost(
+export async function getParentNote(
   subpostId: string,
-): Promise<CollectionEntry<'blog'> | null> {
+): Promise<CollectionEntry<'notes'> | null> {
   if (!isSubpost(subpostId)) {
     return null
   }
 
   const parentId = getParentId(subpostId)
-  const allPosts = await getAllPosts()
-  return allPosts.find((post) => post.id === parentId) || null
+  const allNotes = await getAllNotes()
+  return allNotes.find((note) => note.id === parentId) || null
 }
 
 export async function parseAuthors(authorIds: string[] = []) {
@@ -252,11 +252,11 @@ export async function parseAuthors(authorIds: string[] = []) {
   })
 }
 
-export async function getPostById(
-  postId: string,
-): Promise<CollectionEntry<'blog'> | null> {
-  const allPosts = await getAllPostsAndSubposts()
-  return allPosts.find((post) => post.id === postId) || null
+export async function getNoteById(
+  noteId: string,
+): Promise<CollectionEntry<'notes'> | null> {
+  const allNotes = await getAllNotesAndSubposts()
+  return allNotes.find((note) => note.id === noteId) || null
 }
 
 export async function getSubpostCount(parentId: string): Promise<number> {
@@ -265,10 +265,10 @@ export async function getSubpostCount(parentId: string): Promise<number> {
 }
 
 export async function getCombinedReadingTime(postId: string): Promise<string> {
-  const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+  const note = await getNoteById(postId)
+  if (!note) return readingTime(0)
 
-  let totalWords = calculateWordCountFromHtml(post.body)
+  let totalWords = calculateWordCountFromHtml(note.body)
 
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
@@ -280,11 +280,11 @@ export async function getCombinedReadingTime(postId: string): Promise<string> {
   return readingTime(totalWords)
 }
 
-export async function getPostReadingTime(postId: string): Promise<string> {
-  const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+export async function getNoteReadingTime(noteId: string): Promise<string> {
+  const note = await getNoteById(noteId)
+  if (!note) return readingTime(0)
 
-  const wordCount = calculateWordCountFromHtml(post.body)
+  const wordCount = calculateWordCountFromHtml(note.body)
   return readingTime(wordCount)
 }
 
