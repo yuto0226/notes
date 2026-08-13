@@ -6,7 +6,8 @@ export const SITE: Site = {
   href: 'https://blog.yuto0226.dev',
   author: 'Yuto',
   locale: 'zh-TW',
-  featuredPostCount: 2,
+  homeEssayCount: 3,
+  homeNoteCount: 2,
   postsPerPage: 5,
 }
 
@@ -37,6 +38,10 @@ export const SOCIAL_LINKS: SocialLink[] = [
   {
     href: 'https://github.com/yuto0226',
     label: 'GitHub',
+  },
+  {
+    href: 'https://www.linkedin.com/in/yuto0226',
+    label: 'LinkedIn',
   },
   {
     href: 'https://instagram.com/sw_1a4',
