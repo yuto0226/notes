@@ -2,46 +2,107 @@
 import BlogCard from '@/components/BlogCard.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
-import { buttonVariants } from '@/components/ui/button'
-import { SITE } from '@/consts'
+import SocialIcons from '@/components/SocialIcons.astro'
+import { SITE, SOCIAL_LINKS } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedPosts, getRecentPosts } from '@/lib/data-utils'
+import { getPublicEssays } from '@/lib/essays'
 
-const recentPosts = await getRecentPosts(SITE.featuredPostCount)
+const recentPosts = await getRecentPosts(SITE.homeNoteCount)
 const pinnedPosts = await getPinnedPosts()
+const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
+const profileLinks = [
+  ...SOCIAL_LINKS.filter(({ label }) =>
+    ['GitHub', 'LinkedIn', 'Email'].includes(label),
+  ),
+]
+
+const profileDetails = [
+  'B.S. student in CS @ TTU',
+  'M.S. student in IIS @ NTHU',
+  'Detection Team Intern @ TeamT5',
+  'Reverse Engineering, Systems Security',
+]
+
+const formatEntryDate = (date: Date) =>
+  date.toISOString().slice(0, 10).replaceAll('-', '.')
 ---
 
 <Layout class="max-w-4xl">
   <PageHead slot="head" title="Home" />
-  <section class="rounded-lg border">
-    <div class="flex flex-col space-y-1.5 p-6">
-      <h3 class="text-3xl leading-none font-medium">Him·mel</h3>
-      <p class="text-muted-foreground text-sm">
-        /ˈhɪməl/ &bull; <span class="font-medium">German</span> &bull; sky, heaven
-      </p>
+  <section
+    class="grid pb-4 md:grid-cols-[3fr_2fr] md:gap-6 md:py-6"
+    data-home-introduction
+  >
+    <div class="max-w-xl">
+      <div class="space-y-4 leading-7">
+        <p class="text-foreground">
+          嗨，我是
+          Yuto。我總是忍不住想弄懂事物是怎麼運作的，並順著它背後的脈絡一路追下去。
+        </p>
+        <p class="text-muted-foreground">
+          我希望未來能成為一位研究員，獨立地理解問題、梳理過去的發展，並從中形成自己的觀點。而在不斷挑戰自己的同時，我也想保有感受生活與世界的餘裕。
+        </p>
+      </div>
+
+      <nav aria-label="Profile links" class="mt-2 mb-4 md:mt-4 md:mb-0">
+        <SocialIcons links={profileLinks} />
+      </nav>
     </div>
-    <div class="p-6 pt-0">
-      <p class="text-muted-foreground text-sm">
-        A hero whose journey ended long ago, yet whose legacy continues to
-        ripple through time. In the brief span of a human life, he touched
-        countless souls—not through grand gestures, but through small acts of
-        kindness that changed everything.
-      </p>
-    </div>
-    <div class="p-6 pt-0">
-      <p class="text-md mb-4 text-center">
-        -- ヒンメルはなんで人助けをするの？ --
-      </p>
-      <blockquote class="text-muted-foreground my-6 border-l-2 pl-6 italic">
-        ほんの少しでいい。誰かの人生を変えてあげればいい。きっとそれだけで十分なだ。<br
-        />— 勇者 ヒンメル
-      </blockquote>
-    </div>
+
+    <aside
+      class="border-border self-start border-t pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-6"
+      aria-label="Profile details"
+      data-home-profile
+    >
+      <ul class="space-y-2">
+        {
+          profileDetails.map((detail) => (
+            <li class="text-muted-foreground text-sm leading-6">{detail}</li>
+          ))
+        }
+      </ul>
+    </aside>
   </section>
+  {
+    recentEssays.length > 0 && (
+      <section class="flex flex-col gap-y-3" data-home-essays>
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 class="text-xl font-medium">Recent Essays</h2>
+          <Link
+            href="/essays"
+            class="text-muted-foreground hover:text-foreground text-sm"
+          >
+            See all →
+          </Link>
+        </div>
+        <ol class="border-border border-t" data-home-essay-list>
+          {recentEssays.map((essay) => (
+            <li class="border-border border-b">
+              <Link
+                href={`/essays/${essay.id}`}
+                class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
+              >
+                <time
+                  datetime={essay.data.date.toISOString()}
+                  class="text-muted-foreground font-mono text-xs leading-6"
+                >
+                  {formatEntryDate(essay.data.date)}
+                </time>
+                <span class="text-sm leading-6 group-hover:underline">
+                  {essay.data.title}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
   {
     pinnedPosts.length > 0 && (
       <section class="flex flex-col gap-y-4">
-        <h2 class="text-2xl font-medium">Pinned posts</h2>
+        <h2 class="text-xl font-medium">Pinned posts</h2>
         <ul class="flex flex-col gap-y-4">
           {pinnedPosts.map((post) => (
             <li>
@@ -52,27 +113,37 @@ const pinnedPosts = await getPinnedPosts()
       </section>
     )
   }
-  <section class="flex flex-col gap-y-4">
-    <h2 class="text-2xl font-medium">Latest posts</h2>
-    <ul class="flex flex-col gap-y-4">
+  <section class="flex flex-col gap-y-3" data-home-notes>
+    <div class="flex items-baseline justify-between gap-4">
+      <h2 class="text-xl font-medium">Latest Notes</h2>
+      <Link
+        href="/blog"
+        class="text-muted-foreground hover:text-foreground text-sm"
+      >
+        See all →
+      </Link>
+    </div>
+    <ol class="border-border border-t" data-home-note-list>
       {
         recentPosts.map((post) => (
-          <li>
-            <BlogCard entry={post} />
+          <li class="border-border border-b">
+            <Link
+              href={`/blog/${post.id}`}
+              class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
+            >
+              <time
+                datetime={post.data.date.toISOString()}
+                class="text-muted-foreground font-mono text-xs leading-6"
+              >
+                {formatEntryDate(post.data.date)}
+              </time>
+              <span class="text-sm leading-6 group-hover:underline">
+                {post.data.title}
+              </span>
+            </Link>
           </li>
         ))
       }
-    </ul>
-    <div class="flex justify-center">
-      <Link
-        href="/blog"
-        class={buttonVariants({ variant: 'ghost' }) + ' group'}
-      >
-        See all posts <span
-          class="ml-1.5 transition-transform group-hover:translate-x-1"
-          >&rarr;</span
-        >
-      </Link>
-    </div>
+    </ol>
   </section>
 </Layout>
