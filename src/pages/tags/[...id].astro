@@ -64,7 +64,7 @@ const notes = entries.filter((entry) => entry.collection === 'notes')
         <ul class="flex flex-col gap-y-4">
           {notes.map((entry) => (
             <li>
-              <NoteCard entry={entry} />
+              <NoteCard entry={entry} showSubposts={false} />
             </li>
           ))}
         </ul>

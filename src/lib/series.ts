@@ -40,6 +40,13 @@ export function isSeriesParent(id: string): boolean {
   return isSeriesContent(id) && getSegments(id).length === 2
 }
 
+function isSeriesParentEntry(entry: NoteEntry): boolean {
+  return (
+    isSeriesParent(entry.id) &&
+    /\/index\.mdx?$/.test(entry.filePath?.replaceAll('\\', '/') ?? '')
+  )
+}
+
 export function isSeriesEntry(id: string): boolean {
   return isSeriesContent(id) && getSegments(id).length === 3
 }
@@ -93,7 +100,7 @@ function buildPublicSeries(notes: NoteEntry[]): NoteSeries[] {
       subposts: [],
     }
 
-    if (isSeriesParent(note.id)) {
+    if (isSeriesParentEntry(note)) {
       group.parent = note
     } else if (isSeriesEntry(note.id)) {
       group.entries.push(note)

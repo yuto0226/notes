@@ -63,9 +63,6 @@ if (page.kind === 'parent') {
     throw new Error(`Public Series entry not found: ${page.entry.id}`)
   }
 
-  // Shared subpost components read the collection ID from route params.
-  Astro.params.id = result.entry.id
-
   const { Content, headings } = await render(result.entry)
   const isCurrentSubpost = result.kind === 'subpost'
   const subpostCount = isCurrentSubpost
@@ -148,7 +145,7 @@ if (page.kind === 'parent') {
         subpostCount={entryPage.subpostCount}
         combinedReadingTime={entryPage.combinedReadingTime}
         hierarchyParentId={entryPage.hierarchyParentId}
-        tocIsCurrentSubpost={entryPage.isCurrentSubpost}
+        tocIsCurrentSubpost={false}
       />
     )
   )

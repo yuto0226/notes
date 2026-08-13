@@ -75,7 +75,11 @@ const {
   <PostHead slot="head" post={entry} />
   {
     hierarchyParentId && (
-      <SubpostsHeader slot="subposts-navigation" parentId={hierarchyParentId} />
+      <SubpostsHeader
+        slot="subposts-navigation"
+        parentId={hierarchyParentId}
+        currentEntryId={currentEntryId}
+      />
     )
   }
   {
@@ -221,7 +225,10 @@ const {
 
     {
       hierarchyParentId && (
-        <SubpostsSidebar parentId={hierarchyParentId} className="w-64" />
+        <SubpostsSidebar
+          parentId={hierarchyParentId}
+          currentEntryId={currentEntryId}
+        />
       )
     }
 
