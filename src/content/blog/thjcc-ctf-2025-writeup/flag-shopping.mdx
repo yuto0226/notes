@@ -1,0 +1,44 @@
+---
+title: Flag Shopping
+date: 2025-04-22 02:45:00
+description: Exploiting an integer overflow to buy the flag.
+order: 1
+draft: false
+---
+
+import ChallengeInfo from '@/components/ChallengeInfo.astro'
+
+<ChallengeInfo
+  author="Grissia"
+  category="pwn"
+  description="It's the FLAG SHOP!!! Let's go buy some flags!!!"
+  remote="nc chal.ctf.scint.org 10101"
+  files={[
+    {
+      label: 'flag_shopping.c',
+      href: 'https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/flag_shopping.c',
+    },
+  ]}
+/>
+
+## Solution
+
+這一題是典型的 interger overflow 題，使用者可以選擇購買商品、輸入購買數量 `(long long)num`，而用來儲存持有金錢的 `money` 又是 `int` 型別。第 43 行在扣錢時，又將 `num` 轉型成 `int`，所以我們可以考慮以下攻擊流程：
+
+- 輸入數量一個比 `INT_MAX` 大的數，讓第 43 行轉型別時會變成負數。在減法時就會**負負得正**。
+- 重複以上動作直到持有金錢累計大於購買 flag 的金額 123456789。
+
+所以我們的目標是讓 `money` 比原先多 123456789 - 100 = 123456689。
+
+如果輸入的數字是 `INT_MAX` + 1 的話，型別轉換後會變成 `INT_MIN`，乘上 25 後就會再次 overflow 讓 `money` 變成負數。
+
+```
+> 1
+> 2147483648
+> 3
+> 1
+You only have -2147483548, But it cost 123456789 * 1 = 123456789
+...
+```
+
+會導致這樣是因為原本 money 裡面有 100 元，所以就只要把輸入加上 100 / 25 = 4 後，應該就可以扣掉多餘的錢避免 overflow。但經測試之後要再加上 1 才夠。

