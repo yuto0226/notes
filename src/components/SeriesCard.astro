@@ -12,23 +12,10 @@ const { series } = Astro.props
 ---
 
 <article
-  class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+  class="hover:bg-muted/50 h-full rounded-xl border p-4 transition-colors duration-300 ease-in-out"
   data-series-card={series.id}
 >
   <Link href={`/notes/${series.id}`} class="group flex h-full flex-col gap-4">
-    {
-      series.parent.data.image && (
-        <LqipImage
-          src={series.parent.data.image}
-          alt={series.parent.data.title}
-          width={1200}
-          height={630}
-          class="w-full"
-          imgClass="object-cover"
-        />
-      )
-    }
-
     <div class="flex grow flex-col">
       <h3 class="text-lg leading-snug font-medium text-pretty">
         {series.parent.data.title}
@@ -36,8 +23,20 @@ const { series } = Astro.props
       <p class="text-muted-foreground mt-2 grow text-sm leading-relaxed">
         {series.parent.data.description}
       </p>
+      {
+        series.parent.data.image && (
+          <LqipImage
+            src={series.parent.data.image}
+            alt={series.parent.data.title}
+            width={1200}
+            height={630}
+            class="mt-4 h-28 w-full"
+            imgClass="object-cover"
+          />
+        )
+      }
       <div
-        class="text-muted-foreground mt-4 flex items-center justify-between text-xs"
+        class="text-muted-foreground mt-6 flex items-center justify-between text-xs"
       >
         <span>{series.entries.length} notes</span>
         <Icon
