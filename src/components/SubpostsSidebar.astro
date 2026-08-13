@@ -41,135 +41,144 @@ const subpostsWithReadingTime = await Promise.all(
 
 <div
   id="subposts-sidebar-container"
-  class="fixed top-20 right-[max(1rem,calc(50%_-_43rem))] hidden h-[calc(100vh-5rem)] w-[clamp(14rem,calc(50vw_-_29rem),16rem)] xl:block"
+  class="fixed right-[max(1rem,calc(50%_-_43rem))] hidden w-[clamp(14rem,calc(50vw_-_29rem),16rem)] xl:block"
+  style="top: var(--subposts-top, 5rem); height: var(--subposts-height, calc(100vh - 6rem));"
 >
-  <ScrollArea
-    client:load
-    className="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto"
-    data-subposts-sidebar-scroll
-  >
-    <div class="px-4">
-      <ul class="space-y-1">
-        {
-          activePost && (
-            <li>
-              {isActivePost ? (
-                <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md py-1.5 pr-3 pl-2 text-sm font-medium text-pretty">
-                  <Icon
-                    name="lucide:book-open-text"
-                    class="size-4 flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <div class="flex flex-col">
-                    <span class="line-clamp-2 text-pretty">
-                      {activePost.data.title}
-                    </span>
-                    {activePostReadingTime && (
-                      <span class="text-muted-foreground/80 text-xs">
-                        {activePostReadingTime}
-                        {activePostCombinedReadingTime &&
-                          activePostCombinedReadingTime !==
-                            activePostReadingTime && (
-                            <span>
-                              {' '}
-                              ({activePostCombinedReadingTime} total)
-                            </span>
-                          )}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  href={`/blog/${activePost.id}#post-title`}
-                  class="hover:text-foreground text-muted-foreground hover:bg-muted/50 subposts-sidebar-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-pretty transition-colors"
-                >
-                  <Icon
-                    name="lucide:book-open"
-                    class="size-4 flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  <div class="flex flex-col">
-                    <span class="line-clamp-2 text-pretty">
-                      {activePost.data.title}
-                    </span>
-                    {activePostReadingTime && (
-                      <span class="text-muted-foreground/80 text-xs">
-                        {activePostReadingTime}
-                        {activePostCombinedReadingTime &&
-                          activePostCombinedReadingTime !==
-                            activePostReadingTime && (
-                            <span>
-                              {' '}
-                              ({activePostCombinedReadingTime} total)
-                            </span>
-                          )}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              )}
-            </li>
-          )
-        }
-
-        {
-          subpostsWithReadingTime.length > 0 && (
-            <li class="ml-4 space-y-1">
-              {subpostsWithReadingTime.map((subpost) =>
-                currentPostId === subpost.id ? (
-                  <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-pretty">
+  <div data-subposts-sidebar-scroll>
+    <ScrollArea
+      client:load
+      className="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto"
+    >
+      <div class="px-4">
+        <ul class="space-y-1">
+          {
+            activePost && (
+              <li>
+                {isActivePost ? (
+                  <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md py-1.5 pr-3 pl-2 text-sm font-medium text-pretty">
                     <Icon
-                      name="lucide:file-text"
+                      name="lucide:book-open-text"
                       class="size-4 flex-shrink-0"
                       aria-hidden="true"
                     />
                     <div class="flex flex-col">
                       <span class="line-clamp-2 text-pretty">
-                        {subpost.data.title}
+                        {activePost.data.title}
                       </span>
-                      <span class="text-muted-foreground/80 text-xs">
-                        {subpost.readingTime}
-                      </span>
+                      {activePostReadingTime && (
+                        <span class="text-muted-foreground/80 text-xs">
+                          {activePostReadingTime}
+                          {activePostCombinedReadingTime &&
+                            activePostCombinedReadingTime !==
+                              activePostReadingTime && (
+                              <span>
+                                {' '}
+                                ({activePostCombinedReadingTime} total)
+                              </span>
+                            )}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ) : (
                   <Link
-                    href={`/blog/${subpost.id}`}
+                    href={`/blog/${activePost.id}#post-title`}
                     class="hover:text-foreground text-muted-foreground hover:bg-muted/50 subposts-sidebar-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-pretty transition-colors"
                   >
                     <Icon
-                      name="lucide:file"
+                      name="lucide:book-open"
                       class="size-4 flex-shrink-0"
                       aria-hidden="true"
                     />
                     <div class="flex flex-col">
                       <span class="line-clamp-2 text-pretty">
-                        {subpost.data.title}
+                        {activePost.data.title}
                       </span>
-                      <span class="text-muted-foreground/80 text-xs">
-                        {subpost.readingTime}
-                      </span>
+                      {activePostReadingTime && (
+                        <span class="text-muted-foreground/80 text-xs">
+                          {activePostReadingTime}
+                          {activePostCombinedReadingTime &&
+                            activePostCombinedReadingTime !==
+                              activePostReadingTime && (
+                              <span>
+                                {' '}
+                                ({activePostCombinedReadingTime} total)
+                              </span>
+                            )}
+                        </span>
+                      )}
                     </div>
                   </Link>
-                ),
-              )}
-            </li>
-          )
-        }
-      </ul>
-    </div>
-  </ScrollArea>
+                )}
+              </li>
+            )
+          }
+
+          {
+            subpostsWithReadingTime.length > 0 &&
+              subpostsWithReadingTime.map((subpost) => (
+                <li class="ml-4">
+                  {currentPostId === subpost.id ? (
+                    <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-pretty">
+                      <Icon
+                        name="lucide:file-text"
+                        class="size-4 flex-shrink-0"
+                        aria-hidden="true"
+                      />
+                      <div class="flex flex-col">
+                        <span class="line-clamp-2 text-pretty">
+                          {subpost.data.title}
+                        </span>
+                        <span class="text-muted-foreground/80 text-xs">
+                          {subpost.readingTime}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/blog/${subpost.id}`}
+                      class="hover:text-foreground text-muted-foreground hover:bg-muted/50 subposts-sidebar-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-pretty transition-colors"
+                    >
+                      <Icon
+                        name="lucide:file"
+                        class="size-4 flex-shrink-0"
+                        aria-hidden="true"
+                      />
+                      <div class="flex flex-col">
+                        <span class="line-clamp-2 text-pretty">
+                          {subpost.data.title}
+                        </span>
+                        <span class="text-muted-foreground/80 text-xs">
+                          {subpost.readingTime}
+                        </span>
+                      </div>
+                    </Link>
+                  )}
+                </li>
+              ))
+          }
+        </ul>
+      </div>
+    </ScrollArea>
+  </div>
 </div>
 
 <script>
   class SidebarState {
     scrollArea: HTMLElement | null = null
     sidebarScrollArea: HTMLElement | null = null
+    container: HTMLElement | null = null
+    anchor: HTMLElement | null = null
+    positionFrame: number | null = null
+    resizeObserver: ResizeObserver | null = null
 
     reset() {
       this.scrollArea = null
       this.sidebarScrollArea = null
+      this.container = null
+      this.anchor = null
+      this.positionFrame = null
+      this.resizeObserver = null
     }
   }
 
@@ -218,7 +227,57 @@ const subpostsWithReadingTime = await Promise.all(
     }
   }
 
+  class SidebarPosition {
+    static readonly STICKY_TOP = 80
+    static readonly VIEWPORT_BOTTOM_GAP = 16
+
+    static update() {
+      if (!state.container || !state.anchor) return
+
+      const anchorTop = state.anchor.getBoundingClientRect().top
+      const top = Math.max(this.STICKY_TOP, anchorTop)
+      const height = Math.max(
+        0,
+        window.innerHeight - top - this.VIEWPORT_BOTTOM_GAP,
+      )
+
+      state.container.style.setProperty('--subposts-top', `${top}px`)
+      state.container.style.setProperty('--subposts-height', `${height}px`)
+    }
+
+    static scheduleUpdate = () => {
+      if (state.positionFrame !== null) return
+
+      state.positionFrame = window.requestAnimationFrame(() => {
+        state.positionFrame = null
+        this.update()
+      })
+    }
+
+    static init() {
+      this.update()
+
+      if (!state.anchor) return
+
+      state.resizeObserver = new ResizeObserver(() => this.scheduleUpdate())
+      state.resizeObserver.observe(state.anchor)
+      document.fonts?.ready.then(() => this.scheduleUpdate())
+    }
+
+    static cleanup() {
+      if (state.positionFrame !== null) {
+        window.cancelAnimationFrame(state.positionFrame)
+        state.positionFrame = null
+      }
+
+      state.resizeObserver?.disconnect()
+      state.resizeObserver = null
+    }
+  }
+
   class SidebarController {
+    static handlePositionChange = () => SidebarPosition.scheduleUpdate()
+
     static init() {
       state.reset()
 
@@ -226,6 +285,8 @@ const subpostsWithReadingTime = await Promise.all(
         'subposts-sidebar-container',
       )
       if (sidebarContainer) {
+        state.container = sidebarContainer
+        state.anchor = document.querySelector('[data-toc-anchor]')
         state.scrollArea = sidebarContainer.querySelector(
           '[data-radix-scroll-area-viewport]',
         )
@@ -241,6 +302,12 @@ const subpostsWithReadingTime = await Promise.all(
           )
         }
 
+        SidebarPosition.init()
+
+        const options = { passive: true }
+        window.addEventListener('scroll', this.handlePositionChange, options)
+        window.addEventListener('resize', this.handlePositionChange, options)
+
         requestAnimationFrame(() => {
           SidebarScroll.toActive()
           setTimeout(SidebarScrollMask.update, 100)
@@ -249,6 +316,9 @@ const subpostsWithReadingTime = await Promise.all(
     }
 
     static cleanup() {
+      SidebarPosition.cleanup()
+      window.removeEventListener('scroll', this.handlePositionChange)
+      window.removeEventListener('resize', this.handlePositionChange)
       if (state.scrollArea) {
         state.scrollArea.removeEventListener('scroll', SidebarScrollMask.update)
       }

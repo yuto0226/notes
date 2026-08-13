@@ -8,10 +8,10 @@ import {
   getParentPost,
   getPostReadingTime,
   getSubpostCount,
-  getTOCSections,
   hasSubposts,
   isSubpost,
   parseAuthors,
+  type TOCSection,
 } from '@/lib/data-utils'
 import { render } from 'astro:content'
 import fallbackImage from '../../../public/static/flower-field-2.png'
@@ -43,7 +43,19 @@ const combinedReadingTime =
     ? await getCombinedReadingTime(currentPostId)
     : null
 
-const tocSections = await getTOCSections(currentPostId)
+const tocSections: TOCSection[] = headings.length
+  ? [
+      {
+        type: 'parent',
+        title: 'Overview',
+        headings: headings.map((heading) => ({
+          slug: heading.slug,
+          text: heading.text,
+          depth: heading.depth,
+        })),
+      },
+    ]
+  : []
 const postImage = post.data.image ? post.data.image : fallbackImage
 const hierarchyParentId =
   hasChildPosts || isCurrentSubpost
@@ -92,4 +104,5 @@ const breadcrumbItems = [
   subpostCount={subpostCount}
   combinedReadingTime={combinedReadingTime}
   hierarchyParentId={hierarchyParentId}
+  tocIsCurrentSubpost={false}
 />
