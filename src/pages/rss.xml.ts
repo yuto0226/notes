@@ -3,11 +3,15 @@ import rss from '@astrojs/rss'
 import type { APIContext } from 'astro'
 import { getAllNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
+import { getAllSeries } from '@/lib/series'
 
 export async function GET(context: APIContext) {
   try {
-    const notes = await getAllNotes()
-    const essays = await getPublicEssays()
+    const [notes, essays, series] = await Promise.all([
+      getAllNotes(),
+      getPublicEssays(),
+      getAllSeries(),
+    ])
 
     const items = [
       ...notes.map((note) => ({
@@ -21,6 +25,12 @@ export async function GET(context: APIContext) {
         description: essay.data.description,
         pubDate: essay.data.date,
         link: `/essays/${essay.id}/`,
+      })),
+      ...series.map(({ parent }) => ({
+        title: parent.data.title,
+        description: parent.data.description,
+        pubDate: parent.data.date,
+        link: `/notes/${parent.id}/`,
       })),
     ].sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf())
 
