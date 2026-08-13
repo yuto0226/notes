@@ -1,0 +1,103 @@
+---
+import Link from '@/components/Link.astro'
+import { Icon } from 'astro-icon/components'
+
+interface ChallengeFile {
+  label: string
+  href: string
+}
+
+interface Props {
+  author: string
+  category: string
+  description: string
+  remote?: string
+  files?: ChallengeFile[]
+  solver?: string
+}
+
+const {
+  author,
+  category,
+  description,
+  remote,
+  files = [],
+  solver = 'Yuto',
+} = Astro.props
+
+const rows = [
+  { label: 'Solver', value: solver, icon: 'lucide:user' },
+  { label: 'Author', value: author, icon: 'lucide:pen-line' },
+  { label: 'Category', value: category, icon: 'lucide:folder' },
+]
+---
+
+<aside
+  class="not-prose border-border my-6 overflow-hidden rounded-lg border"
+  data-challenge-info
+>
+  <dl class="divide-border divide-y text-sm">
+    {
+      rows.map(({ label, value, icon }) => (
+        <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4 px-4 py-2.5 sm:grid-cols-[7rem_minmax(0,1fr)]">
+          <dt class="text-muted-foreground flex items-center gap-2 font-medium">
+            <Icon name={icon} class="size-4 shrink-0" aria-hidden="true" />
+            {label}
+          </dt>
+          <dd class="min-w-0">{value}</dd>
+        </div>
+      ))
+    }
+    {
+      files.length > 0 && (
+        <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4 px-4 py-2.5 sm:grid-cols-[7rem_minmax(0,1fr)]">
+          <dt class="text-muted-foreground flex items-center gap-2 font-medium">
+            <Icon
+              name="lucide:file-text"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            />
+            Files
+          </dt>
+          <dd class="flex min-w-0 flex-wrap gap-2">
+            {files.map(({ label, href }) => (
+              <Link
+                href={href}
+                external
+                class="bg-muted/60 hover:bg-muted text-foreground inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono text-xs"
+                data-challenge-file
+              >
+                <Icon
+                  name="lucide:file"
+                  class="text-muted-foreground size-3 shrink-0"
+                  aria-hidden="true"
+                />
+                {label}
+              </Link>
+            ))}
+          </dd>
+        </div>
+      )
+    }
+    {
+      remote && (
+        <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4 px-4 py-2.5 sm:grid-cols-[7rem_minmax(0,1fr)]">
+          <dt class="text-muted-foreground flex items-center gap-2 font-medium">
+            <Icon
+              name="lucide:terminal"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            />
+            Remote
+          </dt>
+          <dd class="min-w-0 overflow-x-auto font-mono text-xs whitespace-nowrap">
+            {remote}
+          </dd>
+        </div>
+      )
+    }
+  </dl>
+  <p class="bg-muted/30 border-border border-t px-4 py-3 text-sm leading-6">
+    {description}
+  </p>
+</aside>

