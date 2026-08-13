@@ -37,7 +37,7 @@
       @apply mt-0;
     }
 
-    /* Don't use an <h1> in your posts, one is already generated in blog/[...id].astro */
+    /* Don't use an <h1> in your posts, one is already generated in notes/[...id].astro */
     :where(h1):not(:where(.not-prose, .not-prose *)) {
       @apply mt-8 mb-6 text-4xl;
     }

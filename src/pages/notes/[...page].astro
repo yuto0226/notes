@@ -1,14 +1,14 @@
 ---
-import BlogCard from '@/components/BlogCard.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import PaginationComponent from '@/components/ui/pagination'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import {
-  getPinnedPosts,
-  getRegularPosts,
-  groupPostsByYear,
+  getPinnedNotes,
+  getRegularNotes,
+  groupNotesByYear,
 } from '@/lib/data-utils'
 import type { PaginateFunction } from 'astro'
 
@@ -17,24 +17,24 @@ export async function getStaticPaths({
 }: {
   paginate: PaginateFunction
 }) {
-  const regularPosts = await getRegularPosts()
-  return paginate(regularPosts, { pageSize: SITE.postsPerPage })
+  const regularNotes = await getRegularNotes()
+  return paginate(regularNotes, { pageSize: SITE.postsPerPage })
 }
 
 const { page } = Astro.props
 
-const pinnedPosts = page.currentPage === 1 ? await getPinnedPosts() : []
-const postsByYear = groupPostsByYear(
-  page.currentPage === 1 ? [...pinnedPosts, ...page.data] : page.data,
+const pinnedNotes = page.currentPage === 1 ? await getPinnedNotes() : []
+const notesByYear = groupNotesByYear(
+  page.currentPage === 1 ? [...pinnedNotes, ...page.data] : page.data,
 )
-const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
+const years = Object.keys(notesByYear).sort((a, b) => parseInt(b) - parseInt(a))
 ---
 
 <Layout class="max-w-4xl">
-  <PageHead slot="head" title="Blog" />
+  <PageHead slot="head" title="Notes" />
   <Breadcrumbs
     items={[
-      { label: 'Blog', href: '/blog', icon: 'lucide:library-big' },
+      { label: 'Notes', href: '/notes', icon: 'lucide:library-big' },
       { label: `Page ${page.currentPage}`, icon: 'lucide:book-copy' },
     ]}
   />
@@ -45,9 +45,9 @@ const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
         <section class="flex flex-col gap-y-4">
           <div class="font-medium">{year}</div>
           <ul class="flex flex-col gap-4">
-            {postsByYear[year].map((post) => (
+            {notesByYear[year].map((note) => (
               <li>
-                <BlogCard entry={post} />
+                <NoteCard entry={note} />
               </li>
             ))}
           </ul>
@@ -59,7 +59,7 @@ const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
   <PaginationComponent
     currentPage={page.currentPage}
     totalPages={page.lastPage}
-    baseUrl="/blog/"
+    baseUrl="/notes/"
     client:load
   />
 </Layout>

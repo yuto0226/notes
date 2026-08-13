@@ -28,12 +28,12 @@ type ParsedAuthor = {
 }
 
 type AdjacentNavigation = {
-  newer: CollectionEntry<'blog'> | null
-  older: CollectionEntry<'blog'> | null
+  newer: CollectionEntry<'notes'> | null
+  older: CollectionEntry<'notes'> | null
 }
 
 interface Props {
-  entry: CollectionEntry<'blog'> | CollectionEntry<'essays'>
+  entry: CollectionEntry<'notes'> | CollectionEntry<'essays'>
   currentEntryId: string
   Content: RenderResult['Content']
   headings: MarkdownHeading[]
@@ -43,7 +43,7 @@ interface Props {
   heroImage: ImageMetadata
   tocSections: TOCSection[]
   adjacentNavigation?: AdjacentNavigation
-  parentEntry?: CollectionEntry<'blog'>
+  parentEntry?: CollectionEntry<'notes'>
   isCurrentSubpost?: boolean
   subpostCount?: number
   combinedReadingTime?: string | null
