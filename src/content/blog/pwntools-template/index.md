@@ -1,12 +1,11 @@
 ---
 title: pwntools 模板
-date: 2026-02-19
+date: 2025-04-22
 updated: 2025-07-18
 description: ''
 image: ''
 tags:
   - pwn
-categories: [note]
 ---
 
 ## Install

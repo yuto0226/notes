@@ -7,7 +7,6 @@ image: ''
 tags:
   - UVA
   - DFS
-categories: [note]
 draft: false
 ---
 
