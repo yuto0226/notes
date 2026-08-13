@@ -26,12 +26,20 @@ export async function GET(context: APIContext) {
         pubDate: essay.data.date,
         link: `/essays/${essay.id}/`,
       })),
-      ...series.map(({ parent }) => ({
-        title: parent.data.title,
-        description: parent.data.description,
-        pubDate: parent.data.date,
-        link: `/notes/${parent.id}/`,
-      })),
+      ...series.flatMap(({ parent, entries }) => [
+        {
+          title: parent.data.title,
+          description: parent.data.description,
+          pubDate: parent.data.date,
+          link: `/notes/${parent.id}/`,
+        },
+        ...entries.map((entry) => ({
+          title: entry.data.title,
+          description: entry.data.description,
+          pubDate: entry.data.date,
+          link: `/notes/${entry.id}/`,
+        })),
+      ]),
     ].sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf())
 
     return rss({

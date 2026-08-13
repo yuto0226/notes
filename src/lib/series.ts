@@ -1,80 +1,138 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 
+type NoteEntry = CollectionEntry<'notes'>
+
 export type NoteSeries = {
   id: string
-  parent: CollectionEntry<'notes'>
-  entries: CollectionEntry<'notes'>[]
+  parent: NoteEntry
+  entries: NoteEntry[]
+  subposts: NoteEntry[]
 }
 
-export type SeriesEntryResult = {
+type SeriesEntryBase = {
   series: NoteSeries
-  entry: CollectionEntry<'notes'>
+  entry: NoteEntry
   navigation: {
-    older: CollectionEntry<'notes'> | null
-    newer: CollectionEntry<'notes'> | null
+    older: NoteEntry | null
+    newer: NoteEntry | null
   }
 }
 
-export function isSeriesEntry(id: string): boolean {
+export type SeriesEntryResult =
+  | (SeriesEntryBase & {
+      kind: 'post'
+      parentEntry: null
+    })
+  | (SeriesEntryBase & {
+      kind: 'subpost'
+      parentEntry: NoteEntry
+    })
+
+function getSegments(id: string): string[] {
+  return id.split('/')
+}
+
+export function isSeriesContent(id: string): boolean {
   return id.startsWith('series/')
 }
 
 export function isSeriesParent(id: string): boolean {
-  return isSeriesEntry(id) && id.split('/').length === 2
+  return isSeriesContent(id) && getSegments(id).length === 2
 }
 
-export function isSeriesChild(id: string): boolean {
-  return isSeriesEntry(id) && id.split('/').length >= 3
+export function isSeriesEntry(id: string): boolean {
+  return isSeriesContent(id) && getSegments(id).length === 3
+}
+
+export function isSeriesSubpost(id: string): boolean {
+  return isSeriesContent(id) && getSegments(id).length >= 4
 }
 
 function getSeriesId(id: string): string {
-  return id.split('/').slice(0, 2).join('/')
+  return getSegments(id).slice(0, 2).join('/')
 }
 
-function buildPublicSeries(notes: CollectionEntry<'notes'>[]): NoteSeries[] {
+export function getSeriesPostId(id: string): string {
+  return getSegments(id).slice(0, 3).join('/')
+}
+
+function sortSeriesEntries(entries: NoteEntry[]): NoteEntry[] {
+  return entries.sort((a, b) => {
+    const dateDifference = a.data.date.valueOf() - b.data.date.valueOf()
+    return dateDifference || a.id.localeCompare(b.id)
+  })
+}
+
+function sortSeriesSubposts(entries: NoteEntry[]): NoteEntry[] {
+  return entries.sort((a, b) => {
+    const dateDifference = a.data.date.valueOf() - b.data.date.valueOf()
+    if (dateDifference !== 0) return dateDifference
+
+    const orderDifference = (a.data.order ?? 0) - (b.data.order ?? 0)
+    return orderDifference || a.id.localeCompare(b.id)
+  })
+}
+
+function buildPublicSeries(notes: NoteEntry[]): NoteSeries[] {
   const grouped = new Map<
     string,
     {
-      parent: CollectionEntry<'notes'> | null
-      entries: CollectionEntry<'notes'>[]
+      parent: NoteEntry | null
+      entries: NoteEntry[]
+      subposts: NoteEntry[]
     }
   >()
 
   for (const note of notes) {
-    if (!isSeriesEntry(note.id)) continue
+    if (!isSeriesContent(note.id)) continue
 
     const seriesId = getSeriesId(note.id)
-    const group = grouped.get(seriesId) ?? { parent: null, entries: [] }
+    const group = grouped.get(seriesId) ?? {
+      parent: null,
+      entries: [],
+      subposts: [],
+    }
 
     if (isSeriesParent(note.id)) {
       group.parent = note
-    } else if (isSeriesChild(note.id)) {
+    } else if (isSeriesEntry(note.id)) {
       group.entries.push(note)
+    } else if (isSeriesSubpost(note.id)) {
+      group.subposts.push(note)
     }
 
     grouped.set(seriesId, group)
   }
 
-  const series = [...grouped.entries()].flatMap(([id, { parent, entries }]) => {
-    if (!parent) {
-      throw new Error(`Series "${id}" has entries but no index.md parent`)
-    }
+  const series = [...grouped.entries()].flatMap(
+    ([id, { parent, entries, subposts }]) => {
+      if (!parent) {
+        throw new Error(`Series "${id}" has entries but no index.md parent`)
+      }
 
-    if (parent.data.draft) return []
+      if (parent.data.draft) return []
 
-    return [
-      {
-        id,
-        parent,
-        entries: entries
-          .filter((entry) => !entry.data.draft)
-          .sort((a, b) => {
-            const dateDifference = a.data.date.valueOf() - b.data.date.valueOf()
-            return dateDifference || a.id.localeCompare(b.id)
-          }),
-      },
-    ]
-  })
+      const publicEntries = sortSeriesEntries(
+        entries.filter((entry) => !entry.data.draft),
+      )
+      const publicEntryIds = new Set(publicEntries.map((entry) => entry.id))
+
+      return [
+        {
+          id,
+          parent,
+          entries: publicEntries,
+          subposts: sortSeriesSubposts(
+            subposts.filter(
+              (subpost) =>
+                !subpost.data.draft &&
+                publicEntryIds.has(getSeriesPostId(subpost.id)),
+            ),
+          ),
+        },
+      ]
+    },
+  )
 
   return series.sort((a, b) => {
     const dateDifference =
@@ -100,7 +158,7 @@ export async function getSeriesById(
 export async function getSeriesEntry(
   id: string,
 ): Promise<SeriesEntryResult | null> {
-  if (!isSeriesChild(id)) return null
+  if (!isSeriesEntry(id) && !isSeriesSubpost(id)) return null
 
   const notes = await getCollection('notes')
   const series =
@@ -109,18 +167,46 @@ export async function getSeriesEntry(
     ) ?? null
   if (!series) return null
 
-  const entryIndex = series.entries.findIndex((entry) => entry.id === id)
-  if (entryIndex === -1) return null
+  if (isSeriesEntry(id)) {
+    const entryIndex = series.entries.findIndex((entry) => entry.id === id)
+    if (entryIndex === -1) return null
+
+    return {
+      kind: 'post',
+      series,
+      entry: series.entries[entryIndex],
+      parentEntry: null,
+      navigation: {
+        older: entryIndex > 0 ? series.entries[entryIndex - 1] : null,
+        newer:
+          entryIndex < series.entries.length - 1
+            ? series.entries[entryIndex + 1]
+            : null,
+      },
+    }
+  }
+
+  const entry = series.subposts.find((subpost) => subpost.id === id)
+  if (!entry) return null
+
+  const parentEntry = series.entries.find(
+    (post) => post.id === getSeriesPostId(id),
+  )
+  if (!parentEntry) return null
+
+  const siblings = series.subposts.filter(
+    (subpost) => getSeriesPostId(subpost.id) === parentEntry.id,
+  )
+  const entryIndex = siblings.findIndex((subpost) => subpost.id === id)
 
   return {
+    kind: 'subpost',
     series,
-    entry: series.entries[entryIndex],
+    entry,
+    parentEntry,
     navigation: {
-      older: entryIndex > 0 ? series.entries[entryIndex - 1] : null,
-      newer:
-        entryIndex < series.entries.length - 1
-          ? series.entries[entryIndex + 1]
-          : null,
+      older: entryIndex > 0 ? siblings[entryIndex - 1] : null,
+      newer: entryIndex < siblings.length - 1 ? siblings[entryIndex + 1] : null,
     },
   }
 }

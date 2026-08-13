@@ -2,7 +2,9 @@
 import PostDetail from '@/components/PostDetail.astro'
 import SeriesDetail from '@/components/SeriesDetail.astro'
 import {
+  getCombinedReadingTime,
   getNoteReadingTime,
+  getSubpostCount,
   parseAuthors,
   type TOCSection,
 } from '@/lib/data-utils'
@@ -28,7 +30,7 @@ export async function getStaticPaths() {
       params: { id: series.id.slice('series/'.length) },
       props: { kind: 'parent' as const, series },
     },
-    ...series.entries.map((entry) => ({
+    ...[...series.entries, ...series.subposts].map((entry) => ({
       params: { id: entry.id.slice('series/'.length) },
       props: { kind: 'entry' as const, entry },
     })),
@@ -46,6 +48,10 @@ let entryPage:
       authors: Awaited<ReturnType<typeof parseAuthors>>
       readingTime: string
       tocSections: TOCSection[]
+      isCurrentSubpost: boolean
+      subpostCount: number
+      combinedReadingTime: string | null
+      hierarchyParentId: string | undefined
     }
   | undefined
 
@@ -57,7 +63,15 @@ if (page.kind === 'parent') {
     throw new Error(`Public Series entry not found: ${page.entry.id}`)
   }
 
+  // Shared subpost components read the collection ID from route params.
+  Astro.params.id = result.entry.id
+
   const { Content, headings } = await render(result.entry)
+  const isCurrentSubpost = result.kind === 'subpost'
+  const subpostCount = isCurrentSubpost
+    ? 0
+    : await getSubpostCount(result.entry.id)
+
   entryPage = {
     result,
     Content,
@@ -77,6 +91,17 @@ if (page.kind === 'parent') {
           },
         ]
       : [],
+    isCurrentSubpost,
+    subpostCount,
+    combinedReadingTime:
+      !isCurrentSubpost && subpostCount > 0
+        ? await getCombinedReadingTime(result.entry.id)
+        : null,
+    hierarchyParentId: isCurrentSubpost
+      ? result.parentEntry.id
+      : subpostCount > 0
+        ? result.entry.id
+        : undefined,
   }
 }
 ---
@@ -98,6 +123,15 @@ if (page.kind === 'parent') {
             label: entryPage.result.series.parent.data.title,
             icon: 'lucide:library',
           },
+          ...(entryPage.result.kind === 'subpost'
+            ? [
+                {
+                  href: `/notes/${entryPage.result.parentEntry.id}`,
+                  label: entryPage.result.parentEntry.data.title,
+                  icon: 'lucide:book-open',
+                },
+              ]
+            : []),
           {
             href: `/notes/${entryPage.result.entry.id}`,
             label: entryPage.result.entry.data.title,
@@ -109,7 +143,12 @@ if (page.kind === 'parent') {
         heroImage={entryPage.result.entry.data.image ?? fallbackImage}
         tocSections={entryPage.tocSections}
         adjacentNavigation={entryPage.result.navigation}
-        tocIsCurrentSubpost={false}
+        parentEntry={entryPage.result.parentEntry ?? undefined}
+        isCurrentSubpost={entryPage.isCurrentSubpost}
+        subpostCount={entryPage.subpostCount}
+        combinedReadingTime={entryPage.combinedReadingTime}
+        hierarchyParentId={entryPage.hierarchyParentId}
+        tocIsCurrentSubpost={entryPage.isCurrentSubpost}
       />
     )
   )

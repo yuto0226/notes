@@ -1,7 +1,16 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 import { getPublicEssays } from '@/lib/essays'
 import { parseMilestoneDate } from '@/lib/milestones'
-import { isSeriesEntry } from '@/lib/series'
+import {
+  getAllSeries,
+  getSeriesById,
+  getSeriesEntry,
+  getSeriesPostId,
+  isSeriesContent,
+  isSeriesEntry,
+  isSeriesParent,
+  isSeriesSubpost,
+} from '@/lib/series'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
 
 export type TagEntry = CollectionEntry<'notes'> | CollectionEntry<'essays'>
@@ -19,7 +28,7 @@ export async function getAllNotes(): Promise<CollectionEntry<'notes'>[]> {
   return notes
     .filter(
       (note) =>
-        !note.data.draft && !isSeriesEntry(note.id) && !isSubpost(note.id),
+        !note.data.draft && !isSeriesContent(note.id) && !isSubpost(note.id),
     )
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
@@ -34,12 +43,20 @@ export async function getRegularNotes(): Promise<CollectionEntry<'notes'>[]> {
   return notes.filter((note) => !note.data.pinned)
 }
 
+async function getAllDiscoverableNotes(): Promise<CollectionEntry<'notes'>[]> {
+  const [notes, series] = await Promise.all([getAllNotes(), getAllSeries()])
+
+  return [...notes, ...series.flatMap(({ entries }) => entries)].toSorted(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+  )
+}
+
 export async function getAllNotesAndSubposts(): Promise<
   CollectionEntry<'notes'>[]
 > {
   const notes = await getCollection('notes')
   return notes
-    .filter((note) => !note.data.draft)
+    .filter((note) => !note.data.draft && !isSeriesContent(note.id))
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
@@ -81,7 +98,10 @@ export async function getEntriesByTag(tag: string): Promise<TagEntry[]> {
 }
 
 async function getAllTagEntries(): Promise<TagEntry[]> {
-  const [notes, essays] = await Promise.all([getAllNotes(), getPublicEssays()])
+  const [notes, essays] = await Promise.all([
+    getAllDiscoverableNotes(),
+    getPublicEssays(),
+  ])
 
   return [...notes, ...essays].toSorted(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
@@ -93,6 +113,16 @@ export async function getAdjacentNotes(currentId: string): Promise<{
   older: CollectionEntry<'notes'> | null
   parent: CollectionEntry<'notes'> | null
 }> {
+  if (isSeriesEntry(currentId) || isSeriesSubpost(currentId)) {
+    const result = await getSeriesEntry(currentId)
+    return result
+      ? {
+          ...result.navigation,
+          parent: result.parentEntry,
+        }
+      : { newer: null, older: null, parent: null }
+  }
+
   const allNotes = await getAllNotes()
 
   if (isSubpost(currentId)) {
@@ -150,14 +180,14 @@ export async function getAdjacentNotes(currentId: string): Promise<{
 export async function getNotesByAuthor(
   authorId: string,
 ): Promise<CollectionEntry<'notes'>[]> {
-  const notes = await getAllNotes()
+  const notes = await getAllDiscoverableNotes()
   return notes.filter((note) => note.data.authors?.includes(authorId))
 }
 
 export async function getNotesByTag(
   tag: string,
 ): Promise<CollectionEntry<'notes'>[]> {
-  const notes = await getAllNotes()
+  const notes = await getAllDiscoverableNotes()
   return notes.filter((note) => note.data.tags?.includes(tag))
 }
 
@@ -181,12 +211,24 @@ export async function getSortedTags(): Promise<
 }
 
 export function getParentId(subpostId: string): string {
+  if (isSeriesSubpost(subpostId)) return getSeriesPostId(subpostId)
   return subpostId.split('/')[0]
 }
 
 export async function getSubpostsForParent(
   parentId: string,
 ): Promise<CollectionEntry<'notes'>[]> {
+  if (isSeriesEntry(parentId)) {
+    const result = await getSeriesEntry(parentId)
+    return result
+      ? result.series.subposts.filter(
+          (subpost) => getSeriesPostId(subpost.id) === parentId,
+        )
+      : []
+  }
+
+  if (isSeriesContent(parentId)) return []
+
   const notes = await getCollection('notes')
   return notes
     .filter(
@@ -224,7 +266,10 @@ export async function hasSubposts(postId: string): Promise<boolean> {
 }
 
 export function isSubpost(postId: string): boolean {
-  return !isSeriesEntry(postId) && postId.includes('/')
+  return (
+    isSeriesSubpost(postId) ||
+    (!isSeriesContent(postId) && postId.includes('/'))
+  )
 }
 
 export async function getParentNote(
@@ -232,6 +277,11 @@ export async function getParentNote(
 ): Promise<CollectionEntry<'notes'> | null> {
   if (!isSubpost(subpostId)) {
     return null
+  }
+
+  if (isSeriesSubpost(subpostId)) {
+    const result = await getSeriesEntry(subpostId)
+    return result?.kind === 'subpost' ? result.parentEntry : null
   }
 
   const parentId = getParentId(subpostId)
@@ -259,6 +309,14 @@ export async function parseAuthors(authorIds: string[] = []) {
 export async function getNoteById(
   noteId: string,
 ): Promise<CollectionEntry<'notes'> | null> {
+  if (isSeriesParent(noteId)) {
+    return (await getSeriesById(noteId))?.parent ?? null
+  }
+
+  if (isSeriesEntry(noteId) || isSeriesSubpost(noteId)) {
+    return (await getSeriesEntry(noteId))?.entry ?? null
+  }
+
   const allNotes = await getAllNotesAndSubposts()
   return allNotes.find((note) => note.id === noteId) || null
 }
