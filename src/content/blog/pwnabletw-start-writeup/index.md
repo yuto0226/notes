@@ -6,7 +6,6 @@ image: ''
 tags:
   - pwnable.tw
   - pwn
-categories: [note]
 ---
 
 ## Beacon

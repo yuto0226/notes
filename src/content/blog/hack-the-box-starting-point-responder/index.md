@@ -9,7 +9,6 @@ tags:
   - NTLM
   - WinRM
 authors: ['yuto']
-categories: [note]
 draft: false
 pinned: false
 ---

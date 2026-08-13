@@ -9,7 +9,6 @@ tags:
   - CVE-2024-9264
   - CronJobs
 authors: ['yuto']
-categories: [note]
 draft: false
 pinned: false
 ---
