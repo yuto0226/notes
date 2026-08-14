@@ -15,7 +15,6 @@ import {
 } from '@/lib/data-utils'
 import { isSeriesEntry } from '@/lib/series'
 import { render } from 'astro:content'
-import fallbackImage from '../../../public/static/flower-field-2.png'
 
 export async function getStaticPaths() {
   const notes = await getAllNotesAndSubposts()
@@ -59,7 +58,6 @@ const tocSections: TOCSection[] = headings.length
       },
     ]
   : []
-const noteImage = note.data.image ? note.data.image : fallbackImage
 const hierarchyParentId =
   hasChildNotes || isCurrentSubpost
     ? isCurrentSubpost
@@ -99,7 +97,7 @@ const breadcrumbItems = [
   breadcrumbItems={breadcrumbItems}
   authors={authors}
   readingTimeText={noteReadingTime}
-  heroImage={noteImage}
+  heroImage={note.data.image}
   tocSections={tocSections}
   adjacentNavigation={navigation}
   parentEntry={parentNote ?? undefined}

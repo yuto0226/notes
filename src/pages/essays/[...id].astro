@@ -4,7 +4,6 @@ import { parseAuthors, type TOCSection } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import { render } from 'astro:content'
-import fallbackImage from '../../../public/static/flower-field-2.png'
 
 export async function getStaticPaths() {
   const essays = await getPublicEssays()
@@ -32,7 +31,6 @@ const tocSections: TOCSection[] = headings.length
       },
     ]
   : []
-const heroImage = essay.data.image ?? fallbackImage
 const breadcrumbItems = [
   { href: '/essays', label: 'Essays', icon: 'lucide:feather' },
   {
@@ -51,7 +49,7 @@ const breadcrumbItems = [
   breadcrumbItems={breadcrumbItems}
   authors={authors}
   readingTimeText={readingTimeText}
-  heroImage={heroImage}
+  heroImage={essay.data.image}
   tocSections={tocSections}
   tocIsCurrentSubpost={false}
 />

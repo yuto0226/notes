@@ -10,7 +10,6 @@ import {
 } from '@/lib/data-utils'
 import { getAllSeries, getSeriesEntry, type NoteSeries } from '@/lib/series'
 import { render, type CollectionEntry } from 'astro:content'
-import fallbackImage from '../../../../public/static/flower-field-2.png'
 
 type ParentPageProps = {
   kind: 'parent'
@@ -137,7 +136,7 @@ if (page.kind === 'parent') {
         ]}
         authors={entryPage.authors}
         readingTimeText={entryPage.readingTime}
-        heroImage={entryPage.result.entry.data.image ?? fallbackImage}
+        heroImage={entryPage.result.entry.data.image}
         tocSections={entryPage.tocSections}
         adjacentNavigation={entryPage.result.navigation}
         parentEntry={entryPage.result.parentEntry ?? undefined}

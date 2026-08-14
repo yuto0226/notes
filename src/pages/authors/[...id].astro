@@ -1,10 +1,11 @@
 ---
 import AuthorCard from '@/components/AuthorCard.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import EssayEntry from '@/components/EssayEntry.astro'
 import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
-import { getAllAuthors, getNotesByAuthor } from '@/lib/data-utils'
+import { getAllAuthors, getEntriesByAuthor } from '@/lib/data-utils'
 
 export async function getStaticPaths() {
   const authors = await getAllAuthors()
@@ -15,7 +16,7 @@ export async function getStaticPaths() {
 }
 
 const { author } = Astro.props
-const authorNotes = await getNotesByAuthor(author.id)
+const { essays, notes } = await getEntriesByAuthor(author.id)
 ---
 
 <Layout class="max-w-4xl">
@@ -36,17 +37,31 @@ const authorNotes = await getNotesByAuthor(author.id)
     <AuthorCard author={author} />
   </section>
   <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">Essays by {author.data.name}</h2>
+    {
+      essays.length > 0 ? (
+        <div>
+          {essays.map((essay) => (
+            <EssayEntry entry={essay} />
+          ))}
+        </div>
+      ) : (
+        <p class="text-muted-foreground">
+          No essays available from this author.
+        </p>
+      )
+    }
+  </section>
+  <section class="flex flex-col gap-y-4">
     <h2 class="text-2xl font-medium">Notes by {author.data.name}</h2>
     {
-      authorNotes.length > 0 ? (
+      notes.length > 0 ? (
         <ul class="flex flex-col gap-4">
-          {authorNotes
-            .filter((note) => !note.data.draft)
-            .map((note) => (
-              <li>
-                <NoteCard entry={note} showSubposts={false} />
-              </li>
-            ))}
+          {notes.map((note) => (
+            <li>
+              <NoteCard entry={note} showSubposts={false} />
+            </li>
+          ))}
         </ul>
       ) : (
         <p class="text-muted-foreground">
