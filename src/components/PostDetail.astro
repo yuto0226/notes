@@ -40,7 +40,7 @@ interface Props {
   breadcrumbItems: BreadcrumbItem[]
   authors: ParsedAuthor[]
   readingTimeText: string
-  heroImage: ImageMetadata
+  heroImage?: ImageMetadata
   tocSections: TOCSection[]
   adjacentNavigation?: AdjacentNavigation
   parentEntry?: CollectionEntry<'notes'>
@@ -96,17 +96,21 @@ const {
       <Breadcrumbs items={breadcrumbItems} />
     </div>
 
-    <LqipImage
-      src={heroImage}
-      alt={entry.data.title}
-      width={1200}
-      height={630}
-      class="col-span-full mx-auto w-full max-w-5xl"
-      imgClass="object-cover"
-      loading="eager"
-      decoding="sync"
-      fetchpriority="high"
-    />
+    {
+      heroImage && (
+        <LqipImage
+          src={heroImage}
+          alt={entry.data.title}
+          width={1200}
+          height={630}
+          class="col-span-full mx-auto w-full max-w-5xl"
+          imgClass="object-cover"
+          loading="eager"
+          decoding="sync"
+          fetchpriority="high"
+        />
+      )
+    }
 
     <section class="flex min-w-0 flex-col gap-y-6 text-center">
       <div class="flex flex-col">

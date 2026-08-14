@@ -177,11 +177,19 @@ export async function getAdjacentNotes(currentId: string): Promise<{
   }
 }
 
-export async function getNotesByAuthor(
-  authorId: string,
-): Promise<CollectionEntry<'notes'>[]> {
-  const notes = await getAllDiscoverableNotes()
-  return notes.filter((note) => note.data.authors?.includes(authorId))
+export async function getEntriesByAuthor(authorId: string): Promise<{
+  essays: CollectionEntry<'essays'>[]
+  notes: CollectionEntry<'notes'>[]
+}> {
+  const [essays, notes] = await Promise.all([
+    getPublicEssays(),
+    getAllDiscoverableNotes(),
+  ])
+
+  return {
+    essays: essays.filter((essay) => essay.data.authors?.includes(authorId)),
+    notes: notes.filter((note) => note.data.authors?.includes(authorId)),
+  }
 }
 
 export async function getNotesByTag(

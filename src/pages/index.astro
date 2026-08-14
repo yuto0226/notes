@@ -11,11 +11,9 @@ import { getPublicEssays } from '@/lib/essays'
 const recentNotes = await getRecentNotes(SITE.homeNoteCount)
 const pinnedNotes = await getPinnedNotes()
 const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
-const profileLinks = [
-  ...SOCIAL_LINKS.filter(({ label }) =>
-    ['GitHub', 'LinkedIn', 'Email'].includes(label),
-  ),
-]
+const profileLinks = SOCIAL_LINKS.filter(({ label }) =>
+  ['GitHub', 'LinkedIn', 'Email'].includes(label),
+)
 
 const profileDetails = [
   'B.S. student in CS @ TTU',

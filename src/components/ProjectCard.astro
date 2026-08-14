@@ -5,14 +5,12 @@ import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 import type { CollectionEntry } from 'astro:content'
-import fallbackImage from '../../public/static/flower-field-2.png'
 
 interface Props {
   project: CollectionEntry<'projects'>
 }
 
 const { project } = Astro.props
-const entryImage = project.data.image ? project.data.image : fallbackImage
 ---
 
 <div
@@ -23,15 +21,19 @@ const entryImage = project.data.image ? project.data.image : fallbackImage
     class="flex flex-col gap-4 sm:flex-row"
     external
   >
-    <div class="w-full sm:max-w-3xs sm:shrink-0">
-      <LqipImage
-        src={entryImage}
-        alt={project.data.name}
-        width={1200}
-        height={630}
-        imgClass="object-cover"
-      />
-    </div>
+    {
+      project.data.image && (
+        <div class="w-full sm:max-w-3xs sm:shrink-0">
+          <LqipImage
+            src={project.data.image}
+            alt={project.data.name}
+            width={1200}
+            height={630}
+            imgClass="object-cover"
+          />
+        </div>
+      )
+    }
     <div class="grow">
       <h3 class="mb-1 text-lg font-medium">
         {project.data.name}
