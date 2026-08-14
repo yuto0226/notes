@@ -34,6 +34,9 @@ export default defineConfig({
   },
   markdown: {
     syntaxHighlight: false,
+    remarkRehype: {
+      clobberPrefix: 'user-',
+    },
     rehypePlugins: [
       [
         rehypeExternalLinks,

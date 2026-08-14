@@ -2,6 +2,7 @@
 import Breadcrumbs, {
   type BreadcrumbItem,
 } from '@/components/Breadcrumbs.astro'
+import FootnoteSidenotes from '@/components/FootnoteSidenotes.astro'
 import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
 import PostHead from '@/components/PostHead.astro'
@@ -69,6 +70,16 @@ const {
   hierarchyParentId,
   tocIsCurrentSubpost,
 } = Astro.props
+
+const isNavigableHeading = ({ slug, text }: MarkdownHeading) =>
+  slug !== 'footnote-label' || text !== 'Footnotes'
+const navigableHeadings = headings.filter(isNavigableHeading)
+const navigableTocSections = tocSections
+  .map((section) => ({
+    ...section,
+    headings: section.headings.filter(isNavigableHeading),
+  }))
+  .filter((section) => section.headings.length > 0)
 ---
 
 <Layout class="max-w-4xl">
@@ -83,12 +94,12 @@ const {
     )
   }
   {
-    headings.length > 0 &&
+    navigableHeadings.length > 0 &&
       !(
         isCurrentSubpost &&
-        headings.length === 1 &&
-        headings[0].text === entry.data.title
-      ) && <TOCHeader slot="table-of-contents" headings={headings} />
+        navigableHeadings.length === 1 &&
+        navigableHeadings[0].text === entry.data.title
+      ) && <TOCHeader slot="table-of-contents" headings={navigableHeadings} />
   }
 
   <section class="grid grid-cols-[minmax(0,1fr)] gap-y-6">
@@ -214,9 +225,9 @@ const {
     </section>
 
     {
-      tocSections.length > 0 && (
+      navigableTocSections.length > 0 && (
         <TOCSidebar
-          sections={tocSections}
+          sections={navigableTocSections}
           currentPostId={currentEntryId}
           isCurrentSubpost={tocIsCurrentSubpost}
         />
@@ -226,6 +237,8 @@ const {
     <article class="prose max-w-none min-w-0" data-toc-anchor>
       <Content />
     </article>
+
+    <FootnoteSidenotes />
 
     {
       hierarchyParentId && (

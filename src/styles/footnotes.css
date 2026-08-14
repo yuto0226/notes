@@ -1,0 +1,105 @@
+@reference './global.css';
+
+@layer components {
+  .prose {
+    a[data-footnote-ref]:not(:where(.not-prose, .not-prose *)) {
+      @apply text-muted-foreground hover:text-foreground focus-visible:text-foreground rounded-sm no-underline transition-[color,background-color,box-shadow];
+
+      &::before {
+        content: '[';
+      }
+
+      &::after {
+        content: ']';
+      }
+
+      &:is(:hover, :focus-visible),
+      :where(sup:has(+ .footnote-sidenote:is(:hover, :focus-within))) & {
+        @apply bg-muted text-foreground ring-foreground/60 ring-1;
+      }
+    }
+
+    :where(section[data-footnotes]):not(:where(.not-prose, .not-prose *)) {
+      @apply border-border mt-4 border-t pt-6;
+
+      & > ol {
+        @apply my-0;
+      }
+    }
+
+    .footnotes li {
+      @apply rounded-sm transition-colors;
+    }
+
+    .footnotes li:target {
+      @apply bg-muted/60;
+    }
+  }
+}
+
+.footnote-sidenote {
+  display: none;
+}
+
+@media (min-width: 90rem) {
+  .prose:has(.footnote-sidenote) {
+    display: flow-root;
+  }
+
+  .prose .footnote-sidenote {
+    position: relative;
+    z-index: 1;
+    float: right;
+    clear: right;
+    display: grid;
+    width: 14rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.5rem;
+    margin: 0.25rem -15.5rem 1rem 1.5rem;
+    padding: 0.25rem 0.35rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border-radius: var(--radius-sm);
+    transition:
+      color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .prose
+    sup:has(a[data-footnote-ref]:is(:hover, :focus-visible))
+    + .footnote-sidenote,
+  .prose .footnote-sidenote:is(:hover, :focus-within) {
+    color: var(--foreground);
+    background-color: var(--muted);
+  }
+
+  .footnote-sidenote-number {
+    grid-column: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .footnote-sidenote-body {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .prose .footnote-sidenote-body > * {
+    margin-block: 0.5em;
+  }
+
+  .prose .footnote-sidenote-body > :first-child {
+    margin-block-start: 0;
+  }
+
+  .prose .footnote-sidenote-body > :last-child {
+    margin-block-end: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose a[data-footnote-ref],
+  .footnote-sidenote {
+    transition: none;
+  }
+}
