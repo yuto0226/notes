@@ -41,10 +41,12 @@
     "rehype-katex": "^7.0.1",
     "remark-emoji": "^5.0.1",
     "remark-math": "^6.0.0",
+    "satori": "^0.29.0",
     "sharp": "^0.33.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.7",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wawoff2": "^2.0.1"
   },
   "devDependencies": {
     "prettier": "^3.5.1",

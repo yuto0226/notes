@@ -13,6 +13,7 @@ const author =
   post.data.authors && post.data.authors.length > 0
     ? post.data.authors.join(', ')
     : SITE.author
+const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
 ---
 
 <title>{`${title} | ${SITE.title}`}</title>
@@ -22,17 +23,10 @@ const author =
 
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-{
-  post.data.image && (
-    <>
-      <meta
-        property="og:image"
-        content={`${SITE.href}${post.data.image.src}`}
-      />
-      <meta property="og:image:alt" content={title} />
-    </>
-  )
-}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={title} />
 <meta property="og:type" content="article" />
 <meta
   property="article:published_time"
@@ -53,21 +47,9 @@ const author =
 
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
-{
-  post.data.image && (
-    <>
-      <meta
-        property="twitter:image"
-        content={`${SITE.href}${post.data.image.src}`}
-      />
-      <meta name="twitter:image:alt" content={title} />
-    </>
-  )
-}
-<meta
-  name="twitter:card"
-  content={post.data.image ? 'summary_large_image' : 'summary'}
-/>
+<meta property="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={title} />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:creator" content={author} />
 
 {
