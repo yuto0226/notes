@@ -76,7 +76,7 @@ The hierarchy and classification helpers live in `src/lib/series.ts` and `src/li
 
 `/essays` is a paginated, newest-first archive. Essay IDs must not be numeric because numeric paths are reserved for pagination. Essay detail pages reuse the long-form post presentation and may have authors, tags, a local table of contents, and an authored hero image.
 
-Images are always optional. No page or card supplies a fallback hero: render image space and social image metadata only when the entry explicitly provides an image.
+Images are always optional. No page or card supplies a fallback hero: render image space only when the entry explicitly provides an image. Social share images (`og:image`/`twitter:image`) are the exception — every Note and Essay detail page gets one regardless of whether it has an authored hero image, generated at build time by `src/lib/og-image.ts` and served from `/og/notes/<id>.png` or `/og/essays/<id>.png`.
 
 Essay helpers and ID validation live in `src/lib/essays.ts`.
 
