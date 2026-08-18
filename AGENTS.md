@@ -101,16 +101,42 @@ Essay helpers and ID validation live in `src/lib/essays.ts`.
 | `/authors/<id>` | `src/pages/authors/[...id].astro` |
 | `/about` | `src/pages/about.astro` |
 
+Every route above is mirrored under `/en/` (e.g. `src/pages/en/notes/[...id].astro`) as a thin wrapper rendering the same shared component. See Internationalization below.
+
 The former `/blog` namespace has been replaced by `/notes`. Backward-compatible redirects are not currently implemented.
+
+## Internationalization (i18n)
+
+zh-TW is the default locale (unprefixed URLs); English is `en`, prefixed under `/en/`, configured in `astro.config.ts`'s `i18n` block.
+
+**Locale self-derivation.** Components read `Astro.currentLocale ?? defaultLang` themselves; locale is not threaded as a manually-passed prop through the component tree. The two exceptions: `PaginationComponent` (a React island, which cannot read `Astro.currentLocale`) takes a `labels` prop, and `Layout.astro` takes an optional `contentLang` override for pages whose actual content language differs from the URL locale.
+
+**UI chrome** (nav, buttons, headings, dates) is translated through the dictionary in `src/i18n/ui.ts` via `useTranslations(locale)`.
+
+**Home and About page prose** (the personal intro/bio, which is authored content rather than UI chrome) is translated separately from the dictionary: each shared page component has locale-suffixed sibling files imported via Vite's `?raw` and split into paragraphs, for example `HomePage.zh-TW.md` / `HomePage.en.md` beside `HomePage.astro`. This follows Hugo's language-code-suffix convention rather than a full content collection, since there are only two pages.
+
+**Essay and Note body content** defaults to Option A′: `/en/essays/<id>` and `/en/notes/<id>` render the original (untranslated) body under English chrome, with `<html lang>` reflecting the entry's real content language and a `<link rel="canonical">` back to the unprefixed original. No `hreflang` alternates are added. This is intentional, not a bug: it never presents untranslated content as if it were a real translation.
+
+**Real per-note translation** is supported as an opt-in override of the Option A′ fallback, detected and looked up by `isLocaleVariant()` / `getNoteTranslation()` in `src/lib/data-utils.ts`. Naming follows Hugo's suffix convention, adapted for Astro's id generation:
+
+- a flat note `<id>.md` is translated by a sibling file `<id>.en.md`;
+- a directory note `<id>/index.md` is translated by a sibling file `<id>/en.md`, **not** `<id>/index.en.md`. Astro's default id generator slugifies each path segment and strips the dot out of multi-dot filenames, so `index.en.md` silently collapses to the id `.../indexen`, which then gets misdetected as a real subpost.
+- a subpost `<parent>/<subpost>.md` is translated the same way as a flat note, by a sibling file `<parent>/<subpost>.en.md`, since its id already contains a `/`.
+
+When a real translation exists, the `/en/` page self-canonicalizes and gets reciprocal `hreflang` links to its counterpart instead of the Option A′ fallback behavior. This mechanism currently covers **Notes only** — Essays always use the Option A′ fallback.
+
+Translation sibling files are new files from git's perspective, so the `update-frontmatter-dates` pre-commit hook stamps their `date` to the commit time. If a translation should share its original's publish date, correct `date` by hand after the first commit.
 
 ## Key Files
 
 - `src/consts.ts` — site configuration, navigation, social links, and icon map
 - `src/content.config.ts` — collection loaders and Zod schemas
-- `src/lib/data-utils.ts` — Notes and cross-collection discovery helpers
+- `src/lib/data-utils.ts` — Notes and cross-collection discovery helpers, including locale-variant/translation lookup
 - `src/lib/essays.ts` — Essay retrieval and ID policy
 - `src/lib/series.ts` — Series hierarchy and integrity rules
-- `src/components/PostDetail.astro` — shared long-form detail layout
+- `src/i18n/ui.ts` — UI string dictionary and `useTranslations()` helper
+- `src/i18n/utils.ts` — locale URL helpers (`localeHref`, `getAlternateLocalePath`)
+- `src/components/PostDetail.astro` — shared long-form detail layout, including Option A′ and translation canonical/hreflang logic
 - `src/components/TOCSidebar.astro` and `src/components/SubpostsSidebar.astro` — desktop article navigation
 
 ## Styling and Rendering
