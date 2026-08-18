@@ -25,3 +25,10 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-push]
+      - id: update-frontmatter-dates
+        name: Update note/essay date & updated frontmatter
+        entry: uv run scripts/update_frontmatter.py
+        language: system
+        files: ^src/content/(notes|essays)/.*\.(md|mdx)$
+        exclude: (^|/)mock-[^/]*(/|$)
+        stages: [pre-commit]
