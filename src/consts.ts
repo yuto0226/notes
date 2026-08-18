@@ -1,4 +1,4 @@
-import type { IconMap, SocialLink, Site } from '@/types'
+import type { IconMap, NavLink, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
   title: "Yuto's Notes",
@@ -11,27 +11,10 @@ export const SITE: Site = {
   postsPerPage: 5,
 }
 
-export const NAV_LINKS: SocialLink[] = [
-  {
-    href: '/essays',
-    label: 'essays',
-  },
-  {
-    href: '/notes',
-    label: 'notes',
-  },
-  // {
-  //   href: '/authors',
-  //   label: 'authors',
-  // },
-  {
-    href: '/about',
-    label: 'about',
-  },
-  // {
-  //   href: '/friends',
-  //   label: 'friends',
-  // },
+export const NAV_LINKS: NavLink[] = [
+  { href: '/essays', key: 'nav.essays' },
+  { href: '/notes', key: 'nav.notes' },
+  { href: '/about', key: 'nav.about' },
 ]
 
 export const SOCIAL_LINKS: SocialLink[] = [

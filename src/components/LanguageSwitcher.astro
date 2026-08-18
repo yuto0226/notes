@@ -1,0 +1,24 @@
+---
+import { defaultLang } from '@/i18n/ui'
+import { getAlternateLocalePath } from '@/i18n/utils'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+
+const currentLocale = Astro.currentLocale ?? defaultLang
+const { locale: targetLocale, path } = getAlternateLocalePath(
+  Astro.url.pathname,
+  currentLocale,
+)
+const href =
+  targetLocale === defaultLang
+    ? path
+    : getRelativeLocaleUrl(targetLocale, path.replace(/^\//, ''))
+const label = targetLocale === 'en' ? 'EN' : '中'
+---
+
+<a
+  href={href}
+  class="text-foreground/60 hover:text-foreground text-sm transition-colors"
+  aria-label={`Switch to ${targetLocale === 'en' ? 'English' : '中文'}`}
+>
+  {label}
+</a>

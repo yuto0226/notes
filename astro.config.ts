@@ -22,6 +22,11 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://blog.yuto0226.dev',
   integrations: [mdx(), react(), sitemap(), icon()],
+  i18n: {
+    defaultLocale: 'zh-TW',
+    locales: ['zh-TW', 'en'],
+    routing: { prefixDefaultLocale: false },
+  },
   vite: {
     plugins: [tailwindcss()],
   },
