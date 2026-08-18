@@ -2,6 +2,7 @@
 import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
 import { defaultLang } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { formatDate } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 
@@ -19,7 +20,7 @@ const locale = Astro.currentLocale ?? defaultLang
   data-essay-entry={entry.id}
 >
   <Link
-    href={`/essays/${entry.id}`}
+    href={localeHref(locale, `/essays/${entry.id}`)}
     class="group flex min-h-20 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
   >
     <div class="min-w-0 grow">

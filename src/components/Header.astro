@@ -4,17 +4,22 @@ import Link from '@/components/Link.astro'
 import ThemeToggle from '@/components/ThemeToggle.astro'
 import { NAV_LINKS, SITE } from '@/consts'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { Image } from 'astro:assets'
 import logo from '../../public/static/logo.svg'
 
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 ---
 
 <div>
   <div
     class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4"
   >
-    <Link href="/" class="flex shrink-0 items-center justify-center gap-3">
+    <Link
+      href={localeHref(locale, '/')}
+      class="flex shrink-0 items-center justify-center gap-3"
+    >
       <Image src={logo} alt="Logo" class="size-5 sm:size-6" />
       <span
         class="hidden h-full font-serif text-lg leading-none font-medium min-[400px]:block"
@@ -26,7 +31,7 @@ const t = useTranslations(Astro.currentLocale ?? defaultLang)
         {
           NAV_LINKS.map((item) => (
             <Link
-              href={item.href}
+              href={localeHref(locale, item.href)}
               class="text-foreground/60 hover:text-foreground transition-colors"
             >
               {t(item.key)}

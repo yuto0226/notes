@@ -21,7 +21,21 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   site: 'https://blog.yuto0226.dev',
-  integrations: [mdx(), react(), sitemap(), icon()],
+  integrations: [
+    mdx(),
+    react(),
+    sitemap({
+      filter: (page) => !page.includes('/en/404'),
+      i18n: {
+        defaultLocale: 'zh-TW',
+        locales: {
+          'zh-TW': 'zh-TW',
+          en: 'en',
+        },
+      },
+    }),
+    icon(),
+  ],
   i18n: {
     defaultLocale: 'zh-TW',
     locales: ['zh-TW', 'en'],

@@ -5,11 +5,13 @@ import PageHead from '@/components/PageHead.astro'
 import SocialIcons from '@/components/SocialIcons.astro'
 import { SITE, SOCIAL_LINKS } from '@/consts'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 
 const recentNotes = await getRecentNotes(SITE.homeNoteCount)
 const pinnedNotes = await getPinnedNotes()
@@ -36,7 +38,7 @@ const formatEntryDate = (date: Date) =>
     data-home-introduction
   >
     <div class="max-w-xl">
-      <div class="space-y-4 leading-7">
+      <div class="space-y-4 leading-7" lang="zh-TW">
         <p class="text-foreground">
           嗨，我是
           Yuto。我總是忍不住想弄懂事物是怎麼運作的，並順著它背後的脈絡一路探索下去。
@@ -71,7 +73,7 @@ const formatEntryDate = (date: Date) =>
         <div class="flex items-baseline justify-between gap-4">
           <h2 class="text-xl font-medium">{t('home.recentEssays')}</h2>
           <Link
-            href="/essays"
+            href={localeHref(locale, '/essays')}
             class="text-muted-foreground hover:text-foreground text-sm"
           >
             {t('home.seeAll')}
@@ -81,7 +83,7 @@ const formatEntryDate = (date: Date) =>
           {recentEssays.map((essay) => (
             <li class="border-border border-b">
               <Link
-                href={`/essays/${essay.id}`}
+                href={localeHref(locale, `/essays/${essay.id}`)}
                 class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
               >
                 <time
@@ -118,7 +120,7 @@ const formatEntryDate = (date: Date) =>
     <div class="flex items-baseline justify-between gap-4">
       <h2 class="text-xl font-medium">{t('home.latestNotes')}</h2>
       <Link
-        href="/notes"
+        href={localeHref(locale, '/notes')}
         class="text-muted-foreground hover:text-foreground text-sm"
       >
         {t('home.seeAll')}
@@ -129,7 +131,7 @@ const formatEntryDate = (date: Date) =>
         recentNotes.map((note) => (
           <li class="border-border border-b">
             <Link
-              href={`/notes/${note.id}`}
+              href={localeHref(locale, `/notes/${note.id}`)}
               class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
             >
               <time

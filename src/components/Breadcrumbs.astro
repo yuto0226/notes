@@ -7,6 +7,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { defaultLang } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { Icon } from 'astro-icon/components'
 
 export interface BreadcrumbItem {
@@ -20,12 +22,13 @@ interface Props {
 }
 
 const { items } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
 ---
 
 <Breadcrumb>
   <BreadcrumbList>
     <BreadcrumbItem>
-      <BreadcrumbLink href="/">
+      <BreadcrumbLink href={localeHref(locale, '/')}>
         <Icon name="lucide:home" class="size-4 shrink-0" />
       </BreadcrumbLink>
     </BreadcrumbItem>

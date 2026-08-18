@@ -5,6 +5,7 @@ import EssayEntry from '@/components/EssayEntry.astro'
 import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { getEntriesByAuthor } from '@/lib/data-utils'
 import type { CollectionEntry } from 'astro:content'
@@ -14,7 +15,8 @@ interface Props {
 }
 
 const { author } = Astro.props
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 const { essays, notes } = await getEntriesByAuthor(author.id)
 ---
 
@@ -27,7 +29,11 @@ const { essays, notes } = await getEntriesByAuthor(author.id)
   />
   <Breadcrumbs
     items={[
-      { href: '/authors', label: t('common.authors'), icon: 'lucide:users' },
+      {
+        href: localeHref(locale, '/authors'),
+        label: t('common.authors'),
+        icon: 'lucide:users',
+      },
       { label: author.data.name, icon: 'lucide:user' },
     ]}
   />
