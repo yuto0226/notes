@@ -14,6 +14,11 @@ export type SocialLink = {
   label: string
 }
 
+export type NavLink = {
+  href: string
+  key: 'nav.essays' | 'nav.notes' | 'nav.about'
+}
+
 export type IconMap = {
   [key: string]: string
 }
