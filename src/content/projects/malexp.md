@@ -1,9 +1,8 @@
 ---
 name: 'Malware Explorer'
-description: 'This is an example project description! You should replace this with a description of your own project.'
-tags: ['Malware Analysis', 'Threat Intelligence', 'RAG','FastAPI', 'Next.js', 'shadcn', 'Gemini']
-image: ''
-link: 'https://example.com'
-startDate: '2024-06-01'
+description: 'An open-source malware sample management and feature-analysis platform: centralizes samples, annotations, and searchable features, with an LLM assisting behavior summaries and feature matching over code snippets.'
+tags: ['Malware Analysis', 'Threat Intelligence', 'FastAPI', 'Next.js', 'PostgreSQL']
+link: 'https://github.com/R1c3P0T5/Malware_Explorer'
+startDate: '2025-05-16'
 endDate: '2025-12-31'
 ---
