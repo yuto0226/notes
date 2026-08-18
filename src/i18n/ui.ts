@@ -7,9 +7,9 @@ export const defaultLang = 'zh-TW'
 
 export const ui = {
   'zh-TW': {
-    'nav.essays': 'essays',
-    'nav.notes': 'notes',
-    'nav.about': 'about',
+    'nav.essays': '文章',
+    'nav.notes': '筆記',
+    'nav.about': '關於',
 
     'common.home': '首頁',
     'common.essays': '文章',
