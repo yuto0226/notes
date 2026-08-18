@@ -1,0 +1,123 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import FriendCard from '@/components/FriendCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import ProjectCard from '@/components/ProjectCard.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import {
+  getAllFriends,
+  getAllMilestones,
+  getAllProjects,
+} from '@/lib/data-utils'
+import {
+  formatMilestoneDateRange,
+  formatMilestoneDatetime,
+  getMilestoneMeta,
+} from '@/lib/milestones'
+import { render } from 'astro:content'
+
+const t = useTranslations(Astro.currentLocale ?? defaultLang)
+
+const projects = await getAllProjects()
+const milestones = await getAllMilestones()
+const friends = await getAllFriends()
+const renderedMilestones = await Promise.all(
+  milestones.map(async (milestone) => {
+    const { Content } = await render(milestone)
+    return { milestone, Content }
+  }),
+)
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title={t('common.about')} />
+  <Breadcrumbs items={[{ label: t('common.about'), icon: 'lucide:info' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <div class="prose mb-8">
+        <p class="mt-0">這裡應該要放自我介紹吧？但我還沒整理好 (¦3[▓▓]</p>
+        <p class="mt-0">我會這樣形容我自己：</p>
+        <p class="mt-0">
+          我是一個充滿好奇心的人，對於了解事物的運作和脈絡有著強大的動力。但在做事上會有些完美主義，也因此常常會拖延到最後一刻。
+        </p>
+        <p class="mt-0">
+          理想中的我是一位心態強大、有學識、並且充滿著生命力的人。我仍會在空閒時感受世界，並想要讓自己變的強大，這同時也是為什麼會想要這樣呈現部落格的原因之一。我希望我未來能夠成為一位研究員，能夠獨立的去理解、研究過去的發展，並思考、創新出獨特的觀點。
+        </p>
+        <p class="mt-0">
+          我想這也是為什麼我憧憬著ヒンメル，他是個徹底的凡人，但是他面對挫折的心態和持之以恆的努力，能讓不被聖劍認可的他也能成為勇者，而我也被他留下的一段話感動著：「ほんの少しでいい。誰かの人生を変えてあげればいい。きっとそれだけで十分なだ。」
+        </p>
+        <p class="mt-0">
+          本來是想跟部落格一樣寫得帥帥的，裝個逼。但想想還是算了，誠實地寫出我所認知的自己哈哈哈哈～
+        </p>
+      </div>
+
+      <h2 class="mb-4 text-2xl font-medium">{t('about.projects')}</h2>
+      <div class="mb-8 flex flex-col gap-4">
+        {projects.map((project) => <ProjectCard project={project} />)}
+      </div>
+
+      {
+        renderedMilestones.length > 0 && (
+          <section class="mb-8">
+            <h2 class="mb-4 text-2xl font-medium">{t('about.milestones')}</h2>
+            <ol class="border-foreground/25 space-y-5 border-l">
+              {renderedMilestones.map(({ milestone, Content }) => (
+                <li class="relative pl-5">
+                  <span
+                    class="bg-background border-primary ring-background absolute top-1.5 -left-[5px] size-2.5 rounded-full border-2 ring-4"
+                    aria-hidden="true"
+                  />
+                  <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+                    <time
+                      datetime={formatMilestoneDatetime(
+                        milestone.data.startDate,
+                      )}
+                      class="text-muted-foreground shrink-0 font-mono text-sm"
+                      aria-label={formatMilestoneDateRange(milestone.data)}
+                    >
+                      {formatMilestoneDateRange(milestone.data)}
+                    </time>
+                    <div class="flex flex-wrap items-baseline gap-x-1">
+                      <h3 class="text-base font-medium">
+                        {milestone.data.title}
+                      </h3>
+                      {getMilestoneMeta(milestone.data) && (
+                        <span class="text-muted-foreground text-base">
+                          · {getMilestoneMeta(milestone.data)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {milestone.body && (
+                    <div class="prose small mt-2">
+                      <Content />
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      <h2 class="mb-4 text-2xl font-medium">{t('about.friends')}</h2>
+      {
+        friends.length > 0 ? (
+          <ul class="mb-12 list-none columns-1 gap-4 space-y-4 pl-0 md:columns-2">
+            {friends.map((friend) => (
+              <li class="break-inside-avoid">
+                <FriendCard friend={friend} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-muted-foreground mb-12 text-center">
+            {t('about.noFriends')}
+          </p>
+        )
+      }
+    </div>
+  </section>
+</Layout>
