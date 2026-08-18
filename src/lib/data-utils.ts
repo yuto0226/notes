@@ -28,7 +28,10 @@ export async function getAllNotes(): Promise<CollectionEntry<'notes'>[]> {
   return notes
     .filter(
       (note) =>
-        !note.data.draft && !isSeriesContent(note.id) && !isSubpost(note.id),
+        !note.data.draft &&
+        !isSeriesContent(note.id) &&
+        !isSubpost(note.id) &&
+        !isLocaleVariant(note.id),
     )
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
@@ -56,7 +59,12 @@ export async function getAllNotesAndSubposts(): Promise<
 > {
   const notes = await getCollection('notes')
   return notes
-    .filter((note) => !note.data.draft && !isSeriesContent(note.id))
+    .filter(
+      (note) =>
+        !note.data.draft &&
+        !isSeriesContent(note.id) &&
+        !isLocaleVariant(note.id),
+    )
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 }
 
@@ -135,6 +143,7 @@ export async function getAdjacentNotes(currentId: string): Promise<{
       .filter(
         (note) =>
           isSubpost(note.id) &&
+          !isLocaleVariant(note.id) &&
           getParentId(note.id) === parentId &&
           !note.data.draft,
       )
@@ -243,6 +252,7 @@ export async function getSubpostsForParent(
       (note) =>
         !note.data.draft &&
         isSubpost(note.id) &&
+        !isLocaleVariant(note.id) &&
         getParentId(note.id) === parentId,
     )
     .sort((a, b) => {
@@ -278,6 +288,31 @@ export function isSubpost(postId: string): boolean {
     isSeriesSubpost(postId) ||
     (!isSeriesContent(postId) && postId.includes('/'))
   )
+}
+
+const TRANSLATION_LOCALES = ['en']
+
+// Astro's id generator slugifies each path segment, stripping the dot out
+// of multi-dot filenames. So a translation id is `<id>.en` for a flat file
+// or `<id>/en` for a directory note; `<id>/index.en` never appears.
+export function isLocaleVariant(id: string): boolean {
+  const lastSegment = id.split('/').pop() ?? id
+  return TRANSLATION_LOCALES.some(
+    (locale) => lastSegment === locale || lastSegment.endsWith(`.${locale}`),
+  )
+}
+
+export async function getNoteTranslation(
+  canonicalId: string,
+  targetLocale: string,
+): Promise<CollectionEntry<'notes'> | null> {
+  const flatId = `${canonicalId}.${targetLocale}`
+  const dirId = `${canonicalId}/${targetLocale}`
+  const notes = await getCollection('notes')
+  const translation = notes.find(
+    (note) => (note.id === flatId || note.id === dirId) && !note.data.draft,
+  )
+  return translation ?? null
 }
 
 export async function getParentNote(
