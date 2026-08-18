@@ -12,13 +12,30 @@ const href =
   targetLocale === defaultLang
     ? path
     : getRelativeLocaleUrl(targetLocale, path.replace(/^\//, ''))
-const label = targetLocale === 'en' ? 'EN' : '中'
+
+const isZhCurrent = currentLocale === defaultLang
+const arrow = isZhCurrent ? '→' : '←'
+const activeClass = 'text-foreground font-medium'
+const inactiveClass =
+  'text-foreground/60 transition-colors group-hover:font-medium group-hover:text-[#8a6bab]'
 ---
 
 <a
   href={href}
-  class="text-foreground/60 hover:text-foreground text-sm transition-colors"
+  class="group flex items-center gap-1 text-sm"
   aria-label={`Switch to ${targetLocale === 'en' ? 'English' : '中文'}`}
 >
-  {label}
+  <span class={isZhCurrent ? activeClass : inactiveClass}>中</span>
+  <span
+    class="text-foreground/60 relative inline-grid w-3 place-items-center font-mono"
+  >
+    <span class="transition-opacity group-hover:opacity-0">/</span>
+    <span
+      class="absolute inset-0 grid place-items-center opacity-0 transition-opacity group-hover:font-medium group-hover:opacity-100"
+      aria-hidden="true"
+    >
+      {arrow}
+    </span>
+  </span>
+  <span class={!isZhCurrent ? activeClass : inactiveClass}>EN</span>
 </a>
