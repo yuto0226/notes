@@ -1,0 +1,95 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import NoteCard from '@/components/NoteCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import SeriesCard from '@/components/SeriesCard.astro'
+import PaginationComponent from '@/components/ui/pagination'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import { getPinnedNotes, groupNotesByYear } from '@/lib/data-utils'
+import { getAllSeries } from '@/lib/series'
+import type { Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+
+interface Props {
+  page: Page<CollectionEntry<'notes'>>
+}
+
+const { page } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+
+const pinnedNotes = page.currentPage === 1 ? await getPinnedNotes() : []
+const series = page.currentPage === 1 ? await getAllSeries() : []
+const notesByYear = groupNotesByYear(
+  page.currentPage === 1 ? [...pinnedNotes, ...page.data] : page.data,
+)
+const years = Object.keys(notesByYear).sort((a, b) => parseInt(b) - parseInt(a))
+const notesHref =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'notes') : '/notes'
+const baseUrl =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'notes/') : '/notes/'
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title={t('common.notes')} />
+  <Breadcrumbs
+    items={[
+      { label: t('common.notes'), href: notesHref, icon: 'lucide:library-big' },
+      {
+        label: t('common.page', { n: page.currentPage }),
+        icon: 'lucide:book-copy',
+      },
+    ]}
+  />
+
+  <div class="flex min-h-[calc(100vh-18rem)] flex-col gap-y-8">
+    {
+      series.length > 0 && (
+        <section class="flex flex-col gap-y-4" aria-labelledby="series-title">
+          <h2 id="series-title" class="font-medium">
+            Series
+          </h2>
+          <ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {series.map((item) => (
+              <li>
+                <SeriesCard series={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      years.map((year) => (
+        <section class="flex flex-col gap-y-4">
+          <div class="font-medium">{year}</div>
+          <ul class="flex flex-col gap-4">
+            {notesByYear[year].map((note) => (
+              <li>
+                <NoteCard entry={note} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <PaginationComponent
+    currentPage={page.currentPage}
+    totalPages={page.lastPage}
+    baseUrl={baseUrl}
+    labels={{
+      previous: t('pagination.previous'),
+      next: t('pagination.next'),
+      goToPrevious: t('pagination.goToPrevious'),
+      goToNext: t('pagination.goToNext'),
+      morePages: t('pagination.morePages'),
+      nav: t('pagination.nav'),
+    }}
+    client:load
+  />
+</Layout>
