@@ -1,3 +1,4 @@
+import { useTranslations } from '@/i18n/ui'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -5,16 +6,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: Date) {
-  return Intl.DateTimeFormat('en-US', {
+export function formatDate(date: Date, locale = 'zh-TW') {
+  return Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   }).format(date)
 }
 
-export function formatDateTime(date: Date) {
-  return Intl.DateTimeFormat('en-US', {
+export function formatDateTime(date: Date, locale = 'zh-TW') {
+  return Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -32,9 +33,9 @@ export function calculateWordCountFromHtml(
   return textOnly.split(/\s+/).filter(Boolean).length
 }
 
-export function readingTime(wordCount: number): string {
+export function readingTime(wordCount: number, locale = 'zh-TW'): string {
   const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200))
-  return `${readingTimeMinutes} min read`
+  return useTranslations(locale)('reading.minRead', { n: readingTimeMinutes })
 }
 
 export function getHeadingMargin(depth: number): string {

@@ -8,22 +8,22 @@ import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
 import { SITE } from '@/consts'
+import { defaultLang } from '@/i18n/ui'
 import { cn } from '@/lib/utils'
 import Analytics from '@vercel/analytics/astro'
 import SpeedInsights from '@vercel/speed-insights/astro'
 
 interface Props {
   class?: string
+  contentLang?: string
 }
 
-const { class: className } = Astro.props
+const { class: className, contentLang } = Astro.props
+const lang = contentLang ?? Astro.currentLocale ?? defaultLang
 ---
 
 <!doctype html>
-<html
-  class="bg-background text-foreground scheme-light-dark"
-  lang={SITE.locale}
->
+<html class="bg-background text-foreground scheme-light-dark" lang={lang}>
   <Head>
     <slot name="head" />
   </Head>

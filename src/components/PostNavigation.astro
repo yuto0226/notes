@@ -1,11 +1,13 @@
 ---
 import Link from '@/components/Link.astro'
 import { buttonVariants } from '@/components/ui/button'
+import { defaultLang, useTranslations } from '@/i18n/ui'
 import { cn } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 
 const { newerPost, olderPost, parentPost } = Astro.props
 const isSubpost = !!parentPost
+const t = useTranslations(Astro.currentLocale ?? defaultLang)
 ---
 
 <nav
@@ -29,12 +31,14 @@ const isSubpost = !!parentPost
     />
     <div class="flex flex-col items-start overflow-hidden text-wrap">
       <span class="text-muted-foreground text-left text-xs">
-        {isSubpost ? 'Previous Subpost' : 'Previous Post'}
+        {isSubpost ? t('postnav.previousSubpost') : t('postnav.previousPost')}
       </span>
       <span class="w-full text-left text-sm text-balance text-ellipsis">
         {
           olderPost?.data.title ||
-            (isSubpost ? 'No older subpost' : "You're at the oldest post!")
+            (isSubpost
+              ? t('postnav.noOlderSubpost')
+              : t('postnav.noOldestPost'))
         }
       </span>
     </div>
@@ -56,10 +60,10 @@ const isSubpost = !!parentPost
         />
         <div class="flex flex-col items-center overflow-hidden text-wrap">
           <span class="text-muted-foreground text-center text-xs">
-            Parent Post
+            {t('postnav.parentPost')}
           </span>
           <span class="w-full text-center text-sm text-balance text-ellipsis">
-            {parentPost?.data.title || 'No parent post'}
+            {parentPost?.data.title || t('postnav.noParentPost')}
           </span>
         </div>
       </Link>
@@ -77,12 +81,14 @@ const isSubpost = !!parentPost
   >
     <div class="flex flex-col items-end overflow-hidden text-wrap">
       <span class="text-muted-foreground text-right text-xs">
-        {isSubpost ? 'Next Subpost' : 'Next Post'}
+        {isSubpost ? t('postnav.nextSubpost') : t('postnav.nextPost')}
       </span>
       <span class="w-full text-right text-sm text-balance text-ellipsis">
         {
           newerPost?.data.title ||
-            (isSubpost ? 'No newer subpost' : "You're at the newest post!")
+            (isSubpost
+              ? t('postnav.noNewerSubpost')
+              : t('postnav.noNewestPost'))
         }
       </span>
     </div>

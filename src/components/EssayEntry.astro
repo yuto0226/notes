@@ -1,6 +1,7 @@
 ---
 import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
+import { defaultLang } from '@/i18n/ui'
 import { formatDate } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 
@@ -10,6 +11,7 @@ interface Props {
 
 const { entry } = Astro.props
 const description = entry.data.description.trim()
+const locale = Astro.currentLocale ?? defaultLang
 ---
 
 <article
@@ -25,7 +27,7 @@ const description = entry.data.description.trim()
         datetime={entry.data.date.toISOString()}
         class="text-muted-foreground text-xs tracking-wide"
       >
-        {formatDate(entry.data.date)}
+        {formatDate(entry.data.date, locale)}
       </time>
       <h3
         class="mt-2 text-xl leading-snug font-medium text-pretty group-hover:underline"

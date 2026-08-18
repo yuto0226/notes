@@ -1,5 +1,6 @@
 ---
 import { SITE } from '@/consts'
+import { defaultLang } from '@/i18n/ui'
 
 interface Props {
   title?: string
@@ -12,6 +13,7 @@ const {
   description = SITE.description,
   noindex = false,
 } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
 ---
 
 <title>{`${title} | ${SITE.title}`}</title>
@@ -22,7 +24,7 @@ const {
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:type" content="website" />
-<meta property="og:locale" content={SITE.locale} />
+<meta property="og:locale" content={locale} />
 <meta property="og:site_name" content={SITE.title} />
 <meta property="og:url" content={Astro.url} />
 
