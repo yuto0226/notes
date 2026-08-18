@@ -1,0 +1,64 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import { parseAuthors, type TOCSection } from '@/lib/data-utils'
+import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
+import type { CollectionEntry } from 'astro:content'
+import { render } from 'astro:content'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+
+interface Props {
+  essay: CollectionEntry<'essays'>
+}
+
+const { essay } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+const currentEssayId = essay.id
+const { Content, headings } = await render(essay)
+const authors = await parseAuthors(essay.data.authors ?? [])
+const readingTimeText = readingTime(
+  calculateWordCountFromHtml(essay.body),
+  locale,
+)
+const tocSections: TOCSection[] = headings.length
+  ? [
+      {
+        type: 'parent',
+        title: 'Overview',
+        headings: headings.map((heading) => ({
+          slug: heading.slug,
+          text: heading.text,
+          depth: heading.depth,
+        })),
+      },
+    ]
+  : []
+const essaysHref =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'essays') : '/essays'
+const essayHref =
+  locale === 'en'
+    ? getRelativeLocaleUrl('en', `essays/${currentEssayId}`)
+    : `/essays/${currentEssayId}`
+const breadcrumbItems = [
+  { href: essaysHref, label: t('common.essays'), icon: 'lucide:feather' },
+  {
+    href: essayHref,
+    label: essay.data.title,
+    icon: 'lucide:file-text',
+  },
+]
+---
+
+<PostDetail
+  entry={essay}
+  currentEntryId={currentEssayId}
+  Content={Content}
+  headings={headings}
+  breadcrumbItems={breadcrumbItems}
+  authors={authors}
+  readingTimeText={readingTimeText}
+  heroImage={essay.data.image}
+  tocSections={tocSections}
+  tocIsCurrentSubpost={false}
+/>

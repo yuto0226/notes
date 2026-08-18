@@ -1,0 +1,114 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import EssayEntry from '@/components/EssayEntry.astro'
+import PageHead from '@/components/PageHead.astro'
+import PaginationComponent from '@/components/ui/pagination'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import type { Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+
+interface Props {
+  page: Page<CollectionEntry<'essays'>>
+}
+
+const { page } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+const isFirstPage = page.currentPage === 1
+const title = isFirstPage
+  ? t('common.essays')
+  : t('common.pagedTitle', { title: t('common.essays'), n: page.currentPage })
+const essaysHref =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'essays') : '/essays'
+const baseUrl =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'essays/') : '/essays/'
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title={title} description={t('essays.description')} />
+  <Breadcrumbs
+    items={isFirstPage
+      ? [{ label: t('common.essays'), icon: 'lucide:feather' }]
+      : [
+          {
+            label: t('common.essays'),
+            href: essaysHref,
+            icon: 'lucide:feather',
+          },
+          {
+            label: t('common.page', { n: page.currentPage }),
+            icon: 'lucide:book-copy',
+          },
+        ]}
+  />
+
+  {
+    isFirstPage && (
+      <section class="rounded-lg border">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <h3 class="text-3xl leading-none font-medium">Him·mel</h3>
+          <p class="text-muted-foreground text-sm">
+            /ˈhɪməl/ &bull; <span class="font-medium">German</span> &bull; sky,
+            heaven
+          </p>
+        </div>
+        <div class="p-6 pt-0">
+          <p class="text-muted-foreground text-sm">
+            A hero whose journey ended long ago, yet whose legacy continues to
+            ripple through time. In the brief span of a human life, he touched
+            countless souls—not through grand gestures, but through small acts
+            of kindness that changed everything.
+          </p>
+        </div>
+        <div class="p-6 pt-0">
+          <p class="text-md mb-4 text-center">
+            -- ヒンメルはなんで人助けをするの？ --
+          </p>
+          <blockquote class="text-muted-foreground my-6 border-l-2 pl-6 italic">
+            ほんの少しでいい。誰かの人生を変えてあげればいい。きっとそれだけで十分なだ。
+            <br />— 勇者 ヒンメル
+          </blockquote>
+        </div>
+      </section>
+    )
+  }
+
+  <section class={isFirstPage ? 'pt-4' : undefined} aria-label="Essay archive">
+    {
+      page.data.length > 0 ? (
+        <div>
+          {page.data.map((essay) => (
+            <EssayEntry entry={essay} />
+          ))}
+        </div>
+      ) : (
+        isFirstPage && (
+          <p class="text-muted-foreground py-10 text-center text-sm italic">
+            {t('essays.noEntries')}
+          </p>
+        )
+      )
+    }
+  </section>
+
+  {
+    page.lastPage > 1 && (
+      <PaginationComponent
+        currentPage={page.currentPage}
+        totalPages={page.lastPage}
+        baseUrl={baseUrl}
+        labels={{
+          previous: t('pagination.previous'),
+          next: t('pagination.next'),
+          goToPrevious: t('pagination.goToPrevious'),
+          goToNext: t('pagination.goToNext'),
+          morePages: t('pagination.morePages'),
+          nav: t('pagination.nav'),
+        }}
+        client:load
+      />
+    )
+  }
+</Layout>
