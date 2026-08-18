@@ -1,8 +1,9 @@
 ---
 title: THJCC CTF 2025 Writeup
-date: 2025-04-22 02:45:00
-updated: 2026-08-13T10:47:23.404Z
+date: 2025-04-22T02:45:00+08:00
+updated: 2026-08-13T18:47:23+08:00
 description: ''
+authors: ['yuto']
 image: ''
 tags:
   - THJCC CTF

@@ -1,8 +1,8 @@
 ---
 title: 'Hack The Box: Starting Point - Responder'
 description: ''
-date: 2025-05-28 14:34:45
-updated: 2025-05-28 14:34:45
+date: 2025-05-28T14:34:45+08:00
+updated: 2025-05-28T14:34:45+08:00
 image: '../../../../public/static/htb.png'
 tags:
   - RFI

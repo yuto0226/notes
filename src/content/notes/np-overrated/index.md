@@ -1,10 +1,11 @@
 ---
 title: 閱讀筆記：NP-overrated
-date: 2025-08-14T09:37:02+08:00
+date: 2026-08-14T09:37:02+08:00
 description: ''
 authors: ['yuto']
 tags:
   - article
+  - algorithm
 ---
 
 source: https://gruhn.me/blog/2026-08-13/

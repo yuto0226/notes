@@ -1,7 +1,8 @@
 ---
 title: pwnable.tw - start Writeup
-date: 2025-04-23 16:20:30
+date: 2025-04-23T16:20:30+08:00
 description: ''
+authors: ['yuto']
 image: ''
 tags:
   - pwnable.tw

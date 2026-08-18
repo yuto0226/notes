@@ -1,8 +1,9 @@
 ---
 title: 'A Quick Dive into PEB Walk: What I Learned from TONESHELL'
-date: 2025-06-21 19:31:00
+date: 2025-06-21T19:31:00+08:00
 updated: 2026-08-13
 description: '從 TONESHELL 的實作出發，理解 PEB Walk 如何遍歷載入模組並手動解析 Windows API。'
+authors: ['yuto']
 tags:
   - PEB Walk
   - TONESHELL

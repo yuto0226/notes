@@ -1,8 +1,8 @@
 ---
 title: UVA 12442 - Forwarding Emails
-date: 2025-04-27 17:12:12
-updated: 2025-04-27 17:12:12
+date: 2025-04-27T17:12:12+08:00
 description: ''
+authors: ['yuto']
 image: ''
 tags:
   - UVA

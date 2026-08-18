@@ -3,6 +3,7 @@ title: pwntools 模板
 date: 2025-04-22
 updated: 2025-07-18
 description: ''
+authors: ['yuto']
 image: ''
 tags:
   - pwn
