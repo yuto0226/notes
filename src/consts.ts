@@ -8,6 +8,7 @@ export const SITE: Site = {
   locale: 'zh-TW',
   homeEssayCount: 3,
   homeNoteCount: 2,
+  homeHeatmapWeeks: 60,
   postsPerPage: 5,
 }
 

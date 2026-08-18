@@ -1,0 +1,56 @@
+---
+import HeatmapGrid, { LEVELS, type HeatmapDay } from '@/components/HeatmapGrid'
+import { getActivityByDate } from '@/lib/data-utils'
+
+interface Props {
+  weeks: number
+}
+
+const { weeks } = Astro.props
+
+const activity = await getActivityByDate()
+
+const toUTCDate = (year: number, month: number, day: number) =>
+  new Date(Date.UTC(year, month, day))
+
+const now = new Date()
+const today = toUTCDate(
+  now.getUTCFullYear(),
+  now.getUTCMonth(),
+  now.getUTCDate(),
+)
+
+// Grid runs Monday–Sunday; end on the Sunday of the current week.
+const dayOfWeek = (today.getUTCDay() + 6) % 7
+const weekEnd = new Date(today)
+weekEnd.setUTCDate(weekEnd.getUTCDate() + (6 - dayOfWeek))
+
+const totalDays = weeks * 7
+const start = new Date(weekEnd)
+start.setUTCDate(start.getUTCDate() - totalDays + 1)
+
+const days: HeatmapDay[] = Array.from({ length: totalDays }, (_, i) => {
+  const date = new Date(start)
+  date.setUTCDate(start.getUTCDate() + i)
+  const key = date.toISOString().slice(0, 10)
+  return { key, entries: activity.get(key) ?? [] }
+})
+
+const totalCount = days.reduce((sum, day) => sum + day.entries.length, 0)
+---
+
+<p class="sr-only">
+  {`過去 ${weeks} 週共發布了 ${totalCount} 篇筆記與文章的活動熱力圖`}
+</p>
+<HeatmapGrid days={days} client:visible />
+<div
+  class="text-muted-foreground mt-2 flex items-center justify-end gap-1 text-xs"
+>
+  <span>少</span>
+  {
+    LEVELS.map((level) => (
+      <span class:list={['block h-3 w-3 rounded-[3px]', level.class]} />
+    ))
+  }
+  <span>多</span>
+</div>

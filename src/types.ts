@@ -6,6 +6,7 @@ export type Site = {
   locale: string
   homeEssayCount: number
   homeNoteCount: number
+  homeHeatmapWeeks: number
   postsPerPage: number
 }
 

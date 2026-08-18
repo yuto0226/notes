@@ -268,6 +268,30 @@ export function groupNotesByYear(
   )
 }
 
+export type ActivityEntry = {
+  title: string
+  href: string
+}
+
+export async function getActivityByDate(): Promise<
+  Map<string, ActivityEntry[]>
+> {
+  const entries = await getAllTagEntries()
+
+  const activity = new Map<string, ActivityEntry[]>()
+  for (const entry of entries) {
+    const date = entry.data.date.toISOString().slice(0, 10)
+    const dayEntries = activity.get(date) ?? []
+    dayEntries.push({
+      title: entry.data.title,
+      href: `/${entry.collection}/${entry.id}`,
+    })
+    activity.set(date, dayEntries)
+  }
+
+  return activity
+}
+
 export async function hasSubposts(postId: string): Promise<boolean> {
   const subposts = await getSubpostsForParent(postId)
   return subposts.length > 0

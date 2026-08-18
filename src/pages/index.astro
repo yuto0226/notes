@@ -1,4 +1,5 @@
 ---
+import ActivityHeatmap from '@/components/ActivityHeatmap.astro'
 import Link from '@/components/Link.astro'
 import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
@@ -8,9 +9,12 @@ import Layout from '@/layouts/Layout.astro'
 import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 
-const recentNotes = await getRecentNotes(SITE.homeNoteCount)
-const pinnedNotes = await getPinnedNotes()
-const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
+const [recentNotes, pinnedNotes, publicEssays] = await Promise.all([
+  getRecentNotes(SITE.homeNoteCount),
+  getPinnedNotes(),
+  getPublicEssays(),
+])
+const recentEssays = publicEssays.slice(0, SITE.homeEssayCount)
 const profileLinks = SOCIAL_LINKS.filter(({ label }) =>
   ['GitHub', 'LinkedIn', 'Email'].includes(label),
 )
@@ -29,7 +33,7 @@ const formatEntryDate = (date: Date) =>
 <Layout class="max-w-4xl">
   <PageHead slot="head" title="Home" />
   <section
-    class="grid pb-4 md:grid-cols-[3fr_2fr] md:gap-6 md:py-6"
+    class="grid pb-2 md:grid-cols-[3fr_2fr] md:gap-6 md:py-4"
     data-home-introduction
   >
     <div class="max-w-xl">
@@ -61,6 +65,9 @@ const formatEntryDate = (date: Date) =>
         }
       </ul>
     </aside>
+  </section>
+  <section class="pb-2 md:pb-4" data-home-heatmap>
+    <ActivityHeatmap weeks={SITE.homeHeatmapWeeks} />
   </section>
   {
     recentEssays.length > 0 && (
