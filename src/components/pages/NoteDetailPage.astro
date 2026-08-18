@@ -1,0 +1,110 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import {
+  getAdjacentNotes,
+  getCombinedReadingTime,
+  getNoteReadingTime,
+  getParentId,
+  getParentNote,
+  getSubpostCount,
+  hasSubposts,
+  isSubpost,
+  parseAuthors,
+  type TOCSection,
+} from '@/lib/data-utils'
+import type { CollectionEntry } from 'astro:content'
+import { render } from 'astro:content'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+
+interface Props {
+  note: CollectionEntry<'notes'>
+  currentNoteId: string
+}
+
+const { note, currentNoteId } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+const { Content, headings } = await render(note)
+const authors = await parseAuthors(note.data.authors ?? [])
+
+const isCurrentSubpost = isSubpost(currentNoteId)
+const navigation = await getAdjacentNotes(currentNoteId)
+const parentNote = isCurrentSubpost ? await getParentNote(currentNoteId) : null
+
+const hasChildNotes = await hasSubposts(currentNoteId)
+const subpostCount = !isCurrentSubpost
+  ? await getSubpostCount(currentNoteId)
+  : 0
+const noteReadingTime = await getNoteReadingTime(currentNoteId, locale)
+const combinedReadingTime =
+  hasChildNotes && !isCurrentSubpost
+    ? await getCombinedReadingTime(currentNoteId, locale)
+    : null
+
+const tocSections: TOCSection[] = headings.length
+  ? [
+      {
+        type: 'parent',
+        title: 'Overview',
+        headings: headings.map((heading) => ({
+          slug: heading.slug,
+          text: heading.text,
+          depth: heading.depth,
+        })),
+      },
+    ]
+  : []
+const hierarchyParentId =
+  hasChildNotes || isCurrentSubpost
+    ? isCurrentSubpost
+      ? getParentId(currentNoteId)
+      : currentNoteId
+    : undefined
+const notesHref =
+  locale === 'en' ? getRelativeLocaleUrl('en', 'notes') : '/notes'
+const notePath = (id: string) =>
+  locale === 'en' ? getRelativeLocaleUrl('en', `notes/${id}`) : `/notes/${id}`
+const breadcrumbItems = [
+  { href: notesHref, label: t('common.notes'), icon: 'lucide:library-big' },
+  ...(isCurrentSubpost && parentNote
+    ? [
+        {
+          href: notePath(parentNote.id),
+          label: parentNote.data.title,
+          icon: 'lucide:book-open',
+        },
+        {
+          href: notePath(currentNoteId),
+          label: note.data.title,
+          icon: 'lucide:file-text',
+        },
+      ]
+    : [
+        {
+          href: notePath(currentNoteId),
+          label: note.data.title,
+          icon: 'lucide:book-open-text',
+        },
+      ]),
+]
+---
+
+<PostDetail
+  entry={note}
+  currentEntryId={currentNoteId}
+  Content={Content}
+  headings={headings}
+  breadcrumbItems={breadcrumbItems}
+  authors={authors}
+  readingTimeText={noteReadingTime}
+  heroImage={note.data.image}
+  tocSections={tocSections}
+  adjacentNavigation={navigation}
+  parentEntry={parentNote ?? undefined}
+  isCurrentSubpost={isCurrentSubpost}
+  subpostCount={subpostCount}
+  combinedReadingTime={combinedReadingTime}
+  hierarchyParentId={hierarchyParentId}
+  tocIsCurrentSubpost={false}
+/>
