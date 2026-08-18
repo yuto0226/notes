@@ -1,6 +1,7 @@
 ---
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
   getNoteById,
@@ -123,7 +124,7 @@ const currentSubpostDetails = isCurrentSubpost
                     </div>
                   ) : (
                     <a
-                      href={`/notes/${activePost.id}`}
+                      href={localeHref(locale, `/notes/${activePost.id}`)}
                       class="mobile-subposts-link hover:text-foreground text-muted-foreground hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
                     >
                       <Icon
@@ -175,7 +176,7 @@ const currentSubpostDetails = isCurrentSubpost
                       </div>
                     ) : (
                       <a
-                        href={`/notes/${subpost.id}`}
+                        href={localeHref(locale, `/notes/${subpost.id}`)}
                         class="mobile-subposts-link hover:text-foreground text-muted-foreground hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
                       >
                         <Icon

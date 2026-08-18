@@ -4,14 +4,16 @@ import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import { buttonVariants } from '@/components/ui/button'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { cn } from '@/lib/utils'
 
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 ---
 
 <Layout class="max-w-4xl">
-  <PageHead slot="head" title="404" />
+  <PageHead slot="head" title="404" noindex />
   <Breadcrumbs
     items={[{ label: t('notfound.breadcrumb'), icon: 'lucide:circle-help' }]}
   />
@@ -24,7 +26,7 @@ const t = useTranslations(Astro.currentLocale ?? defaultLang)
       <p class="prose">{t('notfound.body')}</p>
     </div>
     <Link
-      href="/"
+      href={localeHref(locale, '/')}
       class={cn(buttonVariants({ variant: 'outline' }), 'flex gap-x-1.5 group')}
     >
       <span class="transition-transform group-hover:-translate-x-1">&larr;</span

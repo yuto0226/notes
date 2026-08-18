@@ -4,6 +4,7 @@ import EssayEntry from '@/components/EssayEntry.astro'
 import NoteCard from '@/components/NoteCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import type { TagEntry } from '@/lib/data-utils'
 
@@ -13,7 +14,8 @@ interface Props {
 }
 
 const { tag, entries } = Astro.props
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 const essays = entries.filter((entry) => entry.collection === 'essays')
 const notes = entries.filter((entry) => entry.collection === 'notes')
 ---
@@ -27,7 +29,11 @@ const notes = entries.filter((entry) => entry.collection === 'notes')
   />
   <Breadcrumbs
     items={[
-      { href: '/tags', label: t('common.tags'), icon: 'lucide:tags' },
+      {
+        href: localeHref(locale, '/tags'),
+        label: t('common.tags'),
+        icon: 'lucide:tags',
+      },
       { label: tag, icon: 'lucide:tag' },
     ]}
   />

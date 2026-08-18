@@ -1,6 +1,8 @@
 ---
 import Link from '@/components/Link.astro'
 import AvatarComponent from '@/components/ui/avatar'
+import { defaultLang } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { cn } from '@/lib/utils'
 import type { SocialLink } from '@/types'
 import type { CollectionEntry } from 'astro:content'
@@ -12,8 +14,10 @@ interface Props {
 
 const { author } = Astro.props
 const { name, avatar, bio, pronouns } = author.data
-const currentPath = Astro.url.pathname
-const isAuthorPage = currentPath === `/authors/${author.id}`
+const locale = Astro.currentLocale ?? defaultLang
+const authorHref = localeHref(locale, `/authors/${author.id}`)
+const currentPath = Astro.url.pathname.replace(/\/$/, '')
+const isAuthorPage = currentPath === authorHref.replace(/\/$/, '')
 
 const socialLinks: SocialLink[] = [
   author.data.website && { href: author.data.website, label: 'Website' },
@@ -30,7 +34,7 @@ const socialLinks: SocialLink[] = [
 >
   <div class="flex gap-4">
     <Link
-      href={`/authors/${author.id}`}
+      href={authorHref}
       class={cn('block', isAuthorPage && 'pointer-events-none')}
     >
       <AvatarComponent

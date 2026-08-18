@@ -2,12 +2,14 @@
 import Link from '@/components/Link.astro'
 import { buttonVariants } from '@/components/ui/button'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { cn } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 
 const { newerPost, olderPost, parentPost } = Astro.props
 const isSubpost = !!parentPost
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 ---
 
 <nav
@@ -17,7 +19,9 @@ const t = useTranslations(Astro.currentLocale ?? defaultLang)
   )}
 >
   <Link
-    href={olderPost ? `/notes/${olderPost.id}#post-title` : '#'}
+    href={olderPost
+      ? `${localeHref(locale, `/notes/${olderPost.id}`)}#post-title`
+      : '#'}
     class={cn(
       buttonVariants({ variant: 'outline' }),
       'rounded-lg group flex items-center justify-start size-full',
@@ -47,7 +51,11 @@ const t = useTranslations(Astro.currentLocale ?? defaultLang)
   {
     isSubpost && (
       <Link
-        href={parentPost ? `/notes/${parentPost.id}#post-title` : '#'}
+        href={
+          parentPost
+            ? `${localeHref(locale, `/notes/${parentPost.id}`)}#post-title`
+            : '#'
+        }
         class={cn(
           buttonVariants({ variant: 'outline' }),
           'group flex size-full items-center justify-center rounded-lg',
@@ -71,7 +79,9 @@ const t = useTranslations(Astro.currentLocale ?? defaultLang)
   }
 
   <Link
-    href={newerPost ? `/notes/${newerPost.id}#post-title` : '#'}
+    href={newerPost
+      ? `${localeHref(locale, `/notes/${newerPost.id}`)}#post-title`
+      : '#'}
     class={cn(
       buttonVariants({ variant: 'outline' }),
       'rounded-lg group flex items-center justify-end size-full',

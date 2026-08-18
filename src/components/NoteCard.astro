@@ -4,6 +4,7 @@ import AvatarComponent from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
   getNoteReadingTime,
@@ -42,7 +43,7 @@ const subpostsWithReadingTime = await Promise.all(
   class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
 >
   <Link
-    href={`/${entry.collection}/${entry.id}`}
+    href={localeHref(locale, `/${entry.collection}/${entry.id}`)}
     class="flex flex-col gap-4 sm:flex-row"
   >
     {
@@ -132,7 +133,7 @@ const subpostsWithReadingTime = await Promise.all(
         {subpostsWithReadingTime.map((subpost) => (
           <li>
             <Link
-              href={`/notes/${subpost.id}`}
+              href={localeHref(locale, `/notes/${subpost.id}`)}
               class="text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted/50 flex h-full flex-col justify-between rounded-lg border p-2 transition-colors"
               data-subpost-card
             >

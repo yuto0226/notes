@@ -2,6 +2,7 @@
 import Link from '@/components/Link.astro'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
   getNoteById,
@@ -91,7 +92,7 @@ const subpostsWithReadingTime = await Promise.all(
                   </div>
                 ) : (
                   <Link
-                    href={`/notes/${activePost.id}#post-title`}
+                    href={`${localeHref(locale, `/notes/${activePost.id}`)}#post-title`}
                     class="hover:text-foreground text-muted-foreground hover:bg-foreground/5 subposts-sidebar-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-pretty transition-colors"
                   >
                     <Icon
@@ -147,7 +148,7 @@ const subpostsWithReadingTime = await Promise.all(
                     </div>
                   ) : (
                     <Link
-                      href={`/notes/${subpost.id}`}
+                      href={localeHref(locale, `/notes/${subpost.id}`)}
                       class="hover:text-foreground text-muted-foreground hover:bg-foreground/5 subposts-sidebar-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-pretty transition-colors"
                     >
                       <Icon

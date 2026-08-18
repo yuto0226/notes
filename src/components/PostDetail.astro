@@ -14,6 +14,7 @@ import TOCSidebar from '@/components/TOCSidebar.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import type { TOCSection } from '@/lib/data-utils'
 import { formatDateTime } from '@/lib/utils'
@@ -162,7 +163,7 @@ const canonicalHref =
                     />
                     {author.isRegistered ? (
                       <Link
-                        href={`/authors/${author.id}`}
+                        href={localeHref(locale, `/authors/${author.id}`)}
                         underline
                         class="text-foreground"
                       >
@@ -217,7 +218,7 @@ const canonicalHref =
               entry.data.tags.length > 0 &&
               entry.data.tags.map((tag) => (
                 <a
-                  href={`/tags/${tag}`}
+                  href={localeHref(locale, `/tags/${tag}`)}
                   class={badgeVariants({ variant: 'muted' })}
                 >
                   <Icon name="lucide:hash" class="size-3" />
