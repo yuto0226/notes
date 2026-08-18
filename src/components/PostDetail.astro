@@ -52,6 +52,8 @@ interface Props {
   combinedReadingTime?: string | null
   hierarchyParentId?: string
   tocIsCurrentSubpost?: boolean
+  isTranslated?: boolean
+  alternateHref?: string
 }
 
 const {
@@ -71,6 +73,8 @@ const {
   combinedReadingTime,
   hierarchyParentId,
   tocIsCurrentSubpost,
+  isTranslated = false,
+  alternateHref,
 } = Astro.props
 
 const isNavigableHeading = ({ slug, text }: MarkdownHeading) =>
@@ -85,18 +89,26 @@ const navigableTocSections = tocSections
 
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
+const contentLang = isTranslated ? locale : 'zh-TW'
 const canonicalHref =
-  locale === 'en'
+  locale === 'en' && !isTranslated
     ? new URL(`/${entry.collection}/${currentEntryId}`, Astro.site).href
     : undefined
+const alternateLocale = alternateHref
+  ? locale === 'en'
+    ? 'zh-TW'
+    : 'en'
+  : undefined
 ---
 
-<Layout class="max-w-4xl" contentLang="zh-TW">
+<Layout class="max-w-4xl" contentLang={contentLang}>
   <PostHead
     slot="head"
     post={entry}
     canonicalHref={canonicalHref}
-    contentLocale="zh-TW"
+    contentLocale={contentLang}
+    alternateHref={alternateHref}
+    alternateLocale={alternateLocale}
   />
   {
     hierarchyParentId && (

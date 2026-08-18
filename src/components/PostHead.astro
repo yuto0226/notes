@@ -6,9 +6,12 @@ interface Props {
   post: CollectionEntry<'notes'> | CollectionEntry<'essays'>
   canonicalHref?: string
   contentLocale?: string
+  alternateHref?: string
+  alternateLocale?: string
 }
 
-const { post, canonicalHref, contentLocale } = Astro.props
+const { post, canonicalHref, contentLocale, alternateHref, alternateLocale } =
+  Astro.props
 const title = post.data.title || SITE.title
 const description = post.data.description || SITE.description
 const author =
@@ -22,6 +25,18 @@ const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
 <meta name="title" content={`${title} | ${SITE.title}`} />
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalHref ?? Astro.url.href} />
+{
+  alternateHref && alternateLocale && (
+    <>
+      <link
+        rel="alternate"
+        hreflang={contentLocale}
+        href={canonicalHref ?? Astro.url.href}
+      />
+      <link rel="alternate" hreflang={alternateLocale} href={alternateHref} />
+    </>
+  )
+}
 
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

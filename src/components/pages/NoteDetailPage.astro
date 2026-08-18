@@ -5,6 +5,7 @@ import {
   getAdjacentNotes,
   getCombinedReadingTime,
   getNoteReadingTime,
+  getNoteTranslation,
   getParentId,
   getParentNote,
   getSubpostCount,
@@ -13,6 +14,7 @@ import {
   parseAuthors,
   type TOCSection,
 } from '@/lib/data-utils'
+import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
 import { getRelativeLocaleUrl } from 'astro:i18n'
@@ -25,8 +27,14 @@ interface Props {
 const { note, currentNoteId } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
-const { Content, headings } = await render(note)
-const authors = await parseAuthors(note.data.authors ?? [])
+
+const enTranslation = await getNoteTranslation(currentNoteId, 'en')
+const hasTranslation = enTranslation !== null
+const isTranslated = locale === 'en' && hasTranslation
+const displayEntry = isTranslated ? enTranslation! : note
+
+const { Content, headings } = await render(displayEntry)
+const authors = await parseAuthors(displayEntry.data.authors ?? [])
 
 const isCurrentSubpost = isSubpost(currentNoteId)
 const navigation = await getAdjacentNotes(currentNoteId)
@@ -36,11 +44,18 @@ const hasChildNotes = await hasSubposts(currentNoteId)
 const subpostCount = !isCurrentSubpost
   ? await getSubpostCount(currentNoteId)
   : 0
-const noteReadingTime = await getNoteReadingTime(currentNoteId, locale)
+const noteReadingTime = isTranslated
+  ? readingTime(calculateWordCountFromHtml(displayEntry.body), locale)
+  : await getNoteReadingTime(currentNoteId, locale)
 const combinedReadingTime =
   hasChildNotes && !isCurrentSubpost
     ? await getCombinedReadingTime(currentNoteId, locale)
     : null
+const alternateHref = hasTranslation
+  ? locale === 'en'
+    ? new URL(`/notes/${currentNoteId}`, Astro.site).href
+    : new URL(`/en/notes/${currentNoteId}`, Astro.site).href
+  : undefined
 
 const tocSections: TOCSection[] = headings.length
   ? [
@@ -76,14 +91,14 @@ const breadcrumbItems = [
         },
         {
           href: notePath(currentNoteId),
-          label: note.data.title,
+          label: displayEntry.data.title,
           icon: 'lucide:file-text',
         },
       ]
     : [
         {
           href: notePath(currentNoteId),
-          label: note.data.title,
+          label: displayEntry.data.title,
           icon: 'lucide:book-open-text',
         },
       ]),
@@ -91,14 +106,14 @@ const breadcrumbItems = [
 ---
 
 <PostDetail
-  entry={note}
+  entry={displayEntry}
   currentEntryId={currentNoteId}
   Content={Content}
   headings={headings}
   breadcrumbItems={breadcrumbItems}
   authors={authors}
   readingTimeText={noteReadingTime}
-  heroImage={note.data.image}
+  heroImage={displayEntry.data.image}
   tocSections={tocSections}
   adjacentNavigation={navigation}
   parentEntry={parentNote ?? undefined}
@@ -107,4 +122,6 @@ const breadcrumbItems = [
   combinedReadingTime={combinedReadingTime}
   hierarchyParentId={hierarchyParentId}
   tocIsCurrentSubpost={false}
+  isTranslated={isTranslated}
+  alternateHref={alternateHref}
 />
