@@ -21,7 +21,7 @@ export const ui = {
     'common.pagedTitle': '{title} — 第 {n} 頁',
 
     'home.recentEssays': '近期文章',
-    'home.seeAll': '查看全部 →',
+    'home.seeAll': '檢視全部 →',
     'home.pinnedPosts': '置頂文章',
     'home.latestNotes': '最新筆記',
 
@@ -47,7 +47,7 @@ export const ui = {
     'essays.noEntries': '想法還在腦中，靜靜等待成為文字。',
     'essays.description': '個人的反思、日常生活、旅行與零碎的想法。',
 
-    'footer.copyright': '© {year} 版權所有。',
+    'footer.copyright': '© {year} 版權所有',
     'footer.madeWithPrefix': '此網站由',
     'footer.madeWithSuffix': '用 🤍 打造！',
 
@@ -73,7 +73,7 @@ export const ui = {
     'pagination.morePages': '更多頁面',
     'pagination.nav': '分頁',
 
-    'reading.minRead': '{n} 分鐘閱讀',
+    'reading.minRead': '閱讀約 {n} 分鐘',
   },
   en: {
     'nav.essays': 'Essays',
