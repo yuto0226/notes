@@ -9,9 +9,15 @@ import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
+import introEn from './HomePage.en.md?raw'
+import introZhTW from './HomePage.zh-TW.md?raw'
 
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
+
+const introParagraphs = (locale === 'en' ? introEn : introZhTW)
+  .trim()
+  .split(/\n\s*\n/)
 
 const recentNotes = await getRecentNotes(SITE.homeNoteCount)
 const pinnedNotes = await getPinnedNotes()
@@ -38,14 +44,16 @@ const formatEntryDate = (date: Date) =>
     data-home-introduction
   >
     <div class="max-w-xl">
-      <div class="space-y-4 leading-7" lang="zh-TW">
-        <p class="text-foreground">
-          嗨，我是
-          Yuto。我總是忍不住想弄懂事物是怎麼運作的，並順著它背後的脈絡一路探索下去。
-        </p>
-        <p class="text-muted-foreground">
-          我希望未來能成為一位研究員，獨立地理解問題、梳理過去的發展，並從中形成自己的觀點。而在不斷挑戰自己的同時，我也想保有感受生活與世界的餘裕。
-        </p>
+      <div class="space-y-4 leading-7">
+        {
+          introParagraphs.map((paragraph, index) => (
+            <p
+              class={index === 0 ? 'text-foreground' : 'text-muted-foreground'}
+            >
+              {paragraph}
+            </p>
+          ))
+        }
       </div>
 
       <nav aria-label="Profile links" class="mt-2 mb-4 md:mt-4 md:mb-0">
