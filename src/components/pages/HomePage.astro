@@ -1,0 +1,150 @@
+---
+import Link from '@/components/Link.astro'
+import NoteCard from '@/components/NoteCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import SocialIcons from '@/components/SocialIcons.astro'
+import { SITE, SOCIAL_LINKS } from '@/consts'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
+import { getPublicEssays } from '@/lib/essays'
+
+const t = useTranslations(Astro.currentLocale ?? defaultLang)
+
+const recentNotes = await getRecentNotes(SITE.homeNoteCount)
+const pinnedNotes = await getPinnedNotes()
+const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
+const profileLinks = SOCIAL_LINKS.filter(({ label }) =>
+  ['GitHub', 'LinkedIn', 'Email'].includes(label),
+)
+
+const profileDetails = [
+  'B.S. student in CS @ TTU',
+  'M.S. student in IIS @ NTHU',
+  'Detection Team Intern @ TeamT5',
+  'Reverse Engineering, Systems Security',
+]
+
+const formatEntryDate = (date: Date) =>
+  date.toISOString().slice(0, 10).replaceAll('-', '.')
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title={t('common.home')} />
+  <section
+    class="grid pb-4 md:grid-cols-[3fr_2fr] md:gap-6 md:py-6"
+    data-home-introduction
+  >
+    <div class="max-w-xl">
+      <div class="space-y-4 leading-7">
+        <p class="text-foreground">
+          嗨，我是
+          Yuto。我總是忍不住想弄懂事物是怎麼運作的，並順著它背後的脈絡一路探索下去。
+        </p>
+        <p class="text-muted-foreground">
+          我希望未來能成為一位研究員，獨立地理解問題、梳理過去的發展，並從中形成自己的觀點。而在不斷挑戰自己的同時，我也想保有感受生活與世界的餘裕。
+        </p>
+      </div>
+
+      <nav aria-label="Profile links" class="mt-2 mb-4 md:mt-4 md:mb-0">
+        <SocialIcons links={profileLinks} />
+      </nav>
+    </div>
+
+    <aside
+      class="border-border self-start border-t pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-6"
+      aria-label="Profile details"
+      data-home-profile
+    >
+      <ul class="space-y-2">
+        {
+          profileDetails.map((detail) => (
+            <li class="text-muted-foreground text-sm leading-6">{detail}</li>
+          ))
+        }
+      </ul>
+    </aside>
+  </section>
+  {
+    recentEssays.length > 0 && (
+      <section class="flex flex-col gap-y-3" data-home-essays>
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 class="text-xl font-medium">{t('home.recentEssays')}</h2>
+          <Link
+            href="/essays"
+            class="text-muted-foreground hover:text-foreground text-sm"
+          >
+            {t('home.seeAll')}
+          </Link>
+        </div>
+        <ol class="border-border border-t" data-home-essay-list>
+          {recentEssays.map((essay) => (
+            <li class="border-border border-b">
+              <Link
+                href={`/essays/${essay.id}`}
+                class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
+              >
+                <time
+                  datetime={essay.data.date.toISOString()}
+                  class="text-muted-foreground font-mono text-xs leading-6"
+                >
+                  {formatEntryDate(essay.data.date)}
+                </time>
+                <span class="text-sm leading-6 group-hover:underline">
+                  {essay.data.title}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+  {
+    pinnedNotes.length > 0 && (
+      <section class="flex flex-col gap-y-4">
+        <h2 class="text-xl font-medium">{t('home.pinnedPosts')}</h2>
+        <ul class="flex flex-col gap-y-4">
+          {pinnedNotes.map((note) => (
+            <li>
+              <NoteCard entry={note} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  <section class="flex flex-col gap-y-3" data-home-notes>
+    <div class="flex items-baseline justify-between gap-4">
+      <h2 class="text-xl font-medium">{t('home.latestNotes')}</h2>
+      <Link
+        href="/notes"
+        class="text-muted-foreground hover:text-foreground text-sm"
+      >
+        {t('home.seeAll')}
+      </Link>
+    </div>
+    <ol class="border-border border-t" data-home-note-list>
+      {
+        recentNotes.map((note) => (
+          <li class="border-border border-b">
+            <Link
+              href={`/notes/${note.id}`}
+              class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
+            >
+              <time
+                datetime={note.data.date.toISOString()}
+                class="text-muted-foreground font-mono text-xs leading-6"
+              >
+                {formatEntryDate(note.data.date)}
+              </time>
+              <span class="text-sm leading-6 group-hover:underline">
+                {note.data.title}
+              </span>
+            </Link>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Layout>
