@@ -8,11 +8,15 @@ import {
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 
-function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
+function Pagination({
+  className,
+  'aria-label': ariaLabel = 'pagination',
+  ...props
+}: React.ComponentProps<'nav'>) {
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={ariaLabel}
       data-slot="pagination"
       className={cn('mx-auto flex w-full justify-center', className)}
       {...props}
@@ -72,18 +76,23 @@ function PaginationLink({
 function PaginationPrevious({
   className,
   isDisabled,
+  ariaLabel = 'Go to previous page',
+  label = 'Previous',
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & {
+  ariaLabel?: string
+  label?: string
+}) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={ariaLabel}
       size="default"
       className={cn('gap-1 px-2.5 sm:pl-2.5', className)}
       isDisabled={isDisabled}
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">{label}</span>
     </PaginationLink>
   )
 }
@@ -91,17 +100,22 @@ function PaginationPrevious({
 function PaginationNext({
   className,
   isDisabled,
+  ariaLabel = 'Go to next page',
+  label = 'Next',
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & {
+  ariaLabel?: string
+  label?: string
+}) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={ariaLabel}
       size="default"
       className={cn('gap-1 px-2.5 sm:pr-2.5', className)}
       isDisabled={isDisabled}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">{label}</span>
       <ChevronRightIcon />
     </PaginationLink>
   )
@@ -109,8 +123,9 @@ function PaginationNext({
 
 function PaginationEllipsis({
   className,
+  label = 'More pages',
   ...props
-}: React.ComponentProps<'span'>) {
+}: React.ComponentProps<'span'> & { label?: string }) {
   return (
     <span
       aria-hidden
@@ -119,15 +134,25 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{label}</span>
     </span>
   )
+}
+
+const defaultLabels = {
+  previous: 'Previous',
+  next: 'Next',
+  goToPrevious: 'Go to previous page',
+  goToNext: 'Go to next page',
+  morePages: 'More pages',
+  nav: 'pagination',
 }
 
 const PaginationComponent: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   baseUrl,
+  labels = defaultLabels,
 }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
   const normalizedBaseUrl = baseUrl === '/' ? '' : baseUrl.replace(/\/+$/, '')
@@ -138,12 +163,14 @@ const PaginationComponent: React.FC<PaginationProps> = ({
   }
 
   return (
-    <Pagination>
+    <Pagination aria-label={labels.nav}>
       <PaginationContent className="flex-wrap">
         <PaginationItem>
           <PaginationPrevious
             href={currentPage > 1 ? getPageUrl(currentPage - 1) : undefined}
             isDisabled={currentPage === 1}
+            ariaLabel={labels.goToPrevious}
+            label={labels.previous}
           />
         </PaginationItem>
 
@@ -160,7 +187,7 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 
         {totalPages > 5 && (
           <PaginationItem>
-            <PaginationEllipsis />
+            <PaginationEllipsis label={labels.morePages} />
           </PaginationItem>
         )}
 
@@ -170,6 +197,8 @@ const PaginationComponent: React.FC<PaginationProps> = ({
               currentPage < totalPages ? getPageUrl(currentPage + 1) : undefined
             }
             isDisabled={currentPage === totalPages}
+            ariaLabel={labels.goToNext}
+            label={labels.next}
           />
         </PaginationItem>
       </PaginationContent>
@@ -181,6 +210,14 @@ interface PaginationProps {
   currentPage: number
   totalPages: number
   baseUrl: string
+  labels?: {
+    previous: string
+    next: string
+    goToPrevious: string
+    goToNext: string
+    morePages: string
+    nav: string
+  }
 }
 
 export default PaginationComponent
