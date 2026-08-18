@@ -8,12 +8,17 @@ import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
   getNoteReadingTime,
+  getNoteTranslation,
   getSubpostCount,
   getSubpostsForParent,
   isSubpost,
   parseAuthors,
 } from '@/lib/data-utils'
-import { formatDate } from '@/lib/utils'
+import {
+  calculateWordCountFromHtml,
+  formatDate,
+  readingTime,
+} from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 import type { CollectionEntry } from 'astro:content'
 import Link from './Link.astro'
@@ -26,10 +31,19 @@ interface Props {
 const { entry, showSubposts = true } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
-const formattedDate = formatDate(entry.data.date, locale)
-const readTime = await getCombinedReadingTime(entry.id, locale)
-const authors = await parseAuthors(entry.data.authors ?? [])
+
+const translation =
+  locale === 'en' ? await getNoteTranslation(entry.id, 'en') : null
+const displayEntry = translation ?? entry
+
+const formattedDate = formatDate(displayEntry.data.date, locale)
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+const readTime =
+  translation && subpostCount === 0
+    ? readingTime(calculateWordCountFromHtml(translation.body), locale)
+    : await getCombinedReadingTime(entry.id, locale)
+const authors = await parseAuthors(displayEntry.data.authors ?? [])
+const displayImage = displayEntry.data.image ?? entry.data.image
 const subposts = showSubposts ? await getSubpostsForParent(entry.id) : []
 const subpostsWithReadingTime = await Promise.all(
   subposts.map(async (subpost) => ({
@@ -47,11 +61,11 @@ const subpostsWithReadingTime = await Promise.all(
     class="flex flex-col gap-4 sm:flex-row"
   >
     {
-      entry.data.image && (
+      displayImage && (
         <div class="w-full sm:max-w-3xs sm:shrink-0">
           <LqipImage
-            src={entry.data.image}
-            alt={entry.data.title}
+            src={displayImage}
+            alt={displayEntry.data.title}
             width={1200}
             height={630}
             imgClass="object-cover"
@@ -62,7 +76,7 @@ const subpostsWithReadingTime = await Promise.all(
 
     <div class="grow">
       <div class="mb-1 flex items-start justify-between gap-2">
-        <h3 class="text-lg font-medium">{entry.data.title}</h3>
+        <h3 class="text-lg font-medium">{displayEntry.data.title}</h3>
         {
           entry.data.pinned && (
             <Icon
@@ -72,7 +86,9 @@ const subpostsWithReadingTime = await Promise.all(
           )
         }
       </div>
-      <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+      <p class="text-muted-foreground mb-2 text-sm">
+        {displayEntry.data.description}
+      </p>
 
       <div
         class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
@@ -113,9 +129,9 @@ const subpostsWithReadingTime = await Promise.all(
       </div>
 
       {
-        entry.data.tags && (
+        displayEntry.data.tags && (
           <div class="flex flex-wrap gap-2">
-            {entry.data.tags.map((tag) => (
+            {displayEntry.data.tags.map((tag) => (
               <Badge variant="muted" className="flex items-center gap-x-1">
                 <Icon name="lucide:hash" class="size-3" />
                 {tag}
