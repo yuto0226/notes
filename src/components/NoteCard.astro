@@ -3,6 +3,7 @@ import LqipImage from '@/components/LqipImage.astro'
 import AvatarComponent from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { defaultLang, useTranslations } from '@/i18n/ui'
 import {
   getCombinedReadingTime,
   getNoteReadingTime,
@@ -22,15 +23,17 @@ interface Props {
 }
 
 const { entry, showSubposts = true } = Astro.props
-const formattedDate = formatDate(entry.data.date)
-const readTime = await getCombinedReadingTime(entry.id)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+const formattedDate = formatDate(entry.data.date, locale)
+const readTime = await getCombinedReadingTime(entry.id, locale)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 const subposts = showSubposts ? await getSubpostsForParent(entry.id) : []
 const subpostsWithReadingTime = await Promise.all(
   subposts.map(async (subpost) => ({
     ...subpost,
-    readingTime: await getNoteReadingTime(subpost.id),
+    readingTime: await getNoteReadingTime(subpost.id, locale),
   })),
 )
 ---
@@ -101,7 +104,7 @@ const subpostsWithReadingTime = await Promise.all(
               <Separator orientation="vertical" className="h-4!" />
               <span class="flex items-center gap-1">
                 <Icon name="lucide:file-text" class="size-3" />
-                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
+                {`${subpostCount} ${t('post.subpostLabel')}${locale === 'en' && subpostCount !== 1 ? 's' : ''}`}
               </span>
             </>
           )

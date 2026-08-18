@@ -1,5 +1,6 @@
 ---
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { defaultLang, useTranslations } from '@/i18n/ui'
 import {
   getCombinedReadingTime,
   getNoteById,
@@ -17,6 +18,8 @@ type Props = {
 }
 
 const { parentId, currentEntryId: currentPostId } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 const isCurrentSubpost = isSubpost(currentPostId)
 const rootParentId = isCurrentSubpost ? getParentId(currentPostId) : parentId
 
@@ -28,16 +31,16 @@ const activePost = parentPost || currentPost
 const isActivePost = activePost?.id === currentPostId
 
 const activePostReadingTime = activePost
-  ? await getNoteReadingTime(activePost.id)
+  ? await getNoteReadingTime(activePost.id, locale)
   : null
 const activePostCombinedReadingTime =
   activePost && subposts.length > 0
-    ? await getCombinedReadingTime(activePost.id)
+    ? await getCombinedReadingTime(activePost.id, locale)
     : null
 const subpostsWithReadingTime = await Promise.all(
   subposts.map(async (subpost) => ({
     ...subpost,
-    readingTime: await getNoteReadingTime(subpost.id),
+    readingTime: await getNoteReadingTime(subpost.id, locale),
   })),
 )
 
@@ -109,7 +112,9 @@ const currentSubpostDetails = isCurrentSubpost
                                 activePostReadingTime && (
                                 <span>
                                   {' '}
-                                  ({activePostCombinedReadingTime} total)
+                                  {t('post.readingTimeTotal', {
+                                    time: activePostCombinedReadingTime,
+                                  })}
                                 </span>
                               )}
                           </span>
@@ -138,7 +143,9 @@ const currentSubpostDetails = isCurrentSubpost
                                 activePostReadingTime && (
                                 <span>
                                   {' '}
-                                  ({activePostCombinedReadingTime} total)
+                                  {t('post.readingTimeTotal', {
+                                    time: activePostCombinedReadingTime,
+                                  })}
                                 </span>
                               )}
                           </span>

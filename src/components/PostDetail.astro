@@ -13,6 +13,7 @@ import TOCHeader from '@/components/TOCHeader.astro'
 import TOCSidebar from '@/components/TOCSidebar.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { defaultLang, useTranslations } from '@/i18n/ui'
 import Layout from '@/layouts/Layout.astro'
 import type { TOCSection } from '@/lib/data-utils'
 import { formatDateTime } from '@/lib/utils'
@@ -80,10 +81,22 @@ const navigableTocSections = tocSections
     headings: section.headings.filter(isNavigableHeading),
   }))
   .filter((section) => section.headings.length > 0)
+
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+const canonicalHref =
+  locale === 'en'
+    ? new URL(`/${entry.collection}/${currentEntryId}`, Astro.site).href
+    : undefined
 ---
 
-<Layout class="max-w-4xl">
-  <PostHead slot="head" post={entry} />
+<Layout class="max-w-4xl" contentLang="zh-TW">
+  <PostHead
+    slot="head"
+    post={entry}
+    canonicalHref={canonicalHref}
+    contentLocale="zh-TW"
+  />
   {
     hierarchyParentId && (
       <SubpostsHeader
@@ -180,7 +193,9 @@ const navigableTocSections = tocSections
                   combinedReadingTime !== readingTimeText && (
                     <span class="text-muted-foreground">
                       {' '}
-                      ({combinedReadingTime} total)
+                      {t('post.readingTimeTotal', {
+                        time: combinedReadingTime,
+                      })}
                     </span>
                   )
               }
@@ -191,7 +206,7 @@ const navigableTocSections = tocSections
             subpostCount > 0 && (
               <div class="flex w-full items-center justify-center gap-1 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
                 <Icon name="lucide:file-text" class="size-3" />
-                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
+                {`${subpostCount} ${t('post.subpostLabel')}${locale === 'en' && subpostCount !== 1 ? 's' : ''}`}
               </div>
             )
           }
@@ -267,8 +282,8 @@ const navigableTocSections = tocSections
     size="icon"
     className="group fixed right-8 bottom-8 z-50 hidden"
     id="scroll-to-top"
-    title="Scroll to top"
-    aria-label="Scroll to top"
+    title={t('post.scrollToTop')}
+    aria-label={t('post.scrollToTop')}
   >
     <Icon
       name="lucide:arrow-up"

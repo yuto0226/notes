@@ -4,9 +4,11 @@ import type { CollectionEntry } from 'astro:content'
 
 interface Props {
   post: CollectionEntry<'notes'> | CollectionEntry<'essays'>
+  canonicalHref?: string
+  contentLocale?: string
 }
 
-const { post } = Astro.props
+const { post, canonicalHref, contentLocale } = Astro.props
 const title = post.data.title || SITE.title
 const description = post.data.description || SITE.description
 const author =
@@ -19,7 +21,7 @@ const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
 <title>{`${title} | ${SITE.title}`}</title>
 <meta name="title" content={`${title} | ${SITE.title}`} />
 <meta name="description" content={description} />
-<link rel="canonical" href={Astro.url.href} />
+<link rel="canonical" href={canonicalHref ?? Astro.url.href} />
 
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
@@ -40,7 +42,7 @@ const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
     />
   )
 }
-<meta property="og:locale" content={SITE.locale} />
+<meta property="og:locale" content={contentLocale ?? SITE.locale} />
 <meta property="og:site_name" content={SITE.title} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:author" content={author} />
