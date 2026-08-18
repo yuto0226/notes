@@ -7,7 +7,11 @@ import { SITE, SOCIAL_LINKS } from '@/consts'
 import { defaultLang, useTranslations } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
-import { getPinnedNotes, getRecentNotes } from '@/lib/data-utils'
+import {
+  getNoteTranslation,
+  getPinnedNotes,
+  getRecentNotes,
+} from '@/lib/data-utils'
 import { getPublicEssays } from '@/lib/essays'
 import introEn from './HomePage.en.md?raw'
 import introZhTW from './HomePage.zh-TW.md?raw'
@@ -20,6 +24,17 @@ const introParagraphs = (locale === 'en' ? introEn : introZhTW)
   .split(/\n\s*\n/)
 
 const recentNotes = await getRecentNotes(SITE.homeNoteCount)
+const recentNotesDisplay = await Promise.all(
+  recentNotes.map(async (note) => {
+    const translation =
+      locale === 'en' ? await getNoteTranslation(note.id, 'en') : null
+    return {
+      id: note.id,
+      date: note.data.date,
+      title: translation?.data.title ?? note.data.title,
+    }
+  }),
+)
 const pinnedNotes = await getPinnedNotes()
 const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
 const profileLinks = SOCIAL_LINKS.filter(({ label }) =>
@@ -136,20 +151,20 @@ const formatEntryDate = (date: Date) =>
     </div>
     <ol class="border-border border-t" data-home-note-list>
       {
-        recentNotes.map((note) => (
+        recentNotesDisplay.map((note) => (
           <li class="border-border border-b">
             <Link
               href={localeHref(locale, `/notes/${note.id}`)}
               class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
             >
               <time
-                datetime={note.data.date.toISOString()}
+                datetime={note.date.toISOString()}
                 class="text-muted-foreground font-mono text-xs leading-6"
               >
-                {formatEntryDate(note.data.date)}
+                {formatEntryDate(note.date)}
               </time>
               <span class="text-sm leading-6 group-hover:underline">
-                {note.data.title}
+                {note.title}
               </span>
             </Link>
           </li>
