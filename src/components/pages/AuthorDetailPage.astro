@@ -1,0 +1,72 @@
+---
+import AuthorCard from '@/components/AuthorCard.astro'
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import EssayEntry from '@/components/EssayEntry.astro'
+import NoteCard from '@/components/NoteCard.astro'
+import PageHead from '@/components/PageHead.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import { getEntriesByAuthor } from '@/lib/data-utils'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  author: CollectionEntry<'authors'>
+}
+
+const { author } = Astro.props
+const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const { essays, notes } = await getEntriesByAuthor(author.id)
+---
+
+<Layout class="max-w-4xl">
+  <PageHead
+    slot="head"
+    title={`${author.data.name} (${t('common.authors')})`}
+    description={author.data.bio || author.data.name}
+    noindex
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/authors', label: t('common.authors'), icon: 'lucide:users' },
+      { label: author.data.name, icon: 'lucide:user' },
+    ]}
+  />
+
+  <section>
+    <AuthorCard author={author} />
+  </section>
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">
+      {t('authors.essaysBy', { name: author.data.name })}
+    </h2>
+    {
+      essays.length > 0 ? (
+        <div>
+          {essays.map((essay) => (
+            <EssayEntry entry={essay} />
+          ))}
+        </div>
+      ) : (
+        <p class="text-muted-foreground">{t('authors.noEssays')}</p>
+      )
+    }
+  </section>
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">
+      {t('authors.notesBy', { name: author.data.name })}
+    </h2>
+    {
+      notes.length > 0 ? (
+        <ul class="flex flex-col gap-4">
+          {notes.map((note) => (
+            <li>
+              <NoteCard entry={note} showSubposts={false} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-muted-foreground">{t('authors.noNotes')}</p>
+      )
+    }
+  </section>
+</Layout>

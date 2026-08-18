@@ -1,0 +1,29 @@
+---
+import AuthorCard from '@/components/AuthorCard.astro'
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import Layout from '@/layouts/Layout.astro'
+import { getAllAuthors } from '@/lib/data-utils'
+
+const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const authors = await getAllAuthors()
+---
+
+<Layout class="max-w-4xl">
+  <PageHead slot="head" title={t('common.authors')} />
+  <Breadcrumbs items={[{ label: t('common.authors'), icon: 'lucide:users' }]} />
+  {
+    authors.length > 0 ? (
+      <ul class="flex flex-col gap-4">
+        {authors.map((author) => (
+          <li>
+            <AuthorCard author={author} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted-foreground text-center">{t('authors.noAuthors')}</p>
+    )
+  }
+</Layout>
