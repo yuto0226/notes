@@ -90,10 +90,10 @@ const navigableTocSections = tocSections
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
 const contentLang = isTranslated ? locale : 'zh-TW'
-const canonicalHref =
-  locale === 'en' && !isTranslated
-    ? new URL(`/${entry.collection}/${currentEntryId}`, Astro.site).href
-    : undefined
+const isUntranslatedFallback = locale === 'en' && !isTranslated
+const canonicalHref = isUntranslatedFallback
+  ? new URL(`/${entry.collection}/${currentEntryId}`, Astro.site).href
+  : undefined
 const alternateLocale = alternateHref
   ? locale === 'en'
     ? 'zh-TW'
@@ -259,6 +259,15 @@ const alternateLocale = alternateHref
           currentPostId={currentEntryId}
           isCurrentSubpost={tocIsCurrentSubpost}
         />
+      )
+    }
+
+    {
+      isUntranslatedFallback && (
+        <div class="text-muted-foreground border-border bg-muted/30 flex w-full items-center gap-2 rounded-lg border px-4 py-2.5 text-center text-sm sm:text-left">
+          <Icon name="lucide:languages" class="size-4 shrink-0" />
+          <span>{t('post.untranslatedNotice')}</span>
+        </div>
       )
     }
 
