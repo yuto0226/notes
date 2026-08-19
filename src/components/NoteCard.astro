@@ -38,19 +38,28 @@ const displayEntry = translation ?? entry
 
 const formattedDate = formatDate(displayEntry.data.date, locale)
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
-const readTime =
-  translation && subpostCount === 0
-    ? readingTime(calculateWordCountFromHtml(translation.body), locale)
-    : await getCombinedReadingTime(entry.id, locale)
+const subposts = !isSubpost(entry.id)
+  ? await getSubpostsForParent(entry.id)
+  : []
+const readTime = translation
+  ? readingTime(
+      subposts.reduce(
+        (total, subpost) => total + calculateWordCountFromHtml(subpost.body),
+        calculateWordCountFromHtml(translation.body),
+      ),
+      locale,
+    )
+  : await getCombinedReadingTime(entry.id, locale)
 const authors = await parseAuthors(displayEntry.data.authors ?? [])
 const displayImage = displayEntry.data.image ?? entry.data.image
-const subposts = showSubposts ? await getSubpostsForParent(entry.id) : []
-const subpostsWithReadingTime = await Promise.all(
-  subposts.map(async (subpost) => ({
-    ...subpost,
-    readingTime: await getNoteReadingTime(subpost.id, locale),
-  })),
-)
+const subpostsWithReadingTime = showSubposts
+  ? await Promise.all(
+      subposts.map(async (subpost) => ({
+        ...subpost,
+        readingTime: await getNoteReadingTime(subpost.id, locale),
+      })),
+    )
+  : []
 ---
 
 <div

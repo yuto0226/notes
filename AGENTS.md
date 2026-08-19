@@ -131,7 +131,8 @@ Translation sibling files are new files from git's perspective, so the `update-f
 
 - `src/consts.ts` — site configuration, navigation, social links, and icon map
 - `src/content.config.ts` — collection loaders and Zod schemas
-- `src/lib/data-utils.ts` — Notes and cross-collection discovery helpers, including locale-variant/translation lookup
+- `src/lib/data-utils.ts` — Notes and cross-collection discovery helpers, including per-note translation lookup
+- `src/lib/locale-variant.ts` — `isLocaleVariant()`, shared by `data-utils.ts` and `series.ts` to exclude translation sibling files from discovery
 - `src/lib/essays.ts` — Essay retrieval and ID policy
 - `src/lib/series.ts` — Series hierarchy and integrity rules
 - `src/i18n/ui.ts` — UI string dictionary and `useTranslations()` helper

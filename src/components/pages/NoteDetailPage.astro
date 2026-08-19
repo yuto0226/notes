@@ -1,6 +1,7 @@
 ---
 import PostDetail from '@/components/PostDetail.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import {
   getAdjacentNotes,
   getCombinedReadingTime,
@@ -17,7 +18,6 @@ import {
 import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
-import { getRelativeLocaleUrl } from 'astro:i18n'
 
 interface Props {
   note: CollectionEntry<'notes'>
@@ -76,10 +76,8 @@ const hierarchyParentId =
       ? getParentId(currentNoteId)
       : currentNoteId
     : undefined
-const notesHref =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'notes') : '/notes'
-const notePath = (id: string) =>
-  locale === 'en' ? getRelativeLocaleUrl('en', `notes/${id}`) : `/notes/${id}`
+const notesHref = localeHref(locale, '/notes')
+const notePath = (id: string) => localeHref(locale, `/notes/${id}`)
 const breadcrumbItems = [
   { href: notesHref, label: t('common.notes'), icon: 'lucide:library-big' },
   ...(isCurrentSubpost && parentNote

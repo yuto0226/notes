@@ -4,10 +4,10 @@ import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { getSortedTags } from '@/lib/data-utils'
 import { Icon } from 'astro-icon/components'
-import { getRelativeLocaleUrl } from 'astro:i18n'
 
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
@@ -23,11 +23,7 @@ const sortedTags = await getSortedTags()
       {
         sortedTags.map(({ tag, count }) => (
           <Link
-            href={
-              locale === 'en'
-                ? getRelativeLocaleUrl('en', `tags/${tag}`)
-                : `/tags/${tag}`
-            }
+            href={localeHref(locale, `/tags/${tag}`)}
             class={badgeVariants({ variant: 'muted' })}
           >
             <Icon name="lucide:hash" class="size-3" />

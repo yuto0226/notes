@@ -4,10 +4,10 @@ import EssayEntry from '@/components/EssayEntry.astro'
 import PageHead from '@/components/PageHead.astro'
 import PaginationComponent from '@/components/ui/pagination'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import type { Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
-import { getRelativeLocaleUrl } from 'astro:i18n'
 
 interface Props {
   page: Page<CollectionEntry<'essays'>>
@@ -20,10 +20,8 @@ const isFirstPage = page.currentPage === 1
 const title = isFirstPage
   ? t('common.essays')
   : t('common.pagedTitle', { title: t('common.essays'), n: page.currentPage })
-const essaysHref =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'essays') : '/essays'
-const baseUrl =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'essays/') : '/essays/'
+const essaysHref = localeHref(locale, '/essays')
+const baseUrl = localeHref(locale, '/essays/')
 ---
 
 <Layout class="max-w-4xl">

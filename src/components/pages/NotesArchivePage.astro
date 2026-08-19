@@ -5,12 +5,12 @@ import PageHead from '@/components/PageHead.astro'
 import SeriesCard from '@/components/SeriesCard.astro'
 import PaginationComponent from '@/components/ui/pagination'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import { getPinnedNotes, groupNotesByYear } from '@/lib/data-utils'
 import { getAllSeries } from '@/lib/series'
 import type { Page } from 'astro'
 import type { CollectionEntry } from 'astro:content'
-import { getRelativeLocaleUrl } from 'astro:i18n'
 
 interface Props {
   page: Page<CollectionEntry<'notes'>>
@@ -26,10 +26,8 @@ const notesByYear = groupNotesByYear(
   page.currentPage === 1 ? [...pinnedNotes, ...page.data] : page.data,
 )
 const years = Object.keys(notesByYear).sort((a, b) => parseInt(b) - parseInt(a))
-const notesHref =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'notes') : '/notes'
-const baseUrl =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'notes/') : '/notes/'
+const notesHref = localeHref(locale, '/notes')
+const baseUrl = localeHref(locale, '/notes/')
 ---
 
 <Layout class="max-w-4xl">
