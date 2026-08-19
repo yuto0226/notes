@@ -7,18 +7,14 @@ import { defaultLang, useTranslations } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
+  getDisplayNote,
   getNoteReadingTime,
-  getNoteTranslation,
   getSubpostCount,
   getSubpostsForParent,
   isSubpost,
   parseAuthors,
 } from '@/lib/data-utils'
-import {
-  calculateWordCountFromHtml,
-  formatDate,
-  readingTime,
-} from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 import type { CollectionEntry } from 'astro:content'
 import Link from './Link.astro'
@@ -32,34 +28,20 @@ const { entry, showSubposts = true } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
 
-const translation =
-  locale === 'en' ? await getNoteTranslation(entry.id, 'en') : null
-const displayEntry = translation ?? entry
+const { entry: displayEntry } = await getDisplayNote(entry, locale)
 
 const formattedDate = formatDate(displayEntry.data.date, locale)
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
-const subposts = !isSubpost(entry.id)
-  ? await getSubpostsForParent(entry.id)
-  : []
-const readTime = translation
-  ? readingTime(
-      subposts.reduce(
-        (total, subpost) => total + calculateWordCountFromHtml(subpost.body),
-        calculateWordCountFromHtml(translation.body),
-      ),
-      locale,
-    )
-  : await getCombinedReadingTime(entry.id, locale)
+const readTime = await getCombinedReadingTime(entry.id, locale)
 const authors = await parseAuthors(displayEntry.data.authors ?? [])
 const displayImage = displayEntry.data.image ?? entry.data.image
-const subpostsWithReadingTime = showSubposts
-  ? await Promise.all(
-      subposts.map(async (subpost) => ({
-        ...subpost,
-        readingTime: await getNoteReadingTime(subpost.id, locale),
-      })),
-    )
-  : []
+const subposts = showSubposts ? await getSubpostsForParent(entry.id) : []
+const subpostsWithReadingTime = await Promise.all(
+  subposts.map(async (subpost) => ({
+    ...subpost,
+    readingTime: await getNoteReadingTime(subpost.id, locale),
+  })),
+)
 ---
 
 <div

@@ -5,8 +5,8 @@ import { localeHref } from '@/i18n/utils'
 import {
   getAdjacentNotes,
   getCombinedReadingTime,
+  getDisplayNote,
   getNoteReadingTime,
-  getNoteTranslation,
   getParentId,
   getParentNote,
   getSubpostCount,
@@ -15,7 +15,6 @@ import {
   parseAuthors,
   type TOCSection,
 } from '@/lib/data-utils'
-import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
 
@@ -28,10 +27,11 @@ const { note, currentNoteId } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
 
-const enTranslation = await getNoteTranslation(currentNoteId, 'en')
-const hasTranslation = enTranslation !== null
-const isTranslated = locale === 'en' && hasTranslation
-const displayEntry = isTranslated ? enTranslation! : note
+const {
+  entry: displayEntry,
+  isTranslated,
+  hasTranslation,
+} = await getDisplayNote(note, locale)
 
 const { Content, headings } = await render(displayEntry)
 const authors = await parseAuthors(displayEntry.data.authors ?? [])
@@ -44,9 +44,7 @@ const hasChildNotes = await hasSubposts(currentNoteId)
 const subpostCount = !isCurrentSubpost
   ? await getSubpostCount(currentNoteId)
   : 0
-const noteReadingTime = isTranslated
-  ? readingTime(calculateWordCountFromHtml(displayEntry.body), locale)
-  : await getNoteReadingTime(currentNoteId, locale)
+const noteReadingTime = await getNoteReadingTime(currentNoteId, locale)
 const combinedReadingTime =
   hasChildNotes && !isCurrentSubpost
     ? await getCombinedReadingTime(currentNoteId, locale)

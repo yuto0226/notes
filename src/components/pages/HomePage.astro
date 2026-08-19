@@ -8,7 +8,7 @@ import { defaultLang, useTranslations } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import {
-  getNoteTranslation,
+  getDisplayNote,
   getPinnedNotes,
   getRecentNotes,
 } from '@/lib/data-utils'
@@ -26,13 +26,8 @@ const introParagraphs = (locale === 'en' ? introEn : introZhTW)
 const recentNotes = await getRecentNotes(SITE.homeNoteCount)
 const recentNotesDisplay = await Promise.all(
   recentNotes.map(async (note) => {
-    const translation =
-      locale === 'en' ? await getNoteTranslation(note.id, 'en') : null
-    return {
-      id: note.id,
-      date: note.data.date,
-      title: translation?.data.title ?? note.data.title,
-    }
+    const { entry: displayEntry } = await getDisplayNote(note, locale)
+    return { id: note.id, date: note.data.date, title: displayEntry.data.title }
   }),
 )
 const pinnedNotes = await getPinnedNotes()
