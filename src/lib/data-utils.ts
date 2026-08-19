@@ -304,6 +304,30 @@ export async function getNoteTranslation(
   return translation ?? null
 }
 
+export type DisplayNote = {
+  entry: CollectionEntry<'notes'>
+  isTranslated: boolean
+  hasTranslation: boolean
+}
+
+// Single entry point for "what should render for this note under the
+// current locale" (title, description, image, authors, ...). Every card
+// or detail view should read display data through this instead of
+// branching on getNoteTranslation() itself, so a translated note is
+// resolved the same way everywhere.
+export async function getDisplayNote(
+  entry: CollectionEntry<'notes'>,
+  locale: string,
+): Promise<DisplayNote> {
+  const translation = await getNoteTranslation(entry.id, 'en')
+  const isTranslated = locale === 'en' && translation !== null
+  return {
+    entry: isTranslated ? translation! : entry,
+    isTranslated,
+    hasTranslation: translation !== null,
+  }
+}
+
 export async function getParentNote(
   subpostId: string,
 ): Promise<CollectionEntry<'notes'> | null> {
@@ -358,6 +382,17 @@ export async function getSubpostCount(parentId: string): Promise<number> {
   return subposts.length
 }
 
+// Subposts don't currently have their own translation lookup, so their word
+// count is always taken from the original body regardless of locale.
+async function getDisplayBody(
+  note: CollectionEntry<'notes'>,
+  locale: string,
+): Promise<string> {
+  if (locale !== 'en') return note.body ?? ''
+  const translation = await getNoteTranslation(note.id, 'en')
+  return translation?.body ?? note.body ?? ''
+}
+
 export async function getCombinedReadingTime(
   postId: string,
   locale = 'zh-TW',
@@ -365,7 +400,9 @@ export async function getCombinedReadingTime(
   const note = await getNoteById(postId)
   if (!note) return readingTime(0, locale)
 
-  let totalWords = calculateWordCountFromHtml(note.body)
+  let totalWords = calculateWordCountFromHtml(
+    await getDisplayBody(note, locale),
+  )
 
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
@@ -384,7 +421,9 @@ export async function getNoteReadingTime(
   const note = await getNoteById(noteId)
   if (!note) return readingTime(0, locale)
 
-  const wordCount = calculateWordCountFromHtml(note.body)
+  const wordCount = calculateWordCountFromHtml(
+    await getDisplayBody(note, locale),
+  )
   return readingTime(wordCount, locale)
 }
 
