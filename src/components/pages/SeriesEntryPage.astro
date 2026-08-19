@@ -1,0 +1,153 @@
+---
+import PostDetail from '@/components/PostDetail.astro'
+import SeriesDetail from '@/components/SeriesDetail.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
+import {
+  getCombinedReadingTime,
+  getNoteReadingTime,
+  getSubpostCount,
+  parseAuthors,
+  type TOCSection,
+} from '@/lib/data-utils'
+import { getSeriesEntry, type NoteSeries } from '@/lib/series'
+import { render, type CollectionEntry } from 'astro:content'
+
+export interface SeriesParentPageProps {
+  kind: 'parent'
+  series: NoteSeries
+}
+
+export interface SeriesChildPageProps {
+  kind: 'entry'
+  entry: CollectionEntry<'notes'>
+}
+
+export type SeriesEntryPageProps = SeriesParentPageProps | SeriesChildPageProps
+
+interface Props {
+  page: SeriesEntryPageProps
+}
+
+const { page } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
+
+let parentContent: Awaited<ReturnType<typeof render>>['Content'] | undefined
+let entryPage:
+  | {
+      result: NonNullable<Awaited<ReturnType<typeof getSeriesEntry>>>
+      Content: Awaited<ReturnType<typeof render>>['Content']
+      headings: Awaited<ReturnType<typeof render>>['headings']
+      authors: Awaited<ReturnType<typeof parseAuthors>>
+      readingTime: string
+      tocSections: TOCSection[]
+      isCurrentSubpost: boolean
+      subpostCount: number
+      combinedReadingTime: string | null
+      hierarchyParentId: string | undefined
+    }
+  | undefined
+
+if (page.kind === 'parent') {
+  parentContent = (await render(page.series.parent)).Content
+} else {
+  const result = await getSeriesEntry(page.entry.id)
+  if (!result) {
+    throw new Error(`Public Series entry not found: ${page.entry.id}`)
+  }
+
+  const { Content, headings } = await render(result.entry)
+  const isCurrentSubpost = result.kind === 'subpost'
+  const subpostCount = isCurrentSubpost
+    ? 0
+    : await getSubpostCount(result.entry.id)
+
+  entryPage = {
+    result,
+    Content,
+    headings,
+    authors: await parseAuthors(result.entry.data.authors ?? []),
+    readingTime: await getNoteReadingTime(result.entry.id, locale),
+    tocSections: headings.length
+      ? [
+          {
+            type: 'parent',
+            title: 'Overview',
+            headings: headings.map((heading) => ({
+              slug: heading.slug,
+              text: heading.text,
+              depth: heading.depth,
+            })),
+          },
+        ]
+      : [],
+    isCurrentSubpost,
+    subpostCount,
+    combinedReadingTime:
+      !isCurrentSubpost && subpostCount > 0
+        ? await getCombinedReadingTime(result.entry.id, locale)
+        : null,
+    hierarchyParentId: isCurrentSubpost
+      ? result.parentEntry.id
+      : subpostCount > 0
+        ? result.entry.id
+        : undefined,
+  }
+}
+---
+
+{
+  page.kind === 'parent' && parentContent ? (
+    <SeriesDetail series={page.series} Content={parentContent} />
+  ) : (
+    entryPage && (
+      <PostDetail
+        entry={entryPage.result.entry}
+        currentEntryId={entryPage.result.entry.id}
+        Content={entryPage.Content}
+        headings={entryPage.headings}
+        breadcrumbItems={[
+          {
+            href: localeHref(locale, '/notes'),
+            label: t('common.notes'),
+            icon: 'lucide:library-big',
+          },
+          {
+            href: localeHref(locale, `/notes/${entryPage.result.series.id}`),
+            label: entryPage.result.series.parent.data.title,
+            icon: 'lucide:library',
+          },
+          ...(entryPage.result.kind === 'subpost'
+            ? [
+                {
+                  href: localeHref(
+                    locale,
+                    `/notes/${entryPage.result.parentEntry.id}`,
+                  ),
+                  label: entryPage.result.parentEntry.data.title,
+                  icon: 'lucide:book-open',
+                },
+              ]
+            : []),
+          {
+            href: localeHref(locale, `/notes/${entryPage.result.entry.id}`),
+            label: entryPage.result.entry.data.title,
+            icon: 'lucide:file-text',
+          },
+        ]}
+        authors={entryPage.authors}
+        readingTimeText={entryPage.readingTime}
+        heroImage={entryPage.result.entry.data.image}
+        tocSections={entryPage.tocSections}
+        adjacentNavigation={entryPage.result.navigation}
+        parentEntry={entryPage.result.parentEntry ?? undefined}
+        isCurrentSubpost={entryPage.isCurrentSubpost}
+        subpostCount={entryPage.subpostCount}
+        combinedReadingTime={entryPage.combinedReadingTime}
+        hierarchyParentId={entryPage.hierarchyParentId}
+        tocIsCurrentSubpost={false}
+      />
+    )
+  )
+}
