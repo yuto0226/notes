@@ -3,6 +3,8 @@ import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
 import PageHead from '@/components/PageHead.astro'
+import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import Layout from '@/layouts/Layout.astro'
 import type { NoteSeries } from '@/lib/series'
 import { formatDate } from '@/lib/utils'
@@ -15,6 +17,8 @@ interface Props {
 }
 
 const { series, Content } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 ---
 
 <Layout class="max-w-4xl">
@@ -25,7 +29,11 @@ const { series, Content } = Astro.props
   />
   <Breadcrumbs
     items={[
-      { label: 'Notes', href: '/notes', icon: 'lucide:library-big' },
+      {
+        label: t('common.notes'),
+        href: localeHref(locale, '/notes'),
+        icon: 'lucide:library-big',
+      },
       { label: series.parent.data.title, icon: 'lucide:library' },
     ]}
   />
@@ -57,14 +65,16 @@ const { series, Content } = Astro.props
     </header>
 
     <section aria-labelledby="series-entries-title">
-      <h2 id="series-entries-title" class="mb-3 text-xl font-medium">Notes</h2>
+      <h2 id="series-entries-title" class="mb-3 text-xl font-medium">
+        {t('common.notes')}
+      </h2>
       {
         series.entries.length > 0 ? (
           <ol class="flex flex-col">
             {series.entries.map((entry) => (
               <li class="border-border border-t py-5 first:border-t-0">
                 <Link
-                  href={`/notes/${entry.id}`}
+                  href={localeHref(locale, `/notes/${entry.id}`)}
                   class="group flex items-start justify-between gap-4"
                 >
                   <div class="min-w-0 grow">
@@ -72,7 +82,7 @@ const { series, Content } = Astro.props
                       datetime={entry.data.date.toISOString()}
                       class="text-muted-foreground text-xs tracking-wide"
                     >
-                      {formatDate(entry.data.date)}
+                      {formatDate(entry.data.date, locale)}
                     </time>
                     <h3 class="mt-2 text-lg font-medium text-pretty group-hover:underline">
                       {entry.data.title}
@@ -92,7 +102,7 @@ const { series, Content } = Astro.props
           </ol>
         ) : (
           <p class="text-muted-foreground py-6 text-sm italic">
-            No notes have been published in this series yet.
+            {t('series.empty')}
           </p>
         )
       }

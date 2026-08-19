@@ -25,6 +25,8 @@ export const ui = {
     'home.pinnedPosts': '置頂文章',
     'home.latestNotes': '最新筆記',
 
+    'series.empty': '此系列尚未發布任何筆記。',
+
     'about.projects': '專案',
     'about.milestones': '經歷',
     'about.friends': '朋友',
@@ -94,6 +96,8 @@ export const ui = {
     'home.seeAll': 'See all →',
     'home.pinnedPosts': 'Pinned posts',
     'home.latestNotes': 'Latest Notes',
+
+    'series.empty': 'No notes have been published in this series yet.',
 
     'about.projects': 'Projects',
     'about.milestones': 'Milestones',
