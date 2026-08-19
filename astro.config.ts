@@ -25,14 +25,7 @@ export default defineConfig({
     mdx(),
     react(),
     sitemap({
-      filter: (page) => !page.includes('/en/404'),
-      i18n: {
-        defaultLocale: 'zh-TW',
-        locales: {
-          'zh-TW': 'zh-TW',
-          en: 'en',
-        },
-      },
+      filter: (page) => !page.endsWith('/404') && !page.endsWith('/404/'),
     }),
     icon(),
   ],

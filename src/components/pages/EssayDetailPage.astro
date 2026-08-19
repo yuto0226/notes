@@ -1,11 +1,11 @@
 ---
 import PostDetail from '@/components/PostDetail.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
+import { localeHref } from '@/i18n/utils'
 import { parseAuthors, type TOCSection } from '@/lib/data-utils'
 import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
-import { getRelativeLocaleUrl } from 'astro:i18n'
 
 interface Props {
   essay: CollectionEntry<'essays'>
@@ -34,12 +34,8 @@ const tocSections: TOCSection[] = headings.length
       },
     ]
   : []
-const essaysHref =
-  locale === 'en' ? getRelativeLocaleUrl('en', 'essays') : '/essays'
-const essayHref =
-  locale === 'en'
-    ? getRelativeLocaleUrl('en', `essays/${currentEssayId}`)
-    : `/essays/${currentEssayId}`
+const essaysHref = localeHref(locale, '/essays')
+const essayHref = localeHref(locale, `/essays/${currentEssayId}`)
 const breadcrumbItems = [
   { href: essaysHref, label: t('common.essays'), icon: 'lucide:feather' },
   {

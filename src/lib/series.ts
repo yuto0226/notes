@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
+import { isLocaleVariant } from './locale-variant'
 
 type NoteEntry = CollectionEntry<'notes'>
 
@@ -91,7 +92,7 @@ function buildPublicSeries(notes: NoteEntry[]): NoteSeries[] {
   >()
 
   for (const note of notes) {
-    if (!isSeriesContent(note.id)) continue
+    if (!isSeriesContent(note.id) || isLocaleVariant(note.id)) continue
 
     const seriesId = getSeriesId(note.id)
     const group = grouped.get(seriesId) ?? {
