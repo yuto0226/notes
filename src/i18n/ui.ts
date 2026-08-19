@@ -54,6 +54,7 @@ export const ui = {
     'post.readingTimeTotal': '（總計 {time}）',
     'post.subpostLabel': '篇子文章',
     'post.scrollToTop': '回到頂端',
+    'post.untranslatedNotice': '這篇文章尚未提供英文版，以下為原文。',
 
     'postnav.previousPost': '上一篇',
     'postnav.nextPost': '下一篇',
@@ -125,6 +126,8 @@ export const ui = {
     'post.readingTimeTotal': '({time} total)',
     'post.subpostLabel': 'subpost',
     'post.scrollToTop': 'Scroll to top',
+    'post.untranslatedNotice':
+      "This post hasn't been translated into English yet. Showing the original.",
 
     'postnav.previousPost': 'Previous Post',
     'postnav.nextPost': 'Next Post',
