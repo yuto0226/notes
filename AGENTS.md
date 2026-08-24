@@ -9,6 +9,7 @@ Personal site at **blog.yuto0226.dev**, built with Astro 5, Tailwind CSS v4, and
 - Do not commit files under `docs/` or test artifacts unless the user explicitly approves them.
 - Tests may be created for verification without being committed.
 - Use subagents for genuinely heavy or independent work, not routine edits.
+- Prefer Astro's native mechanisms over hand-rolled code; keep custom code minimal. This is a writing site, not a product to maintain.
 
 ## Commands
 
@@ -100,8 +101,9 @@ Essay helpers and ID validation live in `src/lib/essays.ts`.
 | `/tags/<tag>` | `src/pages/tags/[...id].astro` |
 | `/authors/<id>` | `src/pages/authors/[...id].astro` |
 | `/about` | `src/pages/about.astro` |
+| `/friends` | `src/pages/friends.astro` |
 
-Every route above is mirrored under `/en/` (e.g. `src/pages/en/notes/[...id].astro`) as a thin wrapper rendering the same shared component. See Internationalization below.
+Every route above (plus `/404`) gets an `/en/`-prefixed counterpart via `injectRoute()`, declared once in `astro.config.ts`'s `injectEnRoutes()` integration — the same entrypoint file serves both URLs, since all locale-specific behavior lives in the shared component via self-derivation, not in the page file. Adding a new route only needs one line in that list; there is no second physical file to keep in sync. `/en/index.astro` (the homepage) is the one exception and stays a standalone file. See Internationalization below.
 
 The former `/blog` namespace has been replaced by `/notes`. Backward-compatible redirects are not currently implemented.
 
@@ -117,13 +119,15 @@ zh-TW is the default locale (unprefixed URLs); English is `en`, prefixed under `
 
 **Essay and Note body content** defaults to Option A′: `/en/essays/<id>` and `/en/notes/<id>` render the original (untranslated) body under English chrome, with `<html lang>` reflecting the entry's real content language and a `<link rel="canonical">` back to the unprefixed original. No `hreflang` alternates are added. This is intentional, not a bug: it never presents untranslated content as if it were a real translation.
 
-**Real per-note translation** is supported as an opt-in override of the Option A′ fallback, detected and looked up by `isLocaleVariant()` / `getNoteTranslation()` in `src/lib/data-utils.ts`. Naming follows Hugo's suffix convention, adapted for Astro's id generation:
+**Real per-entry translation** is supported as an opt-in override of the Option A′ fallback, detected and looked up by `isLocaleVariant()` together with `getNoteTranslation()` in `src/lib/data-utils.ts` (Notes) or `getEssayTranslation()` in `src/lib/essays.ts` (Essays) — same lookup logic, kept as separate small functions per collection rather than one shared abstraction. Naming follows Hugo's suffix convention, adapted for Astro's id generation:
 
-- a flat note `<id>.md` is translated by a sibling file `<id>.en.md`;
-- a directory note `<id>/index.md` is translated by a sibling file `<id>/en.md`, **not** `<id>/index.en.md`. Astro's default id generator slugifies each path segment and strips the dot out of multi-dot filenames, so `index.en.md` silently collapses to the id `.../indexen`, which then gets misdetected as a real subpost.
-- a subpost `<parent>/<subpost>.md` is translated the same way as a flat note, by a sibling file `<parent>/<subpost>.en.md`, since its id already contains a `/`.
+- a flat note or essay `<id>.md` is translated by a sibling file `<id>.en.md`;
+- a directory note or essay `<id>/index.md` is translated by a sibling file `<id>/en.md`, **not** `<id>/index.en.md` — that id (`<id>/index.en`) doesn't match the `<id>/en` lookup convention, so it would silently sit undetected.
+- a subpost `<parent>/<subpost>.md` is translated the same way as a flat note, by a sibling file `<parent>/<subpost>.en.md`, since its id already contains a `/`. (Essays don't currently have subposts, but the id shape is identical if they ever do.)
 
-When a real translation exists, the `/en/` page self-canonicalizes and gets reciprocal `hreflang` links to its counterpart instead of the Option A′ fallback behavior. This mechanism currently covers **Notes only** — Essays always use the Option A′ fallback.
+The `notes` and `essays` collections in `src/content.config.ts` both override `generateId` to only strip the `.md`/`.mdx` extension (`entry.replace(/\.(md|mdx)$/, '')`), instead of Astro's default per-segment slugify which strips the dot out of multi-dot filenames and would otherwise collapse `<id>.en.md` to the id `<id>en` — silently breaking the flat-note and subpost translation forms above. `milestones` has the same override for the same reason.
+
+When a real translation exists, the `/en/` page self-canonicalizes and gets reciprocal `hreflang` links to its counterpart instead of the Option A′ fallback behavior. This mechanism covers both Notes and Essays; an entry without a translation sibling still falls back to Option A′.
 
 Translation sibling files are new files from git's perspective, so the `update-frontmatter-dates` pre-commit hook stamps their `date` to the commit time. If a translation should share its original's publish date, correct `date` by hand after the first commit.
 
@@ -132,8 +136,8 @@ Translation sibling files are new files from git's perspective, so the `update-f
 - `src/consts.ts` — site configuration, navigation, social links, and icon map
 - `src/content.config.ts` — collection loaders and Zod schemas
 - `src/lib/data-utils.ts` — Notes and cross-collection discovery helpers, including per-note translation lookup
-- `src/lib/locale-variant.ts` — `isLocaleVariant()`, shared by `data-utils.ts` and `series.ts` to exclude translation sibling files from discovery
-- `src/lib/essays.ts` — Essay retrieval and ID policy
+- `src/lib/locale-variant.ts` — `isLocaleVariant()`, shared by `data-utils.ts`, `essays.ts`, and `series.ts` to exclude translation sibling files from discovery
+- `src/lib/essays.ts` — Essay retrieval, ID policy, and per-essay translation lookup
 - `src/lib/series.ts` — Series hierarchy and integrity rules
 - `src/i18n/ui.ts` — UI string dictionary and `useTranslations()` helper
 - `src/i18n/utils.ts` — locale URL helpers (`localeHref`, `getAlternateLocalePath`)
