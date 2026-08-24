@@ -19,6 +19,10 @@ export const ui = {
     'common.about': '關於',
     'common.page': '第 {n} 頁',
     'common.pagedTitle': '{title} — 第 {n} 頁',
+    // Intentionally the same in every locale — "Present" for an ongoing
+    // project/milestone isn't being translated, just kept out of two
+    // hardcoded copies (ProjectCard, formatMilestoneDateRange).
+    'common.present': 'Present',
 
     'home.recentEssays': '近期文章',
     'home.seeAll': '檢視全部 →',
@@ -79,8 +83,6 @@ export const ui = {
     'pagination.nav': '分頁',
 
     'reading.minRead': '閱讀約 {n} 分鐘',
-
-    'projects.present': '至今',
   },
   en: {
     'nav.essays': 'Essays',
@@ -95,6 +97,7 @@ export const ui = {
     'common.about': 'About',
     'common.page': 'Page {n}',
     'common.pagedTitle': '{title} — Page {n}',
+    'common.present': 'Present',
 
     'home.recentEssays': 'Recent Essays',
     'home.seeAll': 'See all →',
@@ -160,8 +163,6 @@ export const ui = {
     'pagination.nav': 'pagination',
 
     'reading.minRead': '{n} min read',
-
-    'projects.present': 'Present',
   },
 } as const
 

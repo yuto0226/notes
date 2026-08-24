@@ -102,9 +102,15 @@ const hasUntranslatedMilestone =
                         milestone.data.startDate,
                       )}
                       class="text-muted-foreground shrink-0 font-mono text-sm"
-                      aria-label={formatMilestoneDateRange(milestone.data)}
+                      aria-label={formatMilestoneDateRange(
+                        milestone.data,
+                        t('common.present'),
+                      )}
                     >
-                      {formatMilestoneDateRange(milestone.data)}
+                      {formatMilestoneDateRange(
+                        milestone.data,
+                        t('common.present'),
+                      )}
                     </time>
                     <div class="flex flex-wrap items-baseline gap-x-1">
                       <h3 class="text-base font-medium">
