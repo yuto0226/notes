@@ -3,6 +3,7 @@ import PostDetail from '@/components/PostDetail.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
 import { parseAuthors, type TOCSection } from '@/lib/data-utils'
+import { getDisplayEssay } from '@/lib/essays'
 import { calculateWordCountFromHtml, readingTime } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
@@ -15,12 +16,24 @@ const { essay } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
 const currentEssayId = essay.id
-const { Content, headings } = await render(essay)
-const authors = await parseAuthors(essay.data.authors ?? [])
+
+const {
+  entry: displayEntry,
+  isTranslated,
+  hasTranslation,
+} = await getDisplayEssay(essay, locale)
+
+const { Content, headings } = await render(displayEntry)
+const authors = await parseAuthors(displayEntry.data.authors ?? [])
 const readingTimeText = readingTime(
-  calculateWordCountFromHtml(essay.body),
+  calculateWordCountFromHtml(displayEntry.body),
   locale,
 )
+const alternateHref = hasTranslation
+  ? locale === 'en'
+    ? new URL(`/essays/${currentEssayId}`, Astro.site).href
+    : new URL(`/en/essays/${currentEssayId}`, Astro.site).href
+  : undefined
 const tocSections: TOCSection[] = headings.length
   ? [
       {
@@ -40,21 +53,23 @@ const breadcrumbItems = [
   { href: essaysHref, label: t('common.essays'), icon: 'lucide:feather' },
   {
     href: essayHref,
-    label: essay.data.title,
+    label: displayEntry.data.title,
     icon: 'lucide:file-text',
   },
 ]
 ---
 
 <PostDetail
-  entry={essay}
+  entry={displayEntry}
   currentEntryId={currentEssayId}
   Content={Content}
   headings={headings}
   breadcrumbItems={breadcrumbItems}
   authors={authors}
   readingTimeText={readingTimeText}
-  heroImage={essay.data.image}
+  heroImage={displayEntry.data.image}
   tocSections={tocSections}
   tocIsCurrentSubpost={false}
+  isTranslated={isTranslated}
+  alternateHref={alternateHref}
 />
