@@ -1,0 +1,21 @@
+---
+import { cn } from '@/lib/utils'
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  text: string
+  class?: string
+}
+
+const { text, class: className } = Astro.props
+---
+
+<div
+  class={cn(
+    'text-muted-foreground border-border bg-muted/30 flex w-full items-center gap-2 rounded-lg border px-4 py-2.5 text-center text-sm sm:text-left',
+    className,
+  )}
+>
+  <Icon name="lucide:languages" class="size-4 shrink-0" />
+  <span>{text}</span>
+</div>

@@ -11,6 +11,7 @@ import SubpostsHeader from '@/components/SubpostsHeader.astro'
 import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
 import TOCHeader from '@/components/TOCHeader.astro'
 import TOCSidebar from '@/components/TOCSidebar.astro'
+import UntranslatedNotice from '@/components/UntranslatedNotice.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { defaultLang, useTranslations } from '@/i18n/ui'
@@ -264,10 +265,7 @@ const alternateLocale = alternateHref
 
     {
       isUntranslatedFallback && (
-        <div class="text-muted-foreground border-border bg-muted/30 flex w-full items-center gap-2 rounded-lg border px-4 py-2.5 text-center text-sm sm:text-left">
-          <Icon name="lucide:languages" class="size-4 shrink-0" />
-          <span>{t('post.untranslatedNotice')}</span>
-        </div>
+        <UntranslatedNotice text={t('post.untranslatedNotice')} />
       )
     }
 
