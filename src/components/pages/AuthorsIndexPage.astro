@@ -6,7 +6,8 @@ import { defaultLang, useTranslations } from '@/i18n/ui'
 import Layout from '@/layouts/Layout.astro'
 import { getAllAuthors } from '@/lib/data-utils'
 
-const t = useTranslations(Astro.currentLocale ?? defaultLang)
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 const authors = await getAllAuthors()
 ---
 
