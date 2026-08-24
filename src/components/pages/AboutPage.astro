@@ -9,6 +9,7 @@ import {
   getAllFriends,
   getAllMilestones,
   getAllProjects,
+  getDisplayMilestone,
 } from '@/lib/data-utils'
 import {
   formatMilestoneDateRange,
@@ -31,10 +32,17 @@ const milestones = await getAllMilestones()
 const friends = await getAllFriends()
 const renderedMilestones = await Promise.all(
   milestones.map(async (milestone) => {
-    const { Content } = await render(milestone)
-    return { milestone, Content }
+    const display = await getDisplayMilestone(milestone, locale)
+    const { Content } = await render(display.entry)
+    return {
+      milestone: display.entry,
+      isTranslated: display.isTranslated,
+      Content,
+    }
   }),
 )
+const hasUntranslatedMilestone =
+  locale !== defaultLang && renderedMilestones.some((m) => !m.isTranslated)
 ---
 
 <Layout class="max-w-4xl">
@@ -56,7 +64,7 @@ const renderedMilestones = await Promise.all(
         renderedMilestones.length > 0 && (
           <section class="mb-8">
             <h2 class="mb-4 text-2xl font-medium">{t('about.milestones')}</h2>
-            {locale !== defaultLang && (
+            {hasUntranslatedMilestone && (
               <p class="text-muted-foreground mb-4 text-sm">
                 {t('about.milestonesUntranslated')}
               </p>
@@ -74,15 +82,9 @@ const renderedMilestones = await Promise.all(
                         milestone.data.startDate,
                       )}
                       class="text-muted-foreground shrink-0 font-mono text-sm"
-                      aria-label={formatMilestoneDateRange(
-                        milestone.data,
-                        t('about.milestonePresent'),
-                      )}
+                      aria-label={formatMilestoneDateRange(milestone.data)}
                     >
-                      {formatMilestoneDateRange(
-                        milestone.data,
-                        t('about.milestonePresent'),
-                      )}
+                      {formatMilestoneDateRange(milestone.data)}
                     </time>
                     <div class="flex flex-wrap items-baseline gap-x-1">
                       <h3 class="text-base font-medium">

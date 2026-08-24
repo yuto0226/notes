@@ -84,7 +84,15 @@ const projects = defineCollection({
 })
 
 const milestones = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/milestones' }),
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/content/milestones',
+    // The default id generator slugifies each path segment and strips the
+    // dot out of multi-dot filenames, which silently collapses translation
+    // siblings like `<id>.en.md` into `<id>en`. Keep the dot so the id
+    // stays `<id>.en`, matching getMilestoneTranslation()'s lookup.
+    generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
     startDate: z.string(),

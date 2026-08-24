@@ -47,12 +47,9 @@ export function formatMilestoneDatetime(rawDate: string) {
   return `${year}-${month}-${day}`
 }
 
-export function formatMilestoneDateRange(
-  milestone: MilestonePresenterData,
-  presentLabel = 'Present',
-) {
+export function formatMilestoneDateRange(milestone: MilestonePresenterData) {
   const start = formatMilestoneDate(parseMilestoneDate(milestone.startDate))
-  if (milestone.isOngoing) return `${start} - ${presentLabel}`
+  if (milestone.isOngoing) return `${start} - Present`
   if (milestone.endDate) {
     return `${start} - ${formatMilestoneDate(parseMilestoneDate(milestone.endDate))}`
   }

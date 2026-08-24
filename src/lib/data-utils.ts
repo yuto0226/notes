@@ -83,12 +83,45 @@ export async function getAllMilestones(): Promise<
 > {
   const milestones = await getCollection('milestones')
   return milestones
-    .filter((milestone) => !milestone.data.draft)
+    .filter(
+      (milestone) => !milestone.data.draft && !isLocaleVariant(milestone.id),
+    )
     .sort(
       (a, b) =>
         parseMilestoneDate(b.data.startDate).value.valueOf() -
         parseMilestoneDate(a.data.startDate).value.valueOf(),
     )
+}
+
+export async function getMilestoneTranslation(
+  canonicalId: string,
+  targetLocale: string,
+): Promise<CollectionEntry<'milestones'> | null> {
+  const flatId = `${canonicalId}.${targetLocale}`
+  const milestones = await getCollection('milestones')
+  const translation = milestones.find(
+    (milestone) => milestone.id === flatId && !milestone.data.draft,
+  )
+  return translation ?? null
+}
+
+export type DisplayMilestone = {
+  entry: CollectionEntry<'milestones'>
+  isTranslated: boolean
+  hasTranslation: boolean
+}
+
+export async function getDisplayMilestone(
+  entry: CollectionEntry<'milestones'>,
+  locale: string,
+): Promise<DisplayMilestone> {
+  const translation = await getMilestoneTranslation(entry.id, 'en')
+  const isTranslated = locale === 'en' && translation !== null
+  return {
+    entry: isTranslated ? translation! : entry,
+    isTranslated,
+    hasTranslation: translation !== null,
+  }
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {
