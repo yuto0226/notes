@@ -19,6 +19,60 @@ import type { ExpressiveCodeTheme } from 'rehype-expressive-code'
 
 import tailwindcss from '@tailwindcss/vite'
 
+import type { AstroIntegration } from 'astro'
+
+// Every route below has zero locale-specific logic of its own — the shared
+// component it renders reads Astro.currentLocale itself. Rather than
+// maintaining a second physical file per route under src/pages/en/ (which
+// already let /friends silently ship with no /en/friends counterpart),
+// inject the /en/ routes directly at the same entrypoint via Astro's
+// documented integration API. New routes only need one line added here.
+function injectEnRoutes(): AstroIntegration {
+  const routes = [
+    { pattern: '/404', entrypoint: './src/pages/404.astro' },
+    { pattern: '/about', entrypoint: './src/pages/about.astro' },
+    { pattern: '/authors', entrypoint: './src/pages/authors/index.astro' },
+    {
+      pattern: '/authors/[...id]',
+      entrypoint: './src/pages/authors/[...id].astro',
+    },
+    {
+      pattern: '/essays/[...id]',
+      entrypoint: './src/pages/essays/[...id].astro',
+    },
+    {
+      pattern: '/essays/[...page]',
+      entrypoint: './src/pages/essays/[...page].astro',
+    },
+    {
+      pattern: '/notes/[...id]',
+      entrypoint: './src/pages/notes/[...id].astro',
+    },
+    {
+      pattern: '/notes/[...page]',
+      entrypoint: './src/pages/notes/[...page].astro',
+    },
+    {
+      pattern: '/notes/series/[...id]',
+      entrypoint: './src/pages/notes/series/[...id].astro',
+    },
+    { pattern: '/tags/[...id]', entrypoint: './src/pages/tags/[...id].astro' },
+    { pattern: '/tags', entrypoint: './src/pages/tags/index.astro' },
+    { pattern: '/friends', entrypoint: './src/pages/friends.astro' },
+  ]
+
+  return {
+    name: 'inject-en-routes',
+    hooks: {
+      'astro:config:setup': ({ injectRoute }) => {
+        for (const { pattern, entrypoint } of routes) {
+          injectRoute({ pattern: `/en${pattern}`, entrypoint })
+        }
+      },
+    },
+  }
+}
+
 export default defineConfig({
   site: 'https://blog.yuto0226.dev',
   integrations: [
@@ -28,6 +82,7 @@ export default defineConfig({
       filter: (page) => !page.endsWith('/404') && !page.endsWith('/404/'),
     }),
     icon(),
+    injectEnRoutes(),
   ],
   i18n: {
     defaultLocale: 'zh-TW',
