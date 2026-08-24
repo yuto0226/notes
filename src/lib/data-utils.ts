@@ -71,11 +71,42 @@ export async function getAllNotesAndSubposts(): Promise<
 
 export async function getAllProjects(): Promise<CollectionEntry<'projects'>[]> {
   const projects = await getCollection('projects')
-  return projects.sort((a, b) => {
-    const dateA = a.data.startDate?.getTime() || 0
-    const dateB = b.data.startDate?.getTime() || 0
-    return dateB - dateA
-  })
+  return projects
+    .filter((project) => !isLocaleVariant(project.id))
+    .sort((a, b) => {
+      const dateA = a.data.startDate?.getTime() || 0
+      const dateB = b.data.startDate?.getTime() || 0
+      return dateB - dateA
+    })
+}
+
+export async function getProjectTranslation(
+  canonicalId: string,
+  targetLocale: string,
+): Promise<CollectionEntry<'projects'> | null> {
+  const flatId = `${canonicalId}.${targetLocale}`
+  const projects = await getCollection('projects')
+  const translation = projects.find((project) => project.id === flatId)
+  return translation ?? null
+}
+
+export type DisplayProject = {
+  entry: CollectionEntry<'projects'>
+  isTranslated: boolean
+  hasTranslation: boolean
+}
+
+export async function getDisplayProject(
+  entry: CollectionEntry<'projects'>,
+  locale: string,
+): Promise<DisplayProject> {
+  const translation = await getProjectTranslation(entry.id, 'en')
+  const isTranslated = locale === 'en' && translation !== null
+  return {
+    entry: isTranslated ? translation! : entry,
+    isTranslated,
+    hasTranslation: translation !== null,
+  }
 }
 
 export async function getAllMilestones(): Promise<

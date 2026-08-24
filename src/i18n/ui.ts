@@ -28,6 +28,7 @@ export const ui = {
     'series.empty': '此系列尚未發布任何筆記。',
 
     'about.projects': '專案',
+    'about.projectsUntranslated': '專案內容尚未提供英文翻譯，以下為原文。',
     'about.milestones': '經歷',
     'about.milestonesUntranslated': '經歷內容尚未提供英文翻譯，以下為原文。',
     'about.friends': '朋友',
@@ -78,6 +79,8 @@ export const ui = {
     'pagination.nav': '分頁',
 
     'reading.minRead': '閱讀約 {n} 分鐘',
+
+    'projects.present': '至今',
   },
   en: {
     'nav.essays': 'Essays',
@@ -101,6 +104,8 @@ export const ui = {
     'series.empty': 'No notes have been published in this series yet.',
 
     'about.projects': 'Projects',
+    'about.projectsUntranslated':
+      "This section hasn't been translated into English yet. Showing the original.",
     'about.milestones': 'Milestones',
     'about.milestonesUntranslated':
       "This section hasn't been translated into English yet. Showing the original.",
@@ -155,6 +160,8 @@ export const ui = {
     'pagination.nav': 'pagination',
 
     'reading.minRead': '{n} min read',
+
+    'projects.present': 'Present',
   },
 } as const
 
