@@ -3,6 +3,7 @@ import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import FriendCard from '@/components/FriendCard.astro'
 import PageHead from '@/components/PageHead.astro'
 import ProjectCard from '@/components/ProjectCard.astro'
+import UntranslatedNotice from '@/components/UntranslatedNotice.astro'
 import { defaultLang, useTranslations } from '@/i18n/ui'
 import Layout from '@/layouts/Layout.astro'
 import {
@@ -67,9 +68,10 @@ const hasUntranslatedMilestone =
       <h2 class="mb-4 text-2xl font-medium">{t('about.projects')}</h2>
       {
         hasUntranslatedProject && (
-          <p class="text-muted-foreground mb-4 text-sm">
-            {t('about.projectsUntranslated')}
-          </p>
+          <UntranslatedNotice
+            text={t('about.projectsUntranslated')}
+            class="mb-4"
+          />
         )
       }
       <div class="mb-8 flex flex-col gap-4">
@@ -85,9 +87,10 @@ const hasUntranslatedMilestone =
           <section class="mb-8">
             <h2 class="mb-4 text-2xl font-medium">{t('about.milestones')}</h2>
             {hasUntranslatedMilestone && (
-              <p class="text-muted-foreground mb-4 text-sm">
-                {t('about.milestonesUntranslated')}
-              </p>
+              <UntranslatedNotice
+                text={t('about.milestonesUntranslated')}
+                class="mb-4"
+              />
             )}
             <ol class="border-foreground/25 space-y-5 border-l">
               {renderedMilestones.map(({ milestone, Content }) => (
