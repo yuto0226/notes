@@ -3,6 +3,7 @@ import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
 import { defaultLang } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
+import { getDisplayEssay } from '@/lib/essays'
 import { formatDate } from '@/lib/utils'
 import type { CollectionEntry } from 'astro:content'
 
@@ -11,8 +12,9 @@ interface Props {
 }
 
 const { entry } = Astro.props
-const description = entry.data.description.trim()
 const locale = Astro.currentLocale ?? defaultLang
+const { entry: displayEntry } = await getDisplayEssay(entry, locale)
+const description = displayEntry.data.description.trim()
 ---
 
 <article
@@ -25,15 +27,15 @@ const locale = Astro.currentLocale ?? defaultLang
   >
     <div class="min-w-0 grow">
       <time
-        datetime={entry.data.date.toISOString()}
+        datetime={displayEntry.data.date.toISOString()}
         class="text-muted-foreground text-xs tracking-wide"
       >
-        {formatDate(entry.data.date, locale)}
+        {formatDate(displayEntry.data.date, locale)}
       </time>
       <h3
         class="mt-2 text-xl leading-snug font-medium text-pretty group-hover:underline"
       >
-        {entry.data.title}
+        {displayEntry.data.title}
       </h3>
       {
         description && (
@@ -47,11 +49,11 @@ const locale = Astro.currentLocale ?? defaultLang
       }
     </div>
     {
-      entry.data.image && (
+      displayEntry.data.image && (
         <div class="w-full shrink-0 sm:w-40" data-essay-image>
           <LqipImage
-            src={entry.data.image}
-            alt={entry.data.title}
+            src={displayEntry.data.image}
+            alt={displayEntry.data.title}
             width={640}
             height={400}
             class="w-full"

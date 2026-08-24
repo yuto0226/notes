@@ -12,7 +12,7 @@ import {
   getPinnedNotes,
   getRecentNotes,
 } from '@/lib/data-utils'
-import { getPublicEssays } from '@/lib/essays'
+import { getDisplayEssay, getPublicEssays } from '@/lib/essays'
 import introEn from './HomePage.en.md?raw'
 import introZhTW from './HomePage.zh-TW.md?raw'
 
@@ -32,6 +32,16 @@ const recentNotesDisplay = await Promise.all(
 )
 const pinnedNotes = await getPinnedNotes()
 const recentEssays = (await getPublicEssays()).slice(0, SITE.homeEssayCount)
+const recentEssaysDisplay = await Promise.all(
+  recentEssays.map(async (essay) => {
+    const { entry: displayEntry } = await getDisplayEssay(essay, locale)
+    return {
+      id: essay.id,
+      date: essay.data.date,
+      title: displayEntry.data.title,
+    }
+  }),
+)
 const profileLinks = SOCIAL_LINKS.filter(({ label }) =>
   ['GitHub', 'LinkedIn', 'Email'].includes(label),
 )
@@ -98,20 +108,20 @@ const formatEntryDate = (date: Date) =>
           </Link>
         </div>
         <ol class="border-border border-t" data-home-essay-list>
-          {recentEssays.map((essay) => (
+          {recentEssaysDisplay.map((essay) => (
             <li class="border-border border-b">
               <Link
                 href={localeHref(locale, `/essays/${essay.id}`)}
                 class="group grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-2.5 sm:grid-cols-[6.5rem_minmax(0,1fr)]"
               >
                 <time
-                  datetime={essay.data.date.toISOString()}
+                  datetime={essay.date.toISOString()}
                   class="text-muted-foreground font-mono text-xs leading-6"
                 >
-                  {formatEntryDate(essay.data.date)}
+                  {formatEntryDate(essay.date)}
                 </time>
                 <span class="text-sm leading-6 group-hover:underline">
-                  {essay.data.title}
+                  {essay.title}
                 </span>
               </Link>
             </li>
