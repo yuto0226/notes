@@ -2,6 +2,7 @@
 import Link from '@/components/Link.astro'
 import LqipImage from '@/components/LqipImage.astro'
 import { Badge } from '@/components/ui/badge'
+import { defaultLang, useTranslations } from '@/i18n/ui'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
 import type { CollectionEntry } from 'astro:content'
@@ -11,6 +12,8 @@ interface Props {
 }
 
 const { project } = Astro.props
+const locale = Astro.currentLocale ?? defaultLang
+const t = useTranslations(locale)
 ---
 
 <div
@@ -47,10 +50,10 @@ const { project } = Astro.props
             <span class="flex items-center gap-x-1.5">
               <Icon name="lucide:calendar" class="size-3" />
               <span>
-                {formatDate(project.data.startDate)}
+                {formatDate(project.data.startDate, locale)}
                 {project.data.endDate
-                  ? ` → ${formatDate(project.data.endDate)}`
-                  : ' → Present'}
+                  ? ` → ${formatDate(project.data.endDate, locale)}`
+                  : ` → ${t('projects.present')}`}
               </span>
             </span>
           </p>

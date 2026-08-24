@@ -93,7 +93,15 @@ const friends = defineCollection({
 })
 
 const projects = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/content/projects',
+    // The default id generator slugifies each path segment and strips the
+    // dot out of multi-dot filenames, which silently collapses translation
+    // siblings like `<id>.en.md` into `<id>en`. Keep the dot so the id
+    // stays `<id>.en`, matching getProjectTranslation()'s lookup.
+    generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ''),
+  }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),

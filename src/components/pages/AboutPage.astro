@@ -10,6 +10,7 @@ import {
   getAllMilestones,
   getAllProjects,
   getDisplayMilestone,
+  getDisplayProject,
 } from '@/lib/data-utils'
 import {
   formatMilestoneDateRange,
@@ -30,6 +31,14 @@ const bioParagraphs = (locale === 'en' ? bioEn : bioZhTW)
 const projects = await getAllProjects()
 const milestones = await getAllMilestones()
 const friends = await getAllFriends()
+const renderedProjects = await Promise.all(
+  projects.map(async (project) => {
+    const display = await getDisplayProject(project, locale)
+    return { project: display.entry, isTranslated: display.isTranslated }
+  }),
+)
+const hasUntranslatedProject =
+  locale !== defaultLang && renderedProjects.some((p) => !p.isTranslated)
 const renderedMilestones = await Promise.all(
   milestones.map(async (milestone) => {
     const display = await getDisplayMilestone(milestone, locale)
@@ -56,8 +65,19 @@ const hasUntranslatedMilestone =
       </div>
 
       <h2 class="mb-4 text-2xl font-medium">{t('about.projects')}</h2>
+      {
+        hasUntranslatedProject && (
+          <p class="text-muted-foreground mb-4 text-sm">
+            {t('about.projectsUntranslated')}
+          </p>
+        )
+      }
       <div class="mb-8 flex flex-col gap-4">
-        {projects.map((project) => <ProjectCard project={project} />)}
+        {
+          renderedProjects.map(({ project }) => (
+            <ProjectCard project={project} />
+          ))
+        }
       </div>
 
       {
