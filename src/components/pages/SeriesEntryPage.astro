@@ -5,6 +5,7 @@ import { defaultLang, useTranslations } from '@/i18n/ui'
 import { localeHref } from '@/i18n/utils'
 import {
   getCombinedReadingTime,
+  getDisplayNote,
   getNoteReadingTime,
   getSubpostCount,
   parseAuthors,
@@ -37,6 +38,9 @@ let parentContent: Awaited<ReturnType<typeof render>>['Content'] | undefined
 let entryPage:
   | {
       result: NonNullable<Awaited<ReturnType<typeof getSeriesEntry>>>
+      displayEntry: CollectionEntry<'notes'>
+      isTranslated: boolean
+      alternateHref: string | undefined
       Content: Awaited<ReturnType<typeof render>>['Content']
       headings: Awaited<ReturnType<typeof render>>['headings']
       authors: Awaited<ReturnType<typeof parseAuthors>>
@@ -57,17 +61,30 @@ if (page.kind === 'parent') {
     throw new Error(`Public Series entry not found: ${page.entry.id}`)
   }
 
-  const { Content, headings } = await render(result.entry)
+  const {
+    entry: displayEntry,
+    isTranslated,
+    hasTranslation,
+  } = await getDisplayNote(result.entry, locale)
+  const { Content, headings } = await render(displayEntry)
   const isCurrentSubpost = result.kind === 'subpost'
   const subpostCount = isCurrentSubpost
     ? 0
     : await getSubpostCount(result.entry.id)
+  const alternateHref = hasTranslation
+    ? locale === 'en'
+      ? new URL(`/notes/${result.entry.id}`, Astro.site).href
+      : new URL(`/en/notes/${result.entry.id}`, Astro.site).href
+    : undefined
 
   entryPage = {
     result,
+    displayEntry,
+    isTranslated,
+    alternateHref,
     Content,
     headings,
-    authors: await parseAuthors(result.entry.data.authors ?? []),
+    authors: await parseAuthors(displayEntry.data.authors ?? []),
     readingTime: await getNoteReadingTime(result.entry.id, locale),
     tocSections: headings.length
       ? [
@@ -103,7 +120,7 @@ if (page.kind === 'parent') {
   ) : (
     entryPage && (
       <PostDetail
-        entry={entryPage.result.entry}
+        entry={entryPage.displayEntry}
         currentEntryId={entryPage.result.entry.id}
         Content={entryPage.Content}
         headings={entryPage.headings}
@@ -132,19 +149,21 @@ if (page.kind === 'parent') {
             : []),
           {
             href: localeHref(locale, `/notes/${entryPage.result.entry.id}`),
-            label: entryPage.result.entry.data.title,
+            label: entryPage.displayEntry.data.title,
             icon: 'lucide:file-text',
           },
         ]}
         authors={entryPage.authors}
         readingTimeText={entryPage.readingTime}
-        heroImage={entryPage.result.entry.data.image}
+        heroImage={entryPage.displayEntry.data.image}
         tocSections={entryPage.tocSections}
         adjacentNavigation={entryPage.result.navigation}
         parentEntry={entryPage.result.parentEntry ?? undefined}
         isCurrentSubpost={entryPage.isCurrentSubpost}
         subpostCount={entryPage.subpostCount}
         combinedReadingTime={entryPage.combinedReadingTime}
+        isTranslated={entryPage.isTranslated}
+        alternateHref={entryPage.alternateHref}
         hierarchyParentId={entryPage.hierarchyParentId}
         tocIsCurrentSubpost={false}
       />
