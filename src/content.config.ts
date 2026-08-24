@@ -2,7 +2,20 @@ import { glob } from 'astro/loaders'
 import { defineCollection, z } from 'astro:content'
 
 const notes = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/notes' }),
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/content/notes',
+    // The default id generator slugifies each path segment and strips the
+    // dot out of multi-dot filenames, which silently collapses translation
+    // siblings like `<id>.en.md` into `<id>en`. Only strip the extension
+    // here instead — but that alone loses the default generator's other
+    // behavior of dropping a trailing `index` segment (`dir/index.md` -> id
+    // `dir`), which parent-note and series lookups rely on, so reproduce it.
+    generateId: ({ entry }) => {
+      const id = entry.replace(/\.(md|mdx)$/, '')
+      return id.endsWith('/index') ? id.slice(0, -'/index'.length) : id
+    },
+  }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -20,7 +33,17 @@ const notes = defineCollection({
 })
 
 const essays = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/essays' }),
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/content/essays',
+    // See the notes collection above: preserves the dot in translation
+    // sibling ids while still dropping a trailing `index` segment so
+    // `dir/index.md` gets id `dir`, matching Astro's default behavior.
+    generateId: ({ entry }) => {
+      const id = entry.replace(/\.(md|mdx)$/, '')
+      return id.endsWith('/index') ? id.slice(0, -'/index'.length) : id
+    },
+  }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
