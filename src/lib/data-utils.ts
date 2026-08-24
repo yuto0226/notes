@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
+import { defaultLang } from '@/i18n/ui'
 import { getPublicEssays } from '@/lib/essays'
 import { isLocaleVariant } from '@/lib/locale-variant'
 import { parseMilestoneDate } from '@/lib/milestones'
@@ -459,7 +460,7 @@ async function getDisplayBody(
 
 export async function getCombinedReadingTime(
   postId: string,
-  locale = 'zh-TW',
+  locale = defaultLang,
 ): Promise<string> {
   const note = await getNoteById(postId)
   if (!note) return readingTime(0, locale)
@@ -471,7 +472,9 @@ export async function getCombinedReadingTime(
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
     for (const subpost of subposts) {
-      totalWords += calculateWordCountFromHtml(subpost.body)
+      totalWords += calculateWordCountFromHtml(
+        await getDisplayBody(subpost, locale),
+      )
     }
   }
 
@@ -480,7 +483,7 @@ export async function getCombinedReadingTime(
 
 export async function getNoteReadingTime(
   noteId: string,
-  locale = 'zh-TW',
+  locale = defaultLang,
 ): Promise<string> {
   const note = await getNoteById(noteId)
   if (!note) return readingTime(0, locale)
