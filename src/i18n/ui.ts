@@ -29,6 +29,8 @@ export const ui = {
 
     'about.projects': '專案',
     'about.milestones': '經歷',
+    'about.milestonePresent': '至今',
+    'about.milestonesUntranslated': '經歷內容尚未提供英文翻譯，以下為原文。',
     'about.friends': '朋友',
     'about.noFriends': '找不到朋友。｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡',
 
@@ -101,6 +103,9 @@ export const ui = {
 
     'about.projects': 'Projects',
     'about.milestones': 'Milestones',
+    'about.milestonePresent': 'Present',
+    'about.milestonesUntranslated':
+      "This section hasn't been translated into English yet. Showing the original.",
     'about.friends': 'Friends',
     'about.noFriends': 'No friends found. ｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡',
 
