@@ -32,9 +32,11 @@ export const ui = {
     'series.empty': '此系列尚未發布任何筆記。',
 
     'about.projects': '專案',
-    'about.projectsUntranslated': '專案內容尚未提供英文翻譯，以下為原文。',
+    'about.projectsUntranslated':
+      '部分專案內容尚未提供英文翻譯，未翻譯的項目顯示原文。',
     'about.milestones': '經歷',
-    'about.milestonesUntranslated': '經歷內容尚未提供英文翻譯，以下為原文。',
+    'about.milestonesUntranslated':
+      '部分經歷內容尚未提供英文翻譯，未翻譯的項目顯示原文。',
     'about.friends': '朋友',
     'about.noFriends': '找不到朋友。｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡',
 
@@ -108,10 +110,10 @@ export const ui = {
 
     'about.projects': 'Projects',
     'about.projectsUntranslated':
-      "This section hasn't been translated into English yet. Showing the original.",
+      "Some projects haven't been translated into English yet. Those are shown in the original.",
     'about.milestones': 'Milestones',
     'about.milestonesUntranslated':
-      "This section hasn't been translated into English yet. Showing the original.",
+      "Some milestones haven't been translated into English yet. Those are shown in the original.",
     'about.friends': 'Friends',
     'about.noFriends': 'No friends found. ｡ﾟヽ(ﾟ´Д`)ﾉﾟ｡',
 
