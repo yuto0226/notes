@@ -21,6 +21,13 @@ import tailwindcss from '@tailwindcss/vite'
 
 import type { AstroIntegration } from 'astro'
 
+import { fileURLToPath } from 'node:url'
+
+import {
+  discoverTranslatedPagePaths,
+  shouldIncludeSitemapPage,
+} from './src/lib/sitemap-policy'
+
 // Every route below has zero locale-specific logic of its own — the shared
 // component it renders reads Astro.currentLocale itself. Rather than
 // maintaining a second physical file per route under src/pages/en/ (which
@@ -73,13 +80,17 @@ function injectEnRoutes(): AstroIntegration {
   }
 }
 
+const translatedPagePaths = discoverTranslatedPagePaths(
+  fileURLToPath(new URL('./src/content/', import.meta.url)),
+)
+
 export default defineConfig({
   site: 'https://blog.yuto0226.dev',
   integrations: [
     mdx(),
     react(),
     sitemap({
-      filter: (page) => !page.endsWith('/404') && !page.endsWith('/404/'),
+      filter: (page) => shouldIncludeSitemapPage(page, translatedPagePaths),
     }),
     icon(),
     injectEnRoutes(),
