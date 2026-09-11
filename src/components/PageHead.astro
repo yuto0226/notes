@@ -1,6 +1,8 @@
 ---
+import JsonLd from '@/components/JsonLd.astro'
 import { SITE } from '@/consts'
 import { defaultLang } from '@/i18n/ui'
+import { buildWebSiteSchema } from '@/lib/structured-data'
 
 interface Props {
   title?: string
@@ -31,3 +33,14 @@ const locale = Astro.currentLocale ?? defaultLang
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:card" content="summary" />
+
+{
+  Astro.url.pathname === '/' && (
+    <JsonLd
+      data={buildWebSiteSchema({
+        name: SITE.title,
+        url: new URL('/', SITE.href).href,
+      })}
+    />
+  )
+}
