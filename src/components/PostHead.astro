@@ -1,5 +1,12 @@
 ---
+import JsonLd from '@/components/JsonLd.astro'
 import { SITE } from '@/consts'
+import {
+  buildBlogPostingSchema,
+  buildBreadcrumbListSchema,
+  type StructuredDataAuthor,
+  type StructuredDataBreadcrumb,
+} from '@/lib/structured-data'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
@@ -8,10 +15,19 @@ interface Props {
   contentLocale?: string
   alternateHref?: string
   alternateLocale?: string
+  authors: StructuredDataAuthor[]
+  breadcrumbs: StructuredDataBreadcrumb[]
 }
 
-const { post, canonicalHref, contentLocale, alternateHref, alternateLocale } =
-  Astro.props
+const {
+  post,
+  canonicalHref,
+  contentLocale,
+  alternateHref,
+  alternateLocale,
+  authors,
+  breadcrumbs,
+} = Astro.props
 const title = post.data.title || SITE.title
 const description = post.data.description || SITE.description
 const author =
@@ -19,20 +35,20 @@ const author =
     ? post.data.authors.join(', ')
     : SITE.author
 const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
+const canonicalUrl = canonicalHref ?? Astro.url.href
+const publishedTime = post.data.date.toISOString()
+const modifiedTime = post.data.updated?.toISOString()
+const locale = contentLocale ?? SITE.locale
 ---
 
 <title>{`${title} | ${SITE.title}`}</title>
 <meta name="title" content={`${title} | ${SITE.title}`} />
 <meta name="description" content={description} />
-<link rel="canonical" href={canonicalHref ?? Astro.url.href} />
+<link rel="canonical" href={canonicalUrl} />
 {
   alternateHref && alternateLocale && (
     <>
-      <link
-        rel="alternate"
-        hreflang={contentLocale}
-        href={canonicalHref ?? Astro.url.href}
-      />
+      <link rel="alternate" hreflang={contentLocale} href={canonicalUrl} />
       <link rel="alternate" hreflang={alternateLocale} href={alternateHref} />
     </>
   )
@@ -45,19 +61,13 @@ const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={title} />
 <meta property="og:type" content="article" />
-<meta
-  property="article:published_time"
-  content={post.data.date.toISOString()}
-/>
+<meta property="article:published_time" content={publishedTime} />
 {
   post.data.updated && (
-    <meta
-      property="article:modified_time"
-      content={post.data.updated.toISOString()}
-    />
+    <meta property="article:modified_time" content={modifiedTime} />
   )
 }
-<meta property="og:locale" content={contentLocale ?? SITE.locale} />
+<meta property="og:locale" content={locale} />
 <meta property="og:site_name" content={SITE.title} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:author" content={author} />
@@ -75,3 +85,17 @@ const ogImage = `${SITE.href}/og/${post.collection}/${post.id}.png`
       return <meta property="article:tag" content={tag} />
     })
 }
+
+<JsonLd
+  data={buildBlogPostingSchema({
+    canonicalUrl,
+    headline: title,
+    description,
+    image: ogImage,
+    datePublished: publishedTime,
+    dateModified: modifiedTime,
+    inLanguage: locale,
+    authors,
+  })}
+/>
+<JsonLd data={buildBreadcrumbListSchema(breadcrumbs)} />
