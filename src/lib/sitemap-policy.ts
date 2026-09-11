@@ -5,6 +5,8 @@ import { parseFrontmatter } from '@astrojs/markdown-remark'
 
 export type ContentCollection = 'notes' | 'essays'
 
+const PATH_NORMALIZATION_ORIGIN = 'https://sitemap-policy.invalid'
+
 function normalizePath(path: string): string {
   const withForwardSlashes = path.replaceAll('\\', '/')
   const withLeadingSlash = withForwardSlashes.startsWith('/')
@@ -13,6 +15,13 @@ function normalizePath(path: string): string {
 
   if (withLeadingSlash === '/') return withLeadingSlash
   return withLeadingSlash.replace(/\/+$/, '') + '/'
+}
+
+function pathnameFromPath(path: string): string {
+  // Route params containing these delimiters must be escaped before URL parses
+  // the path, otherwise they become a query or fragment instead of a segment.
+  const escapedPath = path.replaceAll('?', '%3F').replaceAll('#', '%23')
+  return normalizePath(new URL(escapedPath, PATH_NORMALIZATION_ORIGIN).pathname)
 }
 
 /**
@@ -35,8 +44,7 @@ export function translationSourceToPagePath(
     return null
   }
 
-  const encodedSourceId = sourceId.split('/').map(encodeURIComponent).join('/')
-  return normalizePath(`/en/${collection}/${encodedSourceId}`)
+  return pathnameFromPath(`/en/${collection}/${sourceId}`)
 }
 
 function isDraftTranslation(filePath: string): boolean {
