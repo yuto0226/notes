@@ -95,11 +95,33 @@ const isUntranslatedFallback = locale === 'en' && !isTranslated
 const canonicalHref = isUntranslatedFallback
   ? new URL(`/${entry.collection}/${currentEntryId}`, Astro.site).href
   : undefined
+const canonicalUrl = canonicalHref ?? Astro.url.href
 const alternateLocale = alternateHref
   ? locale === 'en'
     ? 'zh-TW'
     : 'en'
   : undefined
+const structuredDataAuthors = authors.map(({ id, name, isRegistered }) => ({
+  name,
+  ...(isRegistered
+    ? {
+        url: new URL(localeHref(locale, `/authors/${id}/`), Astro.site).href,
+      }
+    : {}),
+}))
+const structuredDataBreadcrumbs = [
+  {
+    name: t('common.home'),
+    url: new URL(localeHref(locale, '/'), Astro.site).href,
+  },
+  ...breadcrumbItems.map(({ href, label }, index) => ({
+    name: label,
+    url:
+      index === breadcrumbItems.length - 1
+        ? canonicalUrl
+        : new URL(href ?? canonicalUrl, Astro.site).href,
+  })),
+]
 ---
 
 <Layout class="max-w-4xl" contentLang={contentLang}>
@@ -110,6 +132,8 @@ const alternateLocale = alternateHref
     contentLocale={contentLang}
     alternateHref={alternateHref}
     alternateLocale={alternateLocale}
+    authors={structuredDataAuthors}
+    breadcrumbs={structuredDataBreadcrumbs}
   />
   {
     hierarchyParentId && (
