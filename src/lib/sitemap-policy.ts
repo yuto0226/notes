@@ -1,5 +1,7 @@
-import { readdirSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
+
+import { parseFrontmatter } from '@astrojs/markdown-remark'
 
 export type ContentCollection = 'notes' | 'essays'
 
@@ -33,7 +35,18 @@ export function translationSourceToPagePath(
     return null
   }
 
-  return normalizePath(`/en/${collection}/${sourceId}`)
+  const encodedSourceId = sourceId.split('/').map(encodeURIComponent).join('/')
+  return normalizePath(`/en/${collection}/${encodedSourceId}`)
+}
+
+function isDraftTranslation(filePath: string): boolean {
+  const { frontmatter } = parseFrontmatter(readFileSync(filePath, 'utf8'))
+  return (
+    typeof frontmatter === 'object' &&
+    frontmatter !== null &&
+    'draft' in frontmatter &&
+    (frontmatter as Record<string, unknown>).draft === true
+  )
 }
 
 function collectTranslationPaths(
@@ -63,7 +76,9 @@ function collectTranslationPaths(
       .split(sep)
       .join('/')
     const pagePath = translationSourceToPagePath(collection, relativePath)
-    if (pagePath) translatedPagePaths.add(pagePath)
+    if (pagePath && !isDraftTranslation(entryPath)) {
+      translatedPagePaths.add(pagePath)
+    }
   }
 
   return translatedPagePaths
