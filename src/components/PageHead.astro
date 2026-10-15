@@ -8,17 +8,20 @@ interface Props {
   title?: string
   description?: string
   noindex?: boolean
+  appendSiteTitle?: boolean
 }
 
 const {
   title = SITE.title,
   description = SITE.description,
   noindex = false,
+  appendSiteTitle = true,
 } = Astro.props
 const locale = Astro.currentLocale ?? defaultLang
+const documentTitle = appendSiteTitle ? `${title} | ${SITE.title}` : title
 ---
 
-<title>{`${title} | ${SITE.title}`}</title>
+<title>{documentTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={Astro.url.href} />
 {noindex && <meta name="robots" content="noindex, nofollow" />}
