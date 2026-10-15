@@ -1,12 +1,7 @@
 ---
 import JsonLd from '@/components/JsonLd.astro'
 import { SITE } from '@/consts'
-import {
-  buildBlogPostingSchema,
-  buildBreadcrumbListSchema,
-  type StructuredDataAuthor,
-  type StructuredDataBreadcrumb,
-} from '@/lib/json-ld'
+import * as jsonLd from '@/lib/json-ld'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
@@ -15,8 +10,8 @@ interface Props {
   contentLocale?: string
   alternateHref?: string
   alternateLocale?: string
-  authors: StructuredDataAuthor[]
-  breadcrumbs: StructuredDataBreadcrumb[]
+  authors: jsonLd.Author[]
+  breadcrumbs: jsonLd.Breadcrumb[]
 }
 
 const {
@@ -87,7 +82,7 @@ const locale = contentLocale ?? SITE.locale
 }
 
 <JsonLd
-  data={buildBlogPostingSchema({
+  data={jsonLd.blogPosting({
     canonicalUrl,
     headline: title,
     description,
@@ -98,4 +93,4 @@ const locale = contentLocale ?? SITE.locale
     authors,
   })}
 />
-<JsonLd data={buildBreadcrumbListSchema(breadcrumbs)} />
+<JsonLd data={jsonLd.breadcrumbList(breadcrumbs)} />

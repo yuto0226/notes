@@ -3,7 +3,7 @@ import { join, relative, sep } from 'node:path'
 
 import { parseFrontmatter } from '@astrojs/markdown-remark'
 
-export type ContentCollection = 'notes' | 'essays'
+export type Collection = 'notes' | 'essays'
 
 const PATH_NORMALIZATION_ORIGIN = 'https://sitemap.invalid'
 
@@ -17,7 +17,7 @@ function normalizePath(path: string): string {
   return withLeadingSlash.replace(/\/+$/, '') + '/'
 }
 
-function pathnameFromPath(path: string): string {
+function toPathname(path: string): string {
   // Route params containing these delimiters must be escaped before URL parses
   // the path, otherwise they become a query or fragment instead of a segment.
   const escapedPath = path.replaceAll('?', '%3F').replaceAll('#', '%23')
@@ -31,8 +31,8 @@ function pathnameFromPath(path: string): string {
  * `index.en.md[x]` is deliberately not accepted because directory entries use
  * the latter form and Astro assigns the parent id to `index.md[x]`.
  */
-export function translationSourceToPagePath(
-  collection: ContentCollection,
+export function translationPath(
+  collection: Collection,
   relativePath: string,
 ): string | null {
   const sourcePath = relativePath.replaceAll('\\', '/').replace(/^\/+/, '')
@@ -44,7 +44,7 @@ export function translationSourceToPagePath(
     return null
   }
 
-  return pathnameFromPath(`/en/${collection}/${sourceId}`)
+  return toPathname(`/en/${collection}/${sourceId}`)
 }
 
 function isDraftTranslation(filePath: string): boolean {
@@ -57,23 +57,23 @@ function isDraftTranslation(filePath: string): boolean {
   )
 }
 
-function collectTranslationPaths(
-  collection: ContentCollection,
+function collectTranslations(
+  collection: Collection,
   collectionRoot: string,
   directory = collectionRoot,
 ): Set<string> {
-  const translatedPagePaths = new Set<string>()
+  const translations = new Set<string>()
 
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const entryPath = join(directory, entry.name)
 
     if (entry.isDirectory()) {
-      for (const path of collectTranslationPaths(
+      for (const path of collectTranslations(
         collection,
         collectionRoot,
         entryPath,
       )) {
-        translatedPagePaths.add(path)
+        translations.add(path)
       }
       continue
     }
@@ -83,20 +83,18 @@ function collectTranslationPaths(
     const relativePath = relative(collectionRoot, entryPath)
       .split(sep)
       .join('/')
-    const pagePath = translationSourceToPagePath(collection, relativePath)
+    const pagePath = translationPath(collection, relativePath)
     if (pagePath && !isDraftTranslation(entryPath)) {
-      translatedPagePaths.add(pagePath)
+      translations.add(pagePath)
     }
   }
 
-  return translatedPagePaths
+  return translations
 }
 
 /** Recursively finds translated Note and Essay detail paths below contentRoot. */
-export function discoverTranslatedPagePaths(
-  contentRoot: string,
-): ReadonlySet<string> {
-  const translatedPagePaths = new Set<string>()
+export function findTranslations(contentRoot: string): ReadonlySet<string> {
+  const translations = new Set<string>()
 
   for (const collection of ['notes', 'essays'] as const) {
     const collectionRoot = join(contentRoot, collection)
@@ -104,34 +102,28 @@ export function discoverTranslatedPagePaths(
       continue
     }
 
-    for (const pagePath of collectTranslationPaths(
-      collection,
-      collectionRoot,
-    )) {
-      translatedPagePaths.add(pagePath)
+    for (const pagePath of collectTranslations(collection, collectionRoot)) {
+      translations.add(pagePath)
     }
   }
 
-  return translatedPagePaths
+  return translations
 }
 
-function isRootCollectionPath(segments: string[], collection: string): boolean {
+function isCollectionRoot(segments: string[], collection: string): boolean {
   return (
     segments.length === 2 && segments[0] === 'en' && segments[1] === collection
   )
 }
 
-function isEnglishCollectionPath(
-  segments: string[],
-  collection: string,
-): boolean {
+function isEnglishCollection(segments: string[], collection: string): boolean {
   return segments[0] === 'en' && segments[1] === collection
 }
 
 /** Applies the indexability policy to a generated sitemap URL. */
-export function shouldIncludeSitemapPage(
+export function includePage(
   page: string,
-  translatedPagePaths: ReadonlySet<string>,
+  translations: ReadonlySet<string>,
 ): boolean {
   const pathname = normalizePath(new URL(page).pathname)
   const segments = pathname.split('/').filter(Boolean)
@@ -146,15 +138,15 @@ export function shouldIncludeSitemapPage(
   }
 
   for (const collection of ['notes', 'essays']) {
-    if (!isEnglishCollectionPath(segments, collection)) continue
-    if (isRootCollectionPath(segments, collection)) return true
+    if (!isEnglishCollection(segments, collection)) continue
+    if (isCollectionRoot(segments, collection)) return true
 
     const pageSegment = segments[2]
     if (segments.length === 3 && pageSegment && /^\d+$/.test(pageSegment)) {
       return true
     }
 
-    return translatedPagePaths.has(pathname)
+    return translations.has(pathname)
   }
 
   return true

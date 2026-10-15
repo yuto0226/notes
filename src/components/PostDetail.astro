@@ -101,7 +101,7 @@ const alternateLocale = alternateHref
     ? 'zh-TW'
     : 'en'
   : undefined
-const structuredDataAuthors = authors.map(({ id, name, isRegistered }) => ({
+const schemaAuthors = authors.map(({ id, name, isRegistered }) => ({
   name,
   ...(isRegistered
     ? {
@@ -109,7 +109,7 @@ const structuredDataAuthors = authors.map(({ id, name, isRegistered }) => ({
       }
     : {}),
 }))
-const structuredDataBreadcrumbs = [
+const schemaBreadcrumbs = [
   {
     name: t('common.home'),
     url: new URL(localeHref(locale, '/'), Astro.site).href,
@@ -132,8 +132,8 @@ const structuredDataBreadcrumbs = [
     contentLocale={contentLang}
     alternateHref={alternateHref}
     alternateLocale={alternateLocale}
-    authors={structuredDataAuthors}
-    breadcrumbs={structuredDataBreadcrumbs}
+    authors={schemaAuthors}
+    breadcrumbs={schemaBreadcrumbs}
   />
   {
     hierarchyParentId && (

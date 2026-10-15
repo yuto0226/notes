@@ -2,7 +2,7 @@
 import JsonLd from '@/components/JsonLd.astro'
 import { SITE } from '@/consts'
 import { defaultLang } from '@/i18n/ui'
-import { buildWebSiteSchema } from '@/lib/json-ld'
+import * as jsonLd from '@/lib/json-ld'
 
 interface Props {
   title?: string
@@ -40,7 +40,7 @@ const documentTitle = appendSiteTitle ? `${title} | ${SITE.title}` : title
 {
   Astro.url.pathname === '/' && (
     <JsonLd
-      data={buildWebSiteSchema({
+      data={jsonLd.website({
         name: SITE.title,
         alternateNames: SITE.alternateNames,
         url: new URL('/', SITE.href).href,

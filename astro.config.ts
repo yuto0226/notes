@@ -23,10 +23,7 @@ import type { AstroIntegration } from 'astro'
 
 import { fileURLToPath } from 'node:url'
 
-import {
-  discoverTranslatedPagePaths,
-  shouldIncludeSitemapPage,
-} from './src/lib/sitemap'
+import { findTranslations, includePage } from './src/lib/sitemap'
 
 // Every route below has zero locale-specific logic of its own — the shared
 // component it renders reads Astro.currentLocale itself. Rather than
@@ -80,7 +77,7 @@ function injectEnRoutes(): AstroIntegration {
   }
 }
 
-const translatedPagePaths = discoverTranslatedPagePaths(
+const translations = findTranslations(
   fileURLToPath(new URL('./src/content/', import.meta.url)),
 )
 
@@ -90,7 +87,7 @@ export default defineConfig({
     mdx(),
     react(),
     sitemap({
-      filter: (page) => shouldIncludeSitemapPage(page, translatedPagePaths),
+      filter: (page) => includePage(page, translations),
     }),
     icon(),
     injectEnRoutes(),

@@ -1,5 +1,5 @@
 ---
-import { serializeJsonLd } from '@/lib/json-ld'
+import * as jsonLd from '@/lib/json-ld'
 
 interface Props {
   data: unknown
@@ -8,4 +8,8 @@ interface Props {
 const { data } = Astro.props
 ---
 
-<script type="application/ld+json" is:inline set:html={serializeJsonLd(data)} />
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={jsonLd.stringify(data)}
+/>
