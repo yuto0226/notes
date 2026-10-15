@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 import {
   discoverTranslatedPagePaths,
   shouldIncludeSitemapPage,
-} from './src/lib/sitemap-policy'
+} from './src/lib/sitemap'
 
 // Every route below has zero locale-specific logic of its own — the shared
 // component it renders reads Astro.currentLocale itself. Rather than

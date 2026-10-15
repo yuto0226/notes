@@ -5,7 +5,7 @@ import { parseFrontmatter } from '@astrojs/markdown-remark'
 
 export type ContentCollection = 'notes' | 'essays'
 
-const PATH_NORMALIZATION_ORIGIN = 'https://sitemap-policy.invalid'
+const PATH_NORMALIZATION_ORIGIN = 'https://sitemap.invalid'
 
 function normalizePath(path: string): string {
   const withForwardSlashes = path.replaceAll('\\', '/')
