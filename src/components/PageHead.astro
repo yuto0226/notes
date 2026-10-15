@@ -39,6 +39,7 @@ const locale = Astro.currentLocale ?? defaultLang
     <JsonLd
       data={buildWebSiteSchema({
         name: SITE.title,
+        alternateNames: SITE.alternateNames,
         url: new URL('/', SITE.href).href,
       })}
     />
