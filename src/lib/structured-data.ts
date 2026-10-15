@@ -10,6 +10,7 @@ export type StructuredDataBreadcrumb = {
 
 type WebSiteSchemaInput = {
   name: string
+  alternateNames: string[]
   url: string
 }
 
@@ -30,12 +31,14 @@ export function serializeJsonLd(value: unknown): string {
 
 export function buildWebSiteSchema({
   name,
+  alternateNames,
   url,
 }: WebSiteSchemaInput): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name,
+    alternateName: alternateNames,
     url,
   }
 }

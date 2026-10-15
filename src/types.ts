@@ -1,5 +1,6 @@
 export type Site = {
   title: string
+  alternateNames: string[]
   description: string
   href: string
   author: string

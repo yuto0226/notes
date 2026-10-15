@@ -2,6 +2,7 @@ import type { IconMap, NavLink, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
   title: "Yuto's Notes",
+  alternateNames: ['Yuto0226', "Yuto0226's Notes", 'blog.yuto0226.dev'],
   description: 'Yuto 的筆記、writeups 和文章們',
   href: 'https://blog.yuto0226.dev',
   author: 'Yuto',
