@@ -18,14 +18,21 @@ const locale = Astro.currentLocale ?? defaultLang
 const t = useTranslations(locale)
 const isFirstPage = page.currentPage === 1
 const title = isFirstPage
-  ? t('common.essays')
-  : t('common.pagedTitle', { title: t('common.essays'), n: page.currentPage })
+  ? t('seo.essays.title')
+  : t('common.pagedTitle', {
+      title: t('seo.essays.title'),
+      n: page.currentPage,
+    })
 const essaysHref = localeHref(locale, '/essays')
 const baseUrl = localeHref(locale, '/essays/')
 ---
 
 <Layout class="max-w-4xl">
-  <PageHead slot="head" title={title} description={t('essays.description')} />
+  <PageHead
+    slot="head"
+    title={title}
+    description={t('seo.essays.description')}
+  />
   <Breadcrumbs
     items={isFirstPage
       ? [{ label: t('common.essays'), icon: 'lucide:feather' }]

@@ -14,13 +14,25 @@ export const ui = {
   'common.authors': 'Authors',
   'common.about': 'About',
   'common.page': 'Page {n}',
-  'common.pagedTitle': '{title} — Page {n}',
+  'common.pagedTitle': '{title} · Page {n}',
   'common.present': 'Present',
 
   'home.recentEssays': 'Recent Essays',
   'home.seeAll': 'See all →',
   'home.pinnedPosts': 'Pinned posts',
   'home.latestNotes': 'Latest Notes',
+
+  'seo.home.description':
+    'Yuto (yuto0226) organizes notes here and writes personal perspectives on things that interest him. Most of the content relates to information security and systems security.',
+  'seo.about.title': 'About Yuto',
+  'seo.about.description':
+    "Yuto (yuto0226) studies information security at NTHU and interns with TeamT5's Detection Team. He researches malware and attack detection, has won two AIS3 Best Project Awards and a Cyber Golden Shield Standout Award, and contributes to security and open-source communities.",
+  'seo.notes.title': 'Notes & Writeups',
+  'seo.notes.description':
+    'Notes and writeups primarily covering security, systems, reverse engineering, and CTF, alongside other material kept for reference, reuse, and continuation.',
+  'seo.essays.title': 'Essays',
+  'seo.essays.description':
+    'Essays by Yuto on personal experiences, technology, and everyday life, shaped from observations and personal perspectives.',
 
   'series.empty': 'No notes have been published in this series yet.',
 
@@ -49,9 +61,6 @@ export const ui = {
 
   'essays.noEntries':
     'The thoughts are still in mind, waiting quietly to become words.',
-  'essays.description':
-    'Personal reflections, daily life, travel, and brief ideas.',
-
   'footer.copyright': '© {year} All rights reserved.',
   'footer.madeWithPrefix': 'Made with 🤍 by',
   'footer.madeWithSuffix': '!',

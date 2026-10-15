@@ -10,7 +10,7 @@ export const ui = {
   'common.authors': '作者',
   'common.about': '關於',
   'common.page': '第 {n} 頁',
-  'common.pagedTitle': '{title} — 第 {n} 頁',
+  'common.pagedTitle': '{title} · 第 {n} 頁',
   // Intentionally the same in every locale. "Present" for an ongoing
   // project/milestone isn't being translated, just kept out of two
   // hardcoded copies (ProjectCard, formatMilestoneDateRange).
@@ -20,6 +20,18 @@ export const ui = {
   'home.seeAll': '檢視全部 →',
   'home.pinnedPosts': '置頂文章',
   'home.latestNotes': '最新筆記',
+
+  'seo.home.description':
+    'Yuto（yuto0226）在這裡整理筆記，也寫下對感興趣事物的個人觀點。內容大多和資訊安全、系統安全有關。',
+  'seo.about.title': '關於 Yuto',
+  'seo.about.description':
+    'Yuto（yuto0226）現就讀於國立清華大學資訊安全研究所，並於 TeamT5 Detection Team 實習。曾參與惡意程式分析與攻擊偵測研究，兩度獲得 AIS3 最佳專題獎，亦於資安金盾獎獲頒「鋒芒畢露獎」，並持續參與資訊安全與開源社群。',
+  'seo.notes.title': 'Notes & Writeups',
+  'seo.notes.description':
+    '以資訊安全、系統、逆向工程與 CTF 等技術內容為主，也收錄可供查閱、延續與重用的各類筆記。',
+  'seo.essays.title': 'Essays',
+  'seo.essays.description':
+    '收錄 Yuto 對個人經驗、技術與生活的觀察，以及整理成篇的想法與觀點。',
 
   'series.empty': '此系列尚未發布任何筆記。',
 
@@ -47,8 +59,6 @@ export const ui = {
   'authors.noAuthors': '找不到作者。',
 
   'essays.noEntries': '想法還在腦中，靜靜等待成為文字。',
-  'essays.description': '個人的反思、日常生活、旅行與零碎的想法。',
-
   'footer.copyright': '© {year} 版權所有',
   'footer.madeWithPrefix': '此網站由',
   'footer.madeWithSuffix': '用 🤍 打造！',
